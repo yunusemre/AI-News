@@ -129,6 +129,18 @@ const ATOM = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><ti
     assert.strictEqual(r2.stats.added, 2);
   });
 
+  await test("runPipeline: learn kategorisi + kaynak bazında maxAgeHours", async () => {
+    const OLD = `<?xml version="1.0"?><rss version="2.0"><channel><title>b</title>
+<item><title>Building a production RAG pipeline with rerankers</title><link>https://blog.ex/rag</link><pubDate>${rfc(NOW - 5 * 86400)}</pubDate></item>
+</channel></rss>`;
+    const d = { ...deps(), fetchText: async () => OLD };
+    const r1 = await runPipeline({ sources: { b: { name: "Blog", url: "x", category: "learn" } }, config: {}, state: { seen: {} }, deps: d });
+    assert.strictEqual(r1.stats.added, 0, "48 saatten eski olmalıydı");
+    const r2 = await runPipeline({ sources: { b: { name: "Blog", url: "x", category: "learn", maxAgeHours: 336 } }, config: {}, state: { seen: {} }, deps: d });
+    assert.strictEqual(r2.stats.added, 1);
+    assert.strictEqual(Object.values(r2.articles)[0].cat, "learn");
+  });
+
   // ---------------------------------------------------------------- ingestOnce (sahte RTDB)
   console.log("ingest (sahte RTDB)");
   const fakeDb = (data) => {

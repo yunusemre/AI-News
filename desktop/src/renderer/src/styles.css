@@ -2,13 +2,13 @@
   :root {
     --bg: #f5f5f7; --panel: #ffffff; --side: #ececef; --text: #1d1d1f; --muted: #6e6e73;
     --line: #e2e2e6; --accent: #0a66d8; --accent-soft: #e6f0fc; --hover: #f0f0f3;
-    --lab: #7a4cd9; --dev: #0f8a5f; --general: #c46a00; --reader-bg: #ffffff;
+    --lab: #7a4cd9; --dev: #0f8a5f; --general: #c46a00; --learn: #0a7ea4; --reader-bg: #ffffff;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #1c1c1e; --panel: #232325; --side: #1a1a1c; --text: #f2f2f4; --muted: #9a9aa0;
       --line: #333336; --accent: #5aa2ff; --accent-soft: #1f3350; --hover: #2c2c2f;
-      --lab: #b28dff; --dev: #4cc995; --general: #ffad4d; --reader-bg: #1f1f21;
+      --lab: #b28dff; --dev: #4cc995; --general: #ffad4d; --learn: #4cc3e8; --reader-bg: #1f1f21;
     }
   }
   * { box-sizing: border-box; }
@@ -83,6 +83,7 @@
   .tag { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 5px; }
   .tag.lab { color: var(--lab); background: color-mix(in srgb, var(--lab) 13%, transparent); }
   .tag.dev { color: var(--dev); background: color-mix(in srgb, var(--dev) 13%, transparent); }
+  .tag.learn { color: var(--learn); background: color-mix(in srgb, var(--learn) 13%, transparent); }
   .tag.general { color: var(--general); background: color-mix(in srgb, var(--general) 13%, transparent); }
   .card .title { font-size: 15px; font-weight: 600; margin-top: 3px; }
   .card .desc { color: var(--muted); margin-top: 2px; }

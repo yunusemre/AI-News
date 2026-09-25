@@ -6,3 +6,4 @@ dist/
 *.log
 *-firebase-adminsdk-*.json
 service-account*.json
+.DS_Store

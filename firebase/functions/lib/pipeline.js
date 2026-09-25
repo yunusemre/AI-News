@@ -169,7 +169,8 @@ async function runPipeline({ sources, config, state, deps }) {
       if (state.seen?.[h] || seenNew[h]) continue;
       seenNew[h] = now;
       if (kw.length && !kw.some((k) => `${it.title} ${it.summary}`.toLowerCase().includes(k))) continue;
-      if (it.ts && now - it.ts > cfg.maxAgeHours * 3600) continue;
+      const maxAge = (Number(src.maxAgeHours) || cfg.maxAgeHours) * 3600;   // kaynak bazında ezilebilir (bloglar için uzun)
+      if (it.ts && now - it.ts > maxAge) continue;
       if (it.ts && it.ts > now + 3600) it.ts = now;            // gelecekteki tarihleri düzelt
       if (isNoise(it.title, exclude) || isDuplicate(it.title, recentTitles)) { stats.skipped++; continue; }
       recentTitles.push(it.title);
@@ -177,7 +178,7 @@ async function runPipeline({ sources, config, state, deps }) {
         id: sha(it.link),
         sourceId: id,
         source: src.name || id,
-        cat: ["lab", "dev", "general"].includes(src.category) ? src.category : "general",
+        cat: ["lab", "dev", "general", "learn"].includes(src.category) ? src.category : "general",
         title_orig: it.title,
         desc_orig: shortDesc(it.summary, it.title),
         link: it.link,

@@ -8,6 +8,7 @@ const NAV: { cat: CatFilter; icon: string; label: string }[] = [
   { cat: "lab", icon: "🧪", label: "Lab & Şirket" },
   { cat: "dev", icon: "🛠️", label: "Geliştirici" },
   { cat: "general", icon: "📰", label: "Genel" },
+  { cat: "learn", icon: "🎓", label: "Öğren & Projeler" },
 ];
 
 interface Props {
