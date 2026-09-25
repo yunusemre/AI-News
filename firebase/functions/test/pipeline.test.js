@@ -2,7 +2,7 @@
 const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
-const { parseFeed, shortDesc, isNoise, isDuplicate, runPipeline, DEFAULT_EXCLUDE } = require("../lib/pipeline");
+const { parseFeed, parseHtmlLinks, shortDesc, isNoise, isDuplicate, runPipeline, DEFAULT_EXCLUDE } = require("../lib/pipeline");
 const { ingestOnce } = require("../lib/ingest");
 
 let passed = 0;
@@ -54,6 +54,28 @@ const ATOM = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><ti
     const items = parseFeed(xml);
     assert.ok(items.length > 50, `sadece ${items.length}`);
     assert.ok(items.every((i) => i.link.startsWith("https://")));
+  });
+
+  await test("HTML kaynak: /p/ linklerini çıkarır, tekrarları birleştirir", () => {
+    const html = `<html><body>
+      <a href="/p/meta-takes-chatgpt-s-crown"><img src="x.png"></a>
+      <a href="/p/meta-takes-chatgpt-s-crown?utm=1"><div><h3>Meta takes ChatGPT&#39;s crown</h3><p>Sub text here</p></div></a>
+      <a href="https://newsletter.ex.com/p/taaft-prompt-pack-is-here">TAAFT Prompt Pack is here</a>
+      <a href="/subscribe">Subscribe to our newsletter today</a>
+      <a href="/p/x">short</a></body></html>`;
+    const items = parseHtmlLinks(html, "https://newsletter.ex.com/", "/p/[a-z0-9-]+");
+    assert.deepStrictEqual(items.map((i) => i.title), ["Meta takes ChatGPT's crown", "TAAFT Prompt Pack is here"]);
+    assert.strictEqual(items[0].link, "https://newsletter.ex.com/p/meta-takes-chatgpt-s-crown");
+  });
+
+  await test("runPipeline: html türü kaynak", async () => {
+    const html = `<a href="/p/new-ai-tools-this-week-roundup-special"><h2>Five new AI agents you should try</h2></a>`;
+    const r = await runPipeline({ sources: { t: { name: "TAAFT", url: "https://nl.ex/", type: "html", linkPattern: "/p/", category: "learn" } },
+      config: {}, state: { seen: {} }, deps: { fetchText: async () => html, translate: async (t) => t, now: () => NOW, log: () => {} } });
+    assert.strictEqual(r.stats.added, 1);
+    const a = Object.values(r.articles)[0];
+    assert.strictEqual(a.link, "https://nl.ex/p/new-ai-tools-this-week-roundup-special");
+    assert.strictEqual(a.ts, NOW);
   });
 
   await test("Bozuk XML → boş liste", () => {

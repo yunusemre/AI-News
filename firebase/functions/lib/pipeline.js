@@ -70,6 +70,31 @@ function parseFeed(xml) {
   return out;
 }
 
+/**
+ * RSS'i olmayan siteler için: sayfadaki yazı linklerini çıkarır.
+ * linkPattern: yazı adreslerine uyan regex (örn. "/p/[a-z0-9-]+")
+ * Başlık, linkin içindeki metinden alınır; aynı link birden çok kez geçiyorsa en uzun metin kullanılır.
+ */
+function parseHtmlLinks(html, baseUrl, linkPattern) {
+  const re = new RegExp(linkPattern || ".", "i");
+  const found = new Map();
+  const aRe = /<a\b[^>]*href\s*=\s*["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  let m;
+  while ((m = aRe.exec(String(html)))) {
+    let url;
+    try { url = new URL(decodeEntities(m[1]), baseUrl); } catch { continue; }
+    if (!/^https?:$/.test(url.protocol) || !re.test(url.pathname)) continue;
+    url.hash = ""; url.search = "";
+    const link = url.href;
+    // Başlık: önce h1-h4 içindeki metin, yoksa tüm link metni
+    const h = m[2].match(/<h[1-4][^>]*>([\s\S]*?)<\/h[1-4]>/i);
+    const title = clean(h ? h[1] : m[2]).slice(0, 200);
+    const prev = found.get(link);
+    if (!prev || title.length > prev.title.length) found.set(link, { guid: link, title, link, ts: null, summary: "" });
+  }
+  return [...found.values()].filter((x) => x.title.length >= 12);
+}
+
 // ------------------------------------------------------------------ sadeleştirme
 const DEFAULT_EXCLUDE = [
   "\\bsponsored\\b", "\\bwebinar\\b", "\\bpodcast\\b", "\\bnewsletter\\b", "\\bepisode\\b",
@@ -152,7 +177,8 @@ async function runPipeline({ sources, config, state, deps }) {
       try {
         const xml = await deps.fetchText(src.url);
         if (!xml) throw new Error("boş yanıt");
-        return { id, src, items: parseFeed(xml) };
+        const items = src.type === "html" ? parseHtmlLinks(xml, src.url, src.linkPattern) : parseFeed(xml);
+        return { id, src, items };
       } catch (e) {
         stats.errors[id] = String(e.message || e).slice(0, 200);
         return { id, src, items: [] };
@@ -210,4 +236,4 @@ async function runPipeline({ sources, config, state, deps }) {
   return { articles, seen: seenNew, stats };
 }
 
-module.exports = { parseFeed, shortDesc, isNoise, isDuplicate, runPipeline, sha, DEFAULT_CONFIG, DEFAULT_EXCLUDE, clean };
+module.exports = { parseFeed, parseHtmlLinks, shortDesc, isNoise, isDuplicate, runPipeline, sha, DEFAULT_CONFIG, DEFAULT_EXCLUDE, clean };

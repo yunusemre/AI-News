@@ -121,5 +121,13 @@
     "maxAgeHours": 48,
     "category": "learn",
     "enabled": true
+  },
+  "theresanaiforthat": {
+    "name": "There's An AI For That",
+    "url": "https://newsletter.theresanaiforthat.com/",
+    "type": "html",
+    "linkPattern": "^/p/[a-z0-9-]+$",
+    "category": "learn",
+    "enabled": true
   }
 }
