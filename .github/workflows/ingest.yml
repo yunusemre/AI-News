@@ -1,10 +1,10 @@
-# Haber toplayıcı — her 30 dakikada bir kaynakları tarar, Türkçeye çevirir, Firebase RTDB'ye yazar.
+# Haber toplayıcı — günde 3 kez (09:00, 14:00, 20:00 TR) kaynakları tarar, Türkçeye çevirir, Firebase RTDB'ye yazar.
 # Gerekli secret: FIREBASE_SERVICE_ACCOUNT
 name: Haber toplayıcı
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "0 6,11,17 * * *"     # 09:00, 14:00, 20:00 (Türkiye saati, UTC+3)
   workflow_dispatch: {}
 
 concurrency:
