@@ -1,0 +1,33 @@
+appId: com.yunusemretatar.ai-haberleri
+productName: AI Haberleri
+directories:
+  buildResources: resources
+  output: dist
+files:
+  - out/**
+  - package.json
+  - "!**/*.map"
+asarUnpack: []
+electronLanguages: [tr, en]
+mac:
+  icon: resources/icon.png
+  category: public.app-category.news
+  darkModeSupport: true
+  target:
+    - target: dmg
+    - target: zip
+  # Apple Developer hesabı olmadan: ad-hoc imza (sadece kendi Mac'lerinde çalışır)
+  identity: "-"
+  hardenedRuntime: false
+  notarize: false
+dmg:
+  title: AI Haberleri
+win:
+  icon: resources/icon.png
+  target: [nsis]
+nsis:
+  oneClick: true
+  perMachine: false
+linux:
+  target: [AppImage]
+  category: News

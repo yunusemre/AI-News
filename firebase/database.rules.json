@@ -1,0 +1,30 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "articles": {
+      ".read": true,
+      ".indexOn": [
+        "ts",
+        "cat",
+        "sourceId"
+      ]
+    },
+    "meta": {
+      ".read": true
+    },
+    "digests": {
+      ".read": true
+    },
+    "seen": {
+      ".indexOn": [
+        ".value"
+      ]
+    },
+    "bodies": {
+      ".indexOn": [
+        "ts"
+      ]
+    }
+  }
+}

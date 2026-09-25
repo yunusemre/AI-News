@@ -1,0 +1,71 @@
+{
+  "sources": {
+    "anthropic": {
+      "name": "Anthropic",
+      "url": "https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_news.xml",
+      "category": "lab",
+      "enabled": true
+    },
+    "openai": {
+      "name": "OpenAI",
+      "url": "https://openai.com/news/rss.xml",
+      "category": "lab",
+      "enabled": true
+    },
+    "google-deepmind": {
+      "name": "Google DeepMind",
+      "url": "https://deepmind.google/blog/rss.xml",
+      "category": "lab",
+      "enabled": true
+    },
+    "google-ai-blog": {
+      "name": "Google AI Blog",
+      "url": "https://blog.google/technology/ai/rss/",
+      "category": "lab",
+      "enabled": true
+    },
+    "hugging-face": {
+      "name": "Hugging Face",
+      "url": "https://huggingface.co/blog/feed.xml",
+      "category": "dev",
+      "enabled": true
+    },
+    "hacker-news": {
+      "name": "Hacker News",
+      "url": "https://hnrss.org/newest?points=150&q=AI+OR+LLM+OR+GPT+OR+Claude+OR+OpenAI+OR+Anthropic+OR+Gemini",
+      "category": "dev",
+      "enabled": true
+    },
+    "techcrunch-ai": {
+      "name": "TechCrunch AI",
+      "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+      "category": "general",
+      "enabled": true
+    },
+    "the-verge-ai": {
+      "name": "The Verge AI",
+      "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
+      "category": "general",
+      "enabled": true
+    },
+    "the-decoder": {
+      "name": "The Decoder",
+      "url": "https://the-decoder.com/feed/",
+      "category": "general",
+      "enabled": true
+    },
+    "venturebeat-ai": {
+      "name": "VentureBeat AI",
+      "url": "https://venturebeat.com/category/ai/feed/",
+      "category": "general",
+      "enabled": false
+    }
+  },
+  "config": {
+    "maxAgeHours": 48,
+    "retentionDays": 14,
+    "maxNewPerRun": 80,
+    "excludePatterns": [],
+    "targetLang": "tr"
+  }
+}
