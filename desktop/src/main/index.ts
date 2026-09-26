@@ -8,7 +8,7 @@ import { setupNotifications } from "./notifications";
 import { extractArticle, READER_PARTITION } from "./reader";
 import { translateArticle } from "./translate";
 import * as settings from "./settings";
-import { checkForUpdate, installUpdate } from "./updater";
+import * as updater from "./updater";
 import * as library from "./library";
 
 let win: BrowserWindow | null = null;
@@ -48,7 +48,7 @@ function createWindow(): void {
   win.on("resize", saveBounds);
   win.on("move", saveBounds);
   // macOS: pencere kapatılınca uygulama arka planda çalışmaya (ve bildirim göndermeye) devam eder
-  win.on("close", (e) => { if (process.platform === "darwin" && !quitting) { e.preventDefault(); win?.hide(); } });
+  win.on("close", (e) => { if (process.platform === "darwin" && !quitting) { e.preventDefault(); win?.hide(); updater.onWindowHidden(); } });
   win.webContents.on("will-navigate", (e, url) => { if (!url.startsWith("file:") && !url.startsWith(process.env.ELECTRON_RENDERER_URL || "@@")) e.preventDefault(); });
 }
 
@@ -90,6 +90,7 @@ ipcMain.handle("settings:set", (_e, patch: Partial<Settings>) => {
   if (typeof patch.notifications === "boolean") clean.notifications = patch.notifications;
   if (typeof patch.localDigestsDir === "string") clean.localDigestsDir = patch.localDigestsDir;
   if (patch.contentLang === "tr" || patch.contentLang === "orig") clean.contentLang = patch.contentLang;
+  if (typeof patch.autoUpdate === "boolean") clean.autoUpdate = patch.autoUpdate;
   if (typeof patch.openAtLogin === "boolean") {
     clean.openAtLogin = patch.openAtLogin;
     if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: patch.openAtLogin, args: ["--hidden"] });
@@ -106,8 +107,9 @@ ipcMain.handle("library:export", (_e, links: string[], title: string) => library
 ipcMain.on("library:index", (_e, link: string, title: string, source: string, text: string, minutes: number) =>
   library.indexText(String(link), String(title || ""), String(source || ""), String(text || "").slice(0, 80000), +minutes || 0));
 ipcMain.handle("app:version", () => app.getVersion());
-ipcMain.handle("update:check", () => checkForUpdate());
-ipcMain.handle("update:install", (_e, info) => installUpdate(info));
+ipcMain.handle("update:state", () => updater.getState());
+ipcMain.handle("update:check", () => updater.check(true));
+ipcMain.handle("update:install", () => updater.installNow());
 ipcMain.on("open-external", (_e, url: string) => { if (/^https?:/.test(url)) shell.openExternal(url); });
 ipcMain.on("badge", (_e, n: number) => {
   if (process.platform === "darwin") app.dock?.setBadge(n > 0 ? String(n) : "");
@@ -160,7 +162,7 @@ function buildMenu(): void {
 
 // ------------------------------------------------------------------ başlat
 app.on("second-instance", showWindow);
-app.on("before-quit", () => { quitting = true; library.flush(); });
+app.on("before-quit", () => { quitting = true; library.flush(); updater.onQuit(); });
 
 // Geliştirme modunda da Dock'ta uygulama ikonu görünsün
 app.whenReady().then(() => { if (process.platform === "darwin" && !app.isPackaged) app.dock?.setIcon(path.join(__dirname, "../../resources/icon.png")); });
@@ -170,6 +172,7 @@ app.whenReady().then(() => {
   buildMenu();
   createWindow();
   hub.start();
+  updater.start();
   setupNotifications(hub, (id) => (id ? send({ type: "open-article", id }) : showWindow()));
   app.on("activate", showWindow);
 });

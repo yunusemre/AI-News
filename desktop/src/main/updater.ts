@@ -1,13 +1,32 @@
-// Güncelleme: GitHub Releases'taki son sürümü kontrol eder, istenirse indirip kurar.
+// Güncelleme: GitHub Releases'taki son sürümü düzenli kontrol eder, arka planda indirir ve kurar.
 // Uygulama Apple Developer imzası taşımadığı için Squirrel/electron-updater yerine
 // basit bir yöntem kullanılır: .zip indirilir, uygulama kapanınca yenisi yerine kopyalanır.
-import { app } from "electron";
+//
+// Akış: kontrol → (otomatikse) indir → "hazır"
+//   - Pencere açıksa kullanıcıya "Yeniden başlat" düğmesi gösterilir; uygulamadan çıkınca da kurulur.
+//   - Uygulama arka plandaysa (pencere gizli) sessizce kurulup gizli olarak yeniden açılır.
+import { app, BrowserWindow } from "electron";
 import { spawn } from "child_process";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import type { Result, UpdateInfo } from "@shared/types";
+import type { Result, UpdateInfo, UpdateState } from "@shared/types";
 import { GITHUB_REPO } from "./config";
+import * as settings from "./settings";
+
+const CHECK_EVERY = 3 * 60 * 60 * 1000;   // 3 saat
+const FIRST_CHECK = 15 * 1000;
+
+let state: UpdateState = { status: "idle", current: app.getVersion() };
+let zipPath = "";
+let applying = false;
+let timer: NodeJS.Timeout | null = null;
+
+function set(patch: Partial<UpdateState>) {
+  state = { ...state, ...patch };
+  for (const w of BrowserWindow.getAllWindows()) if (!w.isDestroyed()) w.webContents.send("update:state", state);
+}
+export const getState = () => state;
 
 function newer(a: string, b: string): boolean {
   const pa = a.replace(/^v/, "").split(/[.-]/).map((x) => parseInt(x, 10) || 0);
@@ -16,27 +35,71 @@ function newer(a: string, b: string): boolean {
   return false;
 }
 
-export async function checkForUpdate(): Promise<UpdateInfo | null> {
+async function fetchLatest(): Promise<UpdateInfo | null> {
+  const r = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
+    headers: { Accept: "application/vnd.github+json", "User-Agent": "News-App" },
+  });
+  if (!r.ok) throw new Error(`GitHub yanıtı: HTTP ${r.status}`);
+  const rel = (await r.json()) as { tag_name: string; html_url: string; body?: string; assets?: { name: string; url: string; size: number }[] };
+  const current = app.getVersion();
+  if (!rel.tag_name || !newer(rel.tag_name, current)) return null;
+  const arch = process.arch === "arm64" ? "arm64" : "x64";
+  const zips = (rel.assets || []).filter((a) => a.name.endsWith(".zip") && a.name.includes("mac"));
+  const asset = zips.find((a) => a.name.includes(arch)) || zips.find((a) => !/arm64|x64/.test(a.name)) || zips[0];
+  return { version: rel.tag_name.replace(/^v/, ""), current, url: rel.html_url, assetUrl: asset?.url, size: asset?.size, notes: (rel.body || "").slice(0, 1500) };
+}
+
+const canInstall = () => process.platform === "darwin" && app.isPackaged;
+const windowVisible = () => BrowserWindow.getAllWindows().some((w) => !w.isDestroyed() && w.isVisible());
+
+/** Son sürümü kontrol eder; otomatik güncelleme açıksa indirir */
+export async function check(manual = false): Promise<UpdateState> {
+  if (state.status === "downloading" || state.status === "ready") return state;
+  set({ status: "checking", error: undefined });
   try {
-    const r = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
-      headers: { Accept: "application/vnd.github+json", "User-Agent": "AI-Haberleri" },
-    });
-    if (!r.ok) return null;
-    const rel = (await r.json()) as { tag_name: string; html_url: string; body?: string; assets?: { name: string; url: string; browser_download_url: string }[] };
-    const current = app.getVersion();
-    if (!rel.tag_name || !newer(rel.tag_name, current)) return null;
-    const arch = process.arch === "arm64" ? "arm64" : "x64";
-    const zips = (rel.assets || []).filter((a) => a.name.endsWith(".zip") && a.name.includes("mac"));
-    const asset = zips.find((a) => a.name.includes(arch)) || zips.find((a) => !/arm64|x64/.test(a.name)) || zips[0];
-    return { version: rel.tag_name.replace(/^v/, ""), current, url: rel.html_url, assetUrl: asset?.url, notes: (rel.body || "").slice(0, 1500) };
-  } catch {
-    return null;
+    const info = await fetchLatest();
+    if (!info) { set({ status: "latest", info: undefined, checkedAt: Date.now() }); return state; }
+    set({ status: "available", info, checkedAt: Date.now() });
+    if (canInstall() && info.assetUrl && (settings.load().autoUpdate || manual)) await download();
+  } catch (e) {
+    set({ status: "error", error: (e as Error).message });
+  }
+  return state;
+}
+
+async function download(): Promise<void> {
+  const info = state.info;
+  if (!info?.assetUrl) return;
+  set({ status: "downloading", progress: 0, error: undefined });
+  try {
+    const r = await fetch(info.assetUrl, { headers: { Accept: "application/octet-stream", "User-Agent": "News-App" } });
+    if (!r.ok || !r.body) throw new Error(`İndirme başarısız (HTTP ${r.status}).`);
+    const total = Number(r.headers.get("content-length")) || info.size || 0;
+    const file = path.join(os.tmpdir(), `news-update-${info.version}.zip`);
+    const out = fs.createWriteStream(file);
+    const reader = r.body.getReader();
+    let got = 0, lastPct = -1;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      got += value.length;
+      if (!out.write(value)) await new Promise<void>((res) => out.once("drain", () => res()));
+      const pct = total ? Math.floor((got / total) * 100) : 0;
+      if (pct !== lastPct && pct % 5 === 0) { lastPct = pct; set({ progress: pct }); }
+    }
+    await new Promise<void>((res, rej) => out.end((err?: Error | null) => (err ? rej(err) : res())));
+    zipPath = file;
+    set({ status: "ready", progress: 100 });
+    // Kullanıcı uygulamayı arka planda tutuyorsa beklemeden kur
+    if (!windowVisible()) apply(true, true);
+  } catch (e) {
+    set({ status: "error", error: "Güncelleme indirilemedi: " + (e as Error).message });
   }
 }
 
 const SCRIPT = `#!/bin/bash
-# $1 = indirilen zip, $2 = uygulama yolu, $3 = kapanmasını beklenecek PID
-ZIP="$1"; APP_PATH="$2"; PID="$3"
+# $1 = indirilen zip, $2 = uygulama yolu, $3 = kapanmasını beklenecek PID, $4 = yeniden aç (1/0), $5 = gizli aç (1/0)
+ZIP="$1"; APP_PATH="$2"; PID="$3"; RELAUNCH="$4"; HIDDEN="$5"
 TMP="$(mktemp -d)"
 ditto -xk "$ZIP" "$TMP/x" || exit 1
 NEW="$(find "$TMP/x" -maxdepth 2 -name '*.app' | head -1)"
@@ -48,28 +111,50 @@ rm -rf "$APP_PATH" "$DEST"
 ditto "$NEW" "$DEST"
 xattr -dr com.apple.quarantine "$DEST" 2>/dev/null
 codesign --force --deep --sign - "$DEST" >/dev/null 2>&1
-open "$DEST"
+if [ "$RELAUNCH" = "1" ]; then
+  if [ "$HIDDEN" = "1" ]; then open -g "$DEST" --args --hidden; else open "$DEST"; fi
+fi
 rm -rf "$TMP" "$ZIP"
 `;
 
-export async function installUpdate(info: UpdateInfo): Promise<Result<null>> {
-  if (process.platform !== "darwin") return { ok: false, error: "Otomatik kurulum şimdilik sadece macOS'ta." };
-  if (!app.isPackaged) return { ok: false, error: "Geliştirme modunda güncelleme kurulamaz." };
-  if (!info?.assetUrl) return { ok: false, error: "Bu sürüm için indirilebilir dosya bulunamadı." };
+/** İndirilen sürümü kurar. relaunch=false: sadece çıkışta kur, yeniden açma */
+function apply(relaunch: boolean, hidden = false): Result<null> {
+  if (applying) return { ok: true, data: null };
+  if (!canInstall()) return { ok: false, error: app.isPackaged ? "Otomatik kurulum şimdilik sadece macOS'ta." : "Geliştirme modunda güncelleme kurulamaz." };
+  if (!zipPath || !fs.existsSync(zipPath)) return { ok: false, error: "İndirilen dosya bulunamadı, tekrar dene." };
   // Çalışan uygulamanın .app yolu: .../News.app/Contents/MacOS/News
   const appPath = path.resolve(app.getPath("exe"), "../../..");
   if (!appPath.endsWith(".app")) return { ok: false, error: "Uygulama yolu bulunamadı." };
-  try {
-    const r = await fetch(info.assetUrl, { headers: { Accept: "application/octet-stream", "User-Agent": "AI-Haberleri" } });
-    if (!r.ok) return { ok: false, error: `İndirme başarısız (HTTP ${r.status}).` };
-    const zip = path.join(os.tmpdir(), `ai-haberleri-${info.version}.zip`);
-    fs.writeFileSync(zip, Buffer.from(await r.arrayBuffer()));
-    const script = path.join(os.tmpdir(), "ai-haberleri-update.sh");
-    fs.writeFileSync(script, SCRIPT, { mode: 0o755 });
-    spawn("/bin/bash", [script, zip, appPath, String(process.pid)], { detached: true, stdio: "ignore" }).unref();
-    setTimeout(() => app.quit(), 300);
-    return { ok: true, data: null };
-  } catch (e) {
-    return { ok: false, error: "Güncelleme indirilemedi: " + (e as Error).message };
+  applying = true;
+  const script = path.join(os.tmpdir(), "news-update.sh");
+  fs.writeFileSync(script, SCRIPT, { mode: 0o755 });
+  spawn("/bin/bash", [script, zipPath, appPath, String(process.pid), relaunch ? "1" : "0", hidden ? "1" : "0"], { detached: true, stdio: "ignore" }).unref();
+  if (relaunch) setTimeout(() => app.quit(), 300);
+  return { ok: true, data: null };
+}
+
+/** "Güncelle" düğmesi: gerekirse indirir, sonra kurup yeniden başlatır */
+export async function installNow(): Promise<Result<null>> {
+  if (state.status !== "ready") {
+    if (state.status !== "available") await check(true);
+    else await download();
   }
+  if (state.status !== "ready") return { ok: false, error: state.error || "Yeni sürüm bulunamadı." };
+  return apply(true);
+}
+
+/** Uygulamadan çıkarken indirilmiş güncelleme varsa kur (yeniden açmadan) */
+export function onQuit() {
+  if (state.status === "ready" && !applying) apply(false);
+}
+
+/** Pencere gizlenince (arka plana alınınca) hazır güncelleme varsa sessizce kur */
+export function onWindowHidden() {
+  if (state.status === "ready" && !applying) setTimeout(() => { if (!windowVisible()) apply(true, true); }, 60 * 1000);
+}
+
+export function start() {
+  if (timer) return;
+  setTimeout(() => check(), FIRST_CHECK);
+  timer = setInterval(() => check(), CHECK_EVERY);
 }

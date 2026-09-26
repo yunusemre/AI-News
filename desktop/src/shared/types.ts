@@ -19,7 +19,17 @@ export interface UpdateInfo {
   current: string;
   url: string;          // release sayfası
   assetUrl?: string;    // .zip (otomatik kurulum için)
+  size?: number;
   notes?: string;
+}
+
+export interface UpdateState {
+  status: "idle" | "checking" | "latest" | "available" | "downloading" | "ready" | "error";
+  current: string;
+  info?: UpdateInfo;
+  progress?: number;    // indirme yüzdesi
+  error?: string;
+  checkedAt?: number;
 }
 
 /** Firebase RTDB /articles/{id} kaydı (Cloud Function yazar) */
@@ -109,6 +119,7 @@ export interface Settings {
   openAtLogin: boolean;
   localDigestsDir: string;   // boşsa yerel özetler okunmaz
   contentLang: "tr" | "orig"; // bildirimlerde başlık dili (arayüzdeki "İçerik dili" ile eşlenir)
+  autoUpdate: boolean;        // yeni sürümü arka planda indirip kur
 }
 
 /** preload'ın window.api olarak açtığı arayüz */
@@ -124,8 +135,10 @@ export interface Api {
   setSettings(patch: Partial<Settings>): Promise<Settings>;
   onCommand(cb: (cmd: Command) => void): () => void;
   getVersion(): Promise<string>;
-  checkUpdate(): Promise<UpdateInfo | null>;
-  installUpdate(info: UpdateInfo): Promise<Result<null>>;
+  getUpdateState(): Promise<UpdateState>;
+  onUpdateState(cb: (s: UpdateState) => void): () => void;
+  checkUpdate(): Promise<UpdateState>;
+  installUpdate(): Promise<Result<null>>;
   // kütüphane
   getLibrary(): Promise<LibItem[]>;
   onLibrary(cb: (items: LibItem[]) => void): () => void;

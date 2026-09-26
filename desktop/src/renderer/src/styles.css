@@ -180,7 +180,7 @@
   .skeleton p.loading-text { height: auto; background: none; animation: none; }
 
   .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.28); display: grid; place-items: center; z-index: 20; }
-  .modal { width: 480px; max-width: calc(100% - 40px); background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+  .modal { width: 480px; max-width: calc(100% - 40px); max-height: calc(100vh - 40px); overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
   .modal h2 { margin: 0 0 14px; font-size: 17px; }
   .modal .row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--line); cursor: pointer; }
   .modal .row.col { flex-direction: column; gap: 4px; cursor: default; }
@@ -240,3 +240,11 @@
   .sel-pop button { border: 0; background: none; color: #fff; padding: 6px 11px; font-size: 12.5px; cursor: pointer; white-space: nowrap; }
   .sel-pop button + button { border-left: 1px solid rgba(255,255,255,.15); }
   .sel-pop button:hover { background: rgba(255,255,255,.12); }
+
+  /* ---------- güncelleme düğmesi (kenar çubuğu) ---------- */
+  .upd-btn { border: 0; border-radius: 7px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 600; padding: 6px 8px; cursor: pointer; text-align: left; margin-bottom: 4px; }
+  .upd-btn:hover { filter: brightness(1.08); }
+  .upd-btn:disabled { opacity: .8; cursor: default; }
+  .foot-row { display: flex; align-items: center; justify-content: space-between; }
+  .foot-row .ver { font-size: 11px; color: var(--muted); cursor: pointer; padding-top: 4px; }
+  .foot-row .ver:hover { color: var(--text); }

@@ -5,6 +5,7 @@ import { ago, digestLabel } from "../lib/format";
 import { newsCategoryIds } from "@shared/categories";
 import logo from "../assets/logo.png";
 import type { Library } from "../hooks/useLibrary";
+import { useUpdate } from "../hooks/useUpdate";
 
 
 
@@ -40,6 +41,7 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
     return { total: list.length, unread };
   };
 
+  const upd = useUpdate();
   const isActive = (cat: string) => active.kind === "news" && active.cat === cat;
   const conn = payload.connection;
   const updated = payload.meta.updated;
@@ -94,7 +96,16 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
           <span className="led" />{conn === "online" ? "Canlı" : conn === "offline" ? "Çevrimdışı" : "Bağlanıyor…"}
         </div>
         {updated ? <div>Son tarama: {ago(updated)}</div> : null}
-        <button className="link-btn" onClick={onSettings}>⚙︎ Ayarlar</button>
+        {upd.info && (upd.status === "available" || upd.status === "downloading" || upd.status === "ready") ? (
+          <button className="upd-btn" disabled={upd.status === "downloading"} onClick={() => window.api.installUpdate()}
+                  title={upd.status === "ready" ? "Kur ve yeniden başlat" : "İndir, kur ve yeniden başlat"}>
+            {upd.status === "downloading" ? `⬇︎ v${upd.info.version} %${upd.progress || 0}` : upd.status === "ready" ? `⟳ v${upd.info.version}: yeniden başlat` : `⬆︎ v${upd.info.version}: güncelle`}
+          </button>
+        ) : null}
+        <div className="foot-row">
+          <button className="link-btn" onClick={onSettings}>⚙︎ Ayarlar</button>
+          {upd.current && <span className="ver" title="Güncellemeleri denetle" onClick={() => window.api.checkUpdate()}>v{upd.current}{upd.status === "checking" ? " ↻" : ""}</span>}
+        </div>
       </div>
     </aside>
   );

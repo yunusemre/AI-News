@@ -1,21 +1,21 @@
 import { useEffect, useState } from "react";
 import type { Settings } from "@shared/types";
 import { useLang } from "../lib/lang";
+import { useUpdate } from "../hooks/useUpdate";
 
 export default function SettingsDialog({ onClose }: { onClose: () => void }) {
   const [s, setS] = useState<Settings | null>(null);
   const [dir, setDir] = useState("");
-  const [version, setVersion] = useState("");
-  const [upd, setUpd] = useState<string>("");
+  const u = useUpdate();
   const [lang, setLang] = useLang();
 
-  useEffect(() => { window.api.getSettings().then((x) => { setS(x); setDir(x.localDigestsDir); }); window.api.getVersion().then(setVersion); }, []);
-  const checkNow = async () => {
-    setUpd("Kontrol ediliyor…");
-    const info = await window.api.checkUpdate();
-    setUpd(info ? `Yeni sürüm var: v${info.version}` : "En güncel sürümü kullanıyorsun.");
-    if (info) window.dispatchEvent(new Event("aih:check-update"));
-  };
+  useEffect(() => { window.api.getSettings().then((x) => { setS(x); setDir(x.localDigestsDir); }); }, []);
+  const updText = u.status === "checking" ? "Kontrol ediliyor…"
+    : u.status === "latest" ? "En güncel sürümü kullanıyorsun."
+    : u.status === "available" ? `Yeni sürüm var: v${u.info?.version}`
+    : u.status === "downloading" ? `v${u.info?.version} indiriliyor… %${u.progress || 0}`
+    : u.status === "ready" ? `v${u.info?.version} indirildi, yeniden başlatınca kurulur.`
+    : u.status === "error" ? `⚠︎ ${u.error}` : "";
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
@@ -60,9 +60,19 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
 
         <div className="row col">
           <b>Sürüm</b>
-          <small>News v{version}. Yeni sürümler otomatik denetlenir.</small>
-          <div className="inline"><button className="btn" onClick={checkNow}>Güncellemeleri denetle</button><span className="muted small" style={{ alignSelf: "center" }}>{upd}</span></div>
+          <small>News v{u.current}. Yeni sürümler 3 saatte bir denetlenir.</small>
+          <div className="inline">
+            {u.status === "available" || u.status === "ready"
+              ? <button className="btn primary" onClick={() => window.api.installUpdate()}>{u.status === "ready" ? "Yeniden başlat ve kur" : "Güncelle"}</button>
+              : <button className="btn" disabled={u.status === "checking" || u.status === "downloading"} onClick={() => window.api.checkUpdate()}>Güncellemeleri denetle</button>}
+            <span className="muted small" style={{ alignSelf: "center" }}>{updText}</span>
+          </div>
         </div>
+
+        <label className="row">
+          <input type="checkbox" checked={s.autoUpdate} onChange={(e) => update({ autoUpdate: e.target.checked })} />
+          <div><b>Güncellemeleri otomatik kur</b><small>Yeni sürüm arka planda indirilir; uygulamadan çıkınca ya da pencere kapalıyken kendiliğinden kurulur.</small></div>
+        </label>
 
         <div className="modal-foot"><button className="btn primary" onClick={onClose}>Tamam</button></div>
       </div>

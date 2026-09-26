@@ -1,6 +1,6 @@
 // Arayüz ile ana süreç arasındaki güvenli köprü → window.api
 import { contextBridge, ipcRenderer } from "electron";
-import type { Api, Command, LibItem, Payload } from "@shared/types";
+import type { Api, Command, LibItem, Payload, UpdateState } from "@shared/types";
 
 const api: Api = {
   platform: process.platform,
@@ -17,8 +17,14 @@ const api: Api = {
   getSettings: () => ipcRenderer.invoke("settings:get"),
   setSettings: (patch) => ipcRenderer.invoke("settings:set", patch),
   getVersion: () => ipcRenderer.invoke("app:version"),
+  getUpdateState: () => ipcRenderer.invoke("update:state"),
+  onUpdateState: (cb) => {
+    const h = (_e: unknown, s: UpdateState) => cb(s);
+    ipcRenderer.on("update:state", h);
+    return () => ipcRenderer.removeListener("update:state", h);
+  },
   checkUpdate: () => ipcRenderer.invoke("update:check"),
-  installUpdate: (info) => ipcRenderer.invoke("update:install", info),
+  installUpdate: () => ipcRenderer.invoke("update:install"),
   getLibrary: () => ipcRenderer.invoke("library:get"),
   onLibrary: (cb) => {
     const h = (_e: unknown, l: LibItem[]) => cb(l);

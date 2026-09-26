@@ -1,40 +1,38 @@
-import { useEffect, useState } from "react";
-import type { UpdateInfo } from "@shared/types";
+import { useState } from "react";
+import { useUpdate } from "../hooks/useUpdate";
 
-const CHECK_EVERY = 6 * 60 * 60 * 1000; // 6 saat
-
-/** Yeni sürüm varsa üstte ince bir şerit gösterir. */
+/** Yeni sürüm bulununca / indirilince üstte ince bir şerit gösterir. */
 export default function UpdateBanner() {
-  const [info, setInfo] = useState<UpdateInfo | null>(null);
+  const u = useUpdate();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [hidden, setHidden] = useState(false);
+  const [hiddenFor, setHiddenFor] = useState("");
 
-  useEffect(() => {
-    const check = () => window.api.checkUpdate().then(setInfo).catch(() => {});
-    const first = setTimeout(check, 5000);
-    const t = setInterval(check, CHECK_EVERY);
-    const onCheck = () => check();
-    window.addEventListener("aih:check-update", onCheck);
-    return () => { clearTimeout(first); clearInterval(t); window.removeEventListener("aih:check-update", onCheck); };
-  }, []);
-
-  if (!info || hidden) return null;
+  const show = u.info && (u.status === "available" || u.status === "downloading" || u.status === "ready" || (u.status === "error" && u.info));
+  if (!show || hiddenFor === `${u.info!.version}:${u.status}`) return null;
 
   const install = async () => {
     setBusy(true); setError("");
-    const r = await window.api.installUpdate(info);
+    const r = await window.api.installUpdate();
     if (!r.ok) { setBusy(false); setError(r.error); }
   };
 
   return (
     <div className="update-bar">
-      <span>🎉 Yeni sürüm hazır: <b>v{info.version}</b> <span className="muted">(şu an v{info.current})</span></span>
-      {error && <span className="err">{error}</span>}
+      {u.status === "downloading"
+        ? <span>⬇︎ <b>v{u.info!.version}</b> indiriliyor… {u.progress ? `%${u.progress}` : ""}</span>
+        : u.status === "ready"
+          ? <span>✅ <b>v{u.info!.version}</b> hazır. Yeniden başlatınca kurulur <span className="muted">(çıkarken de otomatik kurulur)</span></span>
+          : <span>🎉 Yeni sürüm var: <b>v{u.info!.version}</b> <span className="muted">(şu an v{u.current})</span></span>}
+      {(error || (u.status === "error" && u.error)) && <span className="err">{error || u.error}</span>}
       <span style={{ flex: 1 }} />
-      <button className="link-btn" onClick={() => window.api.openExternal(info.url)}>Neler yeni?</button>
-      {info.assetUrl && <button className="btn primary" disabled={busy} onClick={install}>{busy ? "İndiriliyor…" : "Güncelle ve yeniden başlat"}</button>}
-      <button className="link-btn" onClick={() => setHidden(true)} title="Sonra">✕</button>
+      <button className="link-btn" onClick={() => window.api.openExternal(u.info!.url)}>Neler yeni?</button>
+      {u.info!.assetUrl && u.status !== "downloading" && (
+        <button className="btn primary" disabled={busy} onClick={install}>
+          {busy ? "Kuruluyor…" : u.status === "ready" ? "Şimdi yeniden başlat" : "Güncelle"}
+        </button>
+      )}
+      <button className="link-btn" onClick={() => setHiddenFor(`${u.info!.version}:${u.status}`)} title="Sonra">✕</button>
     </div>
   );
 }
