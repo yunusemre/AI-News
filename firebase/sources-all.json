@@ -129,5 +129,14 @@
     "linkPattern": "^/p/[a-z0-9-]+$",
     "category": "learn",
     "enabled": true
+  },
+  "toolify-daily": {
+    "name": "Toolify Daily AI News",
+    "url": "https://www.toolify.ai/daily-ai-news",
+    "type": "html",
+    "linkPattern": ".",
+    "externalOnly": true,
+    "category": "general",
+    "enabled": true
   }
 }

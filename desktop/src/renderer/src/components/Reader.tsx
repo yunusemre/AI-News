@@ -8,12 +8,14 @@ interface Props {
   article: Article | null;      // listedeki kayıt (varsa Türkçe başlık buradan)
   onBack: () => void;
   onOpen: (url: string) => void;
+  isFav: (link: string) => boolean;
+  toggleFav: (a: Article) => void;
 }
 
 type Load = { status: "loading" } | { status: "error"; error: string } | { status: "ok"; data: ReaderArticle; html: string };
 type Tr = { status: "idle" | "working" | "done" | "error"; html?: string; error?: string; title?: string };
 
-const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article, onBack, onOpen }, ref) {
+const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article, onBack, onOpen, isFav, toggleFav }, ref) {
   const [load, setLoad] = useState<Load>({ status: "loading" });
   const [mode, setMode] = useState<"reader" | "web">("reader");
   const [lang, setLang] = useState<"tr" | "orig">("tr");
@@ -71,6 +73,12 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
   }, [load, lang, tr, article]);
 
   const source = article?.source || hostOf(url);
+  // Listede olmayan (örn. özetten açılan) sayfalar için favori kaydı oluştur
+  const favItem: Article | null = article || (load.status === "ok" ? {
+    id: url, sourceId: "", source, cat: "general", title: load.data.title, title_orig: load.data.title,
+    desc: load.data.excerpt || "", link: url, ts: Math.floor(Date.now() / 1000), createdAt: Math.floor(Date.now() / 1000),
+  } : null);
+  const fav = isFav(url);
 
   return (
     <>
@@ -90,6 +98,8 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
           <button className={mode === "reader" ? "on" : ""} onClick={() => setMode("reader")}>Okuma</button>
           <button className={mode === "web" ? "on" : ""} onClick={() => setMode("web")}>Web sayfası</button>
         </div>
+        <button className={`btn star-btn ${fav ? "on" : ""}`} disabled={!favItem} onClick={() => favItem && toggleFav(favItem)}
+                title={fav ? "Favorilerden çıkar" : "Favorilere ekle"}>{fav ? "★" : "☆"}</button>
         <button className="btn" onClick={() => window.api.openExternal(url)} title="Tarayıcıda aç">↗</button>
       </header>
 

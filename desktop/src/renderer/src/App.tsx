@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Article, Category } from "@shared/types";
 import { usePayload } from "./hooks/usePayload";
 import { useReadState } from "./hooks/useReadState";
+import { useFavorites } from "./hooks/useFavorites";
 import Sidebar from "./components/Sidebar";
 import NewsView from "./components/NewsView";
 import DigestView from "./components/DigestView";
@@ -9,7 +10,7 @@ import Reader from "./components/Reader";
 import SettingsDialog from "./components/SettingsDialog";
 import { ToastProvider } from "./components/Toast";
 
-export type CatFilter = Category | "all";
+export type CatFilter = Category | "all" | "favorites";
 
 export type View =
   | { kind: "news"; cat: CatFilter }
@@ -19,6 +20,7 @@ export type View =
 export default function App() {
   const payload = usePayload();
   const { read, markRead } = useReadState();
+  const fav = useFavorites();
   const [view, setView] = useState<View>({ kind: "news", cat: "all" });
   const [prev, setPrev] = useState<Exclude<View, { kind: "reader" }>>({ kind: "news", cat: "all" });
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -41,8 +43,8 @@ export default function App() {
 
   const openReader = useCallback((url: string) => {
     markRead([url]);
-    navigate({ kind: "reader", url, article: byLink.get(url) || null });
-  }, [byLink, markRead, navigate]);
+    navigate({ kind: "reader", url, article: byLink.get(url) || fav.get(url) || null });
+  }, [byLink, fav, markRead, navigate]);
 
   const goBack = useCallback(() => {
     if (view.kind === "reader") setView(prev);
@@ -87,16 +89,17 @@ export default function App() {
         active={sidebarView}
         onSelect={navigate}
         onSettings={() => setSettingsOpen(true)}
+        favCount={fav.count}
       />
       <main>
         {view.kind === "news" && (
-          <NewsView ref={contentRef} cat={view.cat} articles={payload.articles} read={read} markRead={markRead} onOpen={openReader} />
+          <NewsView ref={contentRef} cat={view.cat} articles={view.cat === "favorites" ? fav.list : payload.articles} read={read} markRead={markRead} onOpen={openReader} isFav={fav.has} toggleFav={fav.toggle} />
         )}
         {view.kind === "digest" && (
           <DigestView ref={contentRef} digests={payload.digests} date={view.date} onOpen={openReader} />
         )}
         {view.kind === "reader" && (
-          <Reader key={view.url} ref={contentRef} url={view.url} article={view.article} onBack={goBack} onOpen={openReader} />
+          <Reader key={view.url} ref={contentRef} url={view.url} article={view.article} onBack={goBack} onOpen={openReader} isFav={fav.has} toggleFav={fav.toggle} />
         )}
       </main>
       {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}

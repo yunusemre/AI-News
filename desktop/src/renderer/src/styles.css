@@ -148,6 +148,14 @@
   .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 10; }
   .toast.show { opacity: .95; }
 
+  /* ---------- favoriler ---------- */
+  .card .star { border: 0; background: none; color: var(--muted); font-size: 16px; line-height: 1; padding: 0 2px; cursor: pointer; opacity: 0; transition: opacity .12s, transform .12s; }
+  .card:hover .star, .card .star.on { opacity: 1; }
+  .card .star:hover { transform: scale(1.2); color: #f5b400; }
+  .card .star.on { color: #f5b400; }
+  .btn.star-btn { font-size: 15px; line-height: 1; padding: 5px 9px; }
+  .btn.star-btn.on { color: #f5b400; }
+
   /* ---------- v2 eklemeleri ---------- */
   .muted { color: var(--muted); }
   .small { font-size: 12px; }

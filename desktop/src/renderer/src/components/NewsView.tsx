@@ -10,9 +10,11 @@ interface Props {
   read: Set<string>;
   markRead: (links: string[]) => void;
   onOpen: (url: string) => void;
+  isFav: (link: string) => boolean;
+  toggleFav: (a: Article) => void;
 }
 
-const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, articles, read, markRead, onOpen }, ref) {
+const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, articles, read, markRead, onOpen, isFav, toggleFav }, ref) {
   const [q, setQ] = useState("");
   const [unreadOnly, setUnreadOnly] = useState(false);
   const toast = useToast();
@@ -20,7 +22,7 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
   const list = useMemo(() => {
     const needle = q.trim().toLocaleLowerCase("tr");
     return articles.filter((a) =>
-      (cat === "all" || a.cat === cat) &&
+      (cat === "all" || cat === "favorites" || a.cat === cat) &&
       (!unreadOnly || !read.has(a.link)) &&
       (!needle || `${a.title} ${a.desc} ${a.title_orig} ${a.source}`.toLocaleLowerCase("tr").includes(needle)));
   }, [articles, cat, q, unreadOnly, read]);
@@ -55,7 +57,10 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
       </header>
 
       <div className="content" ref={ref}>
-        {!articles.length && (
+        {!articles.length && cat === "favorites" && (
+          <div className="empty"><b>Henüz favori yok</b>Bir haberi favorilere eklemek için kartındaki ☆ işaretine bas.</div>
+        )}
+        {!articles.length && cat !== "favorites" && (
           <div className="empty"><b>Henüz haber yok</b>Sunucu ilk taramayı yaptığında haberler burada görünecek.</div>
         )}
         {!!articles.length && !list.length && (
@@ -69,6 +74,8 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
                 <div className="meta">
                   <span className={`tag ${a.cat}`}>{CAT_LABEL[a.cat]}</span>{a.source}
                   <span className="time">{hm(a.ts)}</span>
+                  <button className={`star ${isFav(a.link) ? "on" : ""}`} title={isFav(a.link) ? "Favorilerden çıkar" : "Favorilere ekle"}
+                          onClick={(e) => { e.stopPropagation(); toggleFav(a); }}>{isFav(a.link) ? "★" : "☆"}</button>
                 </div>
                 <div className="title">{a.title}</div>
                 {a.desc && <div className="desc">{a.desc}</div>}

@@ -68,6 +68,16 @@ const ATOM = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><ti
     assert.strictEqual(items[0].link, "https://newsletter.ex.com/p/meta-takes-chatgpt-s-crown");
   });
 
+  await test("HTML kaynak (externalOnly): sadece dış haber linkleri", () => {
+    const html = `<a href="/tools">All AI tools directory list</a>
+      <a href="https://www.toolify.ai/category/writing">Writing tools category page</a>
+      <a href="https://twitter.com/toolify">Follow Toolify on Twitter today</a>
+      <a href="https://arstechnica.com/ai/2026/09/tesla-workers-balk/?utm=x">Tesla workers balk at training Optimus robots</a>
+      <a href="https://www.ithome.com/1/007/302.htm">Nadella says Copilot is a new operating system for work</a>`;
+    const items = parseHtmlLinks(html, "https://www.toolify.ai/daily-ai-news", ".", { externalOnly: true });
+    assert.deepStrictEqual(items.map((i) => i.link), ["https://arstechnica.com/ai/2026/09/tesla-workers-balk/", "https://www.ithome.com/1/007/302.htm"]);
+  });
+
   await test("runPipeline: html türü kaynak", async () => {
     const html = `<a href="/p/new-ai-tools-this-week-roundup-special"><h2>Five new AI agents you should try</h2></a>`;
     const r = await runPipeline({ sources: { t: { name: "TAAFT", url: "https://nl.ex/", type: "html", linkPattern: "/p/", category: "learn" } },

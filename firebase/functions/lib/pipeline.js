@@ -75,8 +75,11 @@ function parseFeed(xml) {
  * linkPattern: yazı adreslerine uyan regex (örn. "/p/[a-z0-9-]+")
  * Başlık, linkin içindeki metinden alınır; aynı link birden çok kez geçiyorsa en uzun metin kullanılır.
  */
-function parseHtmlLinks(html, baseUrl, linkPattern) {
+const SOCIAL_HOSTS = /(^|\.)(twitter|x|facebook|linkedin|instagram|youtube|discord|t|reddit|tiktok|github|apple|google|play\.google)\.(com|me|gg)$/i;
+
+function parseHtmlLinks(html, baseUrl, linkPattern, opts = {}) {
   const re = new RegExp(linkPattern || ".", "i");
+  const baseHost = (() => { try { return new URL(baseUrl).hostname.replace(/^www\./, ""); } catch { return ""; } })();
   const found = new Map();
   const aRe = /<a\b[^>]*href\s*=\s*["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
   let m;
@@ -84,7 +87,11 @@ function parseHtmlLinks(html, baseUrl, linkPattern) {
     let url;
     try { url = new URL(decodeEntities(m[1]), baseUrl); } catch { continue; }
     if (!/^https?:$/.test(url.protocol) || !re.test(url.pathname)) continue;
-    url.hash = ""; url.search = "";
+    const host = url.hostname.replace(/^www\./, "");
+    // externalOnly: haber toplayıcı siteler (örn. Toolify) — sadece kaynak sitelere giden linkler
+    if (opts.externalOnly && (host === baseHost || host.endsWith("." + baseHost) || SOCIAL_HOSTS.test(host))) continue;
+    url.hash = "";
+    if (!opts.keepQuery) url.search = "";
     const link = url.href;
     // Başlık: önce h1-h4 içindeki metin, yoksa tüm link metni
     const h = m[2].match(/<h[1-4][^>]*>([\s\S]*?)<\/h[1-4]>/i);
@@ -177,7 +184,7 @@ async function runPipeline({ sources, config, state, deps }) {
       try {
         const xml = await deps.fetchText(src.url);
         if (!xml) throw new Error("boş yanıt");
-        const items = src.type === "html" ? parseHtmlLinks(xml, src.url, src.linkPattern) : parseFeed(xml);
+        const items = src.type === "html" ? parseHtmlLinks(xml, src.url, src.linkPattern, { externalOnly: !!src.externalOnly, keepQuery: !!src.keepQuery }) : parseFeed(xml);
         return { id, src, items };
       } catch (e) {
         stats.errors[id] = String(e.message || e).slice(0, 200);

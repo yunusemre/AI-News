@@ -1,7 +1,7 @@
 import type { Category } from "@shared/types";
 
 export const CAT_LABEL: Record<Category, string> = { lab: "Lab", dev: "Geliştirici", general: "Genel", learn: "Öğren" };
-export const CAT_TITLE: Record<Category | "all", string> = { all: "Tümü", lab: "Lab & Şirket", dev: "Geliştirici", general: "Genel", learn: "Öğren & Projeler" };
+export const CAT_TITLE: Record<Category | "all" | "favorites", string> = { all: "Tümü", favorites: "Favoriler", lab: "Lab & Şirket", dev: "Geliştirici", general: "Genel", learn: "Öğren & Projeler" };
 
 export const dayKey = (ts: number) => { const d = new Date(ts * 1000); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
 

@@ -17,9 +17,10 @@ interface Props {
   active: Exclude<View, { kind: "reader" }>;
   onSelect: (v: View) => void;
   onSettings: () => void;
+  favCount: number;
 }
 
-export default function Sidebar({ payload, read, active, onSelect, onSettings }: Props) {
+export default function Sidebar({ payload, read, active, onSelect, onSettings, favCount }: Props) {
   // "x dk önce" metnini canlı tut
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 60000); return () => clearInterval(t); }, []);
@@ -48,6 +49,11 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings }:
           </div>
         );
       })}
+
+      <div className={`nav ${active.kind === "news" && active.cat === "favorites" ? "active" : ""}`}
+           onClick={() => onSelect({ kind: "news", cat: "favorites" })}>
+        <span className="ico">⭐</span>Favoriler<span className="count">{favCount || ""}</span>
+      </div>
 
       <div className="section">Günlük Özetler</div>
       {payload.digests.length === 0 && <div className="nav muted"><span className="ico">·</span>Henüz özet yok</div>}
