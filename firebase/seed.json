@@ -191,6 +191,76 @@
       "category": "learn",
       "maxAgeHours": 336,
       "enabled": true
+    },
+    "anthropic-engineering": {
+      "name": "Anthropic Engineering",
+      "url": "https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_engineering.xml",
+      "category": "lab",
+      "enabled": true,
+      "maxAgeHours": 336
+    },
+    "anthropic-research": {
+      "name": "Anthropic Research",
+      "url": "https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_research.xml",
+      "category": "lab",
+      "enabled": true,
+      "maxAgeHours": 336
+    },
+    "openai-research": {
+      "name": "OpenAI Research",
+      "url": "https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_openai_research.xml",
+      "category": "lab",
+      "enabled": true,
+      "maxAgeHours": 336
+    },
+    "mistral": {
+      "name": "Mistral AI",
+      "url": "https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_mistral.xml",
+      "category": "lab",
+      "enabled": true,
+      "maxAgeHours": 336
+    },
+    "cursor-blog": {
+      "name": "Cursor Blog",
+      "url": "https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_cursor.xml",
+      "category": "dev",
+      "enabled": true,
+      "maxAgeHours": 336
+    },
+    "ollama-blog": {
+      "name": "Ollama Blog",
+      "url": "https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_ollama.xml",
+      "category": "dev",
+      "enabled": true,
+      "maxAgeHours": 336
+    },
+    "google-research": {
+      "name": "Google Research",
+      "url": "https://research.google/blog/rss/",
+      "category": "learn",
+      "enabled": true,
+      "maxAgeHours": 336
+    },
+    "interconnects": {
+      "name": "Interconnects (Nathan Lambert)",
+      "url": "https://www.interconnects.ai/feed",
+      "category": "learn",
+      "enabled": true,
+      "maxAgeHours": 336
+    },
+    "the-gradient": {
+      "name": "The Gradient",
+      "url": "https://thegradient.pub/rss/",
+      "category": "learn",
+      "enabled": true,
+      "maxAgeHours": 336
+    },
+    "karpathy": {
+      "name": "Andrej Karpathy",
+      "url": "https://karpathy.bearblog.dev/feed/",
+      "category": "learn",
+      "enabled": true,
+      "maxAgeHours": 336
     }
   },
   "config": {
