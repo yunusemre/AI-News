@@ -1,6 +1,6 @@
 // Arayüz ile ana süreç arasındaki güvenli köprü → window.api
 import { contextBridge, ipcRenderer } from "electron";
-import type { Api, Command, LibItem, Payload, UpdateState } from "@shared/types";
+import type { Api, Command, LibItem, Payload, UpdateState, WordEntry } from "@shared/types";
 
 const api: Api = {
   platform: process.platform,
@@ -25,6 +25,18 @@ const api: Api = {
   },
   checkUpdate: () => ipcRenderer.invoke("update:check"),
   installUpdate: () => ipcRenderer.invoke("update:install"),
+  lookupWord: (w, ctx) => ipcRenderer.invoke("dict:lookup", w, ctx),
+  getWords: () => ipcRenderer.invoke("words:get"),
+  onWords: (cb) => {
+    const h = (_e: unknown, l: WordEntry[]) => cb(l);
+    ipcRenderer.on("words", h);
+    return () => ipcRenderer.removeListener("words", h);
+  },
+  saveWord: (e) => ipcRenderer.invoke("words:save", e),
+  removeWord: (w) => ipcRenderer.invoke("words:remove", w),
+  setLearned: (w, v) => ipcRenderer.invoke("words:learned", w, v),
+  exportWords: () => ipcRenderer.invoke("words:export"),
+  shareMenu: (p) => ipcRenderer.send("share:menu", p),
   getLibrary: () => ipcRenderer.invoke("library:get"),
   onLibrary: (cb) => {
     const h = (_e: unknown, l: LibItem[]) => cb(l);

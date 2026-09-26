@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Settings } from "@shared/types";
 import { useLang } from "../lib/lang";
 import { useUpdate } from "../hooks/useUpdate";
+import { settingsChanged } from "../hooks/useWatch";
 
 export default function SettingsDialog({ onClose }: { onClose: () => void }) {
   const [s, setS] = useState<Settings | null>(null);
@@ -23,7 +24,9 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const update = async (patch: Partial<Settings>) => setS(await window.api.setSettings(patch));
+  const update = async (patch: Partial<Settings>) => { setS(await window.api.setSettings(patch)); settingsChanged(); };
+  const [ww, setWw] = useState("");
+  const addWatch = () => { const w = ww.trim(); if (w && s && !s.watchWords.some((x) => x.toLowerCase() === w.toLowerCase())) update({ watchWords: [...s.watchWords, w] }); setWw(""); };
 
   if (!s) return null;
   return (
@@ -38,6 +41,20 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
             <button className={lang === "tr" ? "on" : ""} onClick={() => setLang("tr")}>Türkçe</button>
             <button className={lang === "orig" ? "on" : ""} onClick={() => setLang("orig")}>Orijinal (İngilizce)</button>
           </div>
+        </div>
+
+        <div className="row col">
+          <b>İzlenen kelimeler</b>
+          <small>Bu kelimeler geçen haberler vurgulanır, “👁 İzlenenler” listesinde toplanır ve bildirimlerde öne çıkar.</small>
+          <div className="chips" style={{ marginTop: 6 }}>
+            {s.watchWords.map((w) => <span key={w} className="chip">{w}<button onClick={() => update({ watchWords: s.watchWords.filter((x) => x !== w) })}>×</button></span>)}
+            <input className="chip-input" placeholder="ör. Redis, .NET, Expo (Enter)" value={ww} onChange={(e) => setWw(e.target.value)}
+                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addWatch(); } if (e.key === "Escape") e.stopPropagation(); }} onBlur={() => ww.trim() && addWatch()} />
+          </div>
+          <label className="inline" style={{ alignItems: "center", cursor: "pointer" }}>
+            <input type="checkbox" checked={s.notifyWatchedOnly} disabled={!s.watchWords.length} onChange={(e) => update({ notifyWatchedOnly: e.target.checked })} />
+            <span className="small">Sadece izlenen kelime geçen haberler için bildirim gönder</span>
+          </label>
         </div>
 
         <label className="row">

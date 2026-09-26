@@ -8,6 +8,8 @@ import { useReadState } from "./hooks/useReadState";
 import { useLibrary } from "./hooks/useLibrary";
 import Sidebar from "./components/Sidebar";
 import NewsView, { isLibraryView } from "./components/NewsView";
+import WordsView from "./components/WordsView";
+import { useWords } from "./hooks/useWords";
 import Reader from "./components/Reader";
 import SettingsDialog from "./components/SettingsDialog";
 import { ToastProvider } from "./components/Toast";
@@ -18,6 +20,7 @@ export type CatFilter = string;
 export type View =
   | { kind: "news"; cat: CatFilter }
   | { kind: "digest"; date: string | null }
+  | { kind: "words" }
   | { kind: "reader"; url: string; article: Article | null };
 
 export default function App() {
@@ -25,6 +28,7 @@ export default function App() {
   setCategories(payload.categories);
   const { read, markRead } = useReadState();
   const lib = useLibrary();
+  const { words } = useWords();
   const [view, setView] = useState<View>({ kind: "news", cat: "all" });
   const [prev, setPrev] = useState<Exclude<View, { kind: "reader" }>>({ kind: "news", cat: "all" });
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -39,7 +43,7 @@ export default function App() {
   // Dil tercihini ana sürece bildir (bildirimler için)
   useEffect(() => { window.api.setSettings({ contentLang: getLang() }).catch(() => {}); }, []);
 
-  const viewKey = (v: View) => (v.kind === "news" ? `news:${v.cat}` : v.kind === "digest" ? `digest:${v.date}` : "reader");
+  const viewKey = (v: View) => (v.kind === "news" ? `news:${v.cat}` : v.kind === "digest" ? `digest:${v.date}` : v.kind);
 
   const navigate = useCallback((next: View) => {
     if (contentRef.current) scrollMemo.current[viewKey(view)] = contentRef.current.scrollTop;
@@ -98,12 +102,14 @@ export default function App() {
         onSelect={navigate}
         onSettings={() => setSettingsOpen(true)}
         lib={lib}
+        wordCount={words.filter((w) => !w.learned).length}
       />
       <main>
         <UpdateBanner />
         {view.kind === "news" && (
           <NewsView ref={contentRef} cat={view.cat} articles={isLibraryView(view.cat) ? libArticles(view.cat) : payload.articles} read={read} markRead={markRead} onOpen={openReader} lib={lib} categories={payload.categories} />
         )}
+        {view.kind === "words" && <WordsView ref={contentRef} words={words} onOpen={openReader} />}
         {view.kind === "reader" && (
           <Reader key={view.url} ref={contentRef} url={view.url} article={view.article} onBack={goBack} onOpen={openReader} lib={lib} />
         )}

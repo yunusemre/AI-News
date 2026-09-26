@@ -104,6 +104,35 @@ export interface LibItem {
 
 export type LibPatch = Partial<Pick<LibItem, "favorite" | "later" | "tags" | "notes" | "minutes">>;
 
+// ------------------------------------------------------------------ sözlük
+export interface DictMeaning { pos: string; defs: string[]; example?: string }
+export interface DictResult {
+  word: string;
+  tr: string;              // Türkçe karşılık
+  phonetic?: string;
+  meanings: DictMeaning[]; // İngilizce tanımlar (dictionaryapi.dev)
+  contextTr?: string;      // cümlenin Türkçesi
+}
+export interface WordEntry {
+  word: string;
+  tr: string;
+  phonetic?: string;
+  meanings?: DictMeaning[];
+  context?: string;        // kelimenin geçtiği cümle
+  link?: string;           // makale
+  title?: string;
+  addedAt: number;         // unix ms
+  learned?: boolean;
+}
+
+export interface SharePayload {
+  url: string;
+  title: string;
+  desc?: string;
+  source?: string;
+  notes?: string[];     // kullanıcının notları (özetle kopyalarken eklenir)
+}
+
 export interface SearchHit {
   link: string;
   title: string;
@@ -120,6 +149,8 @@ export interface Settings {
   localDigestsDir: string;   // boşsa yerel özetler okunmaz
   contentLang: "tr" | "orig"; // bildirimlerde başlık dili (arayüzdeki "İçerik dili" ile eşlenir)
   autoUpdate: boolean;        // yeni sürümü arka planda indirip kur
+  watchWords: string[];       // izlenen kelimeler (kartlarda vurgulanır)
+  notifyWatchedOnly: boolean; // sadece izlenen kelime geçen haberler için bildirim
 }
 
 /** preload'ın window.api olarak açtığı arayüz */
@@ -139,6 +170,16 @@ export interface Api {
   onUpdateState(cb: (s: UpdateState) => void): () => void;
   checkUpdate(): Promise<UpdateState>;
   installUpdate(): Promise<Result<null>>;
+  /** Paylaş menüsü (macOS paylaşım + kopyalama seçenekleri) imleç konumunda açılır */
+  shareMenu(p: SharePayload): void;
+  // sözlük
+  lookupWord(word: string, context?: string): Promise<Result<DictResult>>;
+  getWords(): Promise<WordEntry[]>;
+  onWords(cb: (w: WordEntry[]) => void): () => void;
+  saveWord(e: WordEntry): Promise<WordEntry[]>;
+  removeWord(word: string): Promise<WordEntry[]>;
+  setLearned(word: string, learned: boolean): Promise<WordEntry[]>;
+  exportWords(): Promise<Result<string>>;
   // kütüphane
   getLibrary(): Promise<LibItem[]>;
   onLibrary(cb: (items: LibItem[]) => void): () => void;

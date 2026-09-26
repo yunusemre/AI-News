@@ -6,6 +6,8 @@ import { newsCategoryIds } from "@shared/categories";
 import logo from "../assets/logo.png";
 import type { Library } from "../hooks/useLibrary";
 import { useUpdate } from "../hooks/useUpdate";
+import { useWatchWords } from "../hooks/useWatch";
+import { matchWatch } from "@shared/watch";
 
 
 
@@ -16,9 +18,10 @@ interface Props {
   onSelect: (v: View) => void;
   onSettings: () => void;
   lib: Library;
+  wordCount: number;
 }
 
-export default function Sidebar({ payload, read, active, onSelect, onSettings, lib }: Props) {
+export default function Sidebar({ payload, read, active, onSelect, onSettings, lib, wordCount }: Props) {
   // "x dk önce" metnini canlı tut
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 60000); return () => clearInterval(t); }, []);
@@ -42,6 +45,9 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
   };
 
   const upd = useUpdate();
+  const watch = useWatchWords();
+  const watched = watch.length ? payload.articles.filter((a) => matchWatch(a, watch).length) : [];
+  const watchedUnread = watched.filter((a) => !read.has(a.link)).length;
   const [updErr, setUpdErr] = useState("");
   const isActive = (cat: string) => active.kind === "news" && active.cat === cat;
   const conn = payload.connection;
@@ -54,7 +60,7 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
       <div className="section">Haberler</div>
       {groups.map((g, gi) => (
         <div key={g.id}>
-          {gi > 0 && <div className="side-sep" />}
+          {gi > 0 && (g.id === "stories" ? <div className="section">Hikâyeler</div> : <div className="side-sep" />)}
           {g.items.map((n) => {
             const c = counts(n.cat);
             const isActive = active.kind === "news" && active.cat === n.cat;
@@ -69,6 +75,10 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
             <>
               <NavItem icon="⭐" label="Favoriler" count={lib.favorites.length} active={isActive("favorites")} onClick={() => onSelect({ kind: "news", cat: "favorites" })} />
               <NavItem icon="🔖" label="Sonra oku" count={lib.later.length} active={isActive("later")} onClick={() => onSelect({ kind: "news", cat: "later" })} />
+              {watch.length > 0 && <NavItem icon="👁" label="İzlenenler" count={watchedUnread || watched.length} unread={watchedUnread > 0} active={isActive("watched")} onClick={() => onSelect({ kind: "news", cat: "watched" })} />}
+              <div className={`nav ${active.kind === "words" ? "active" : ""}`} onClick={() => onSelect({ kind: "words" })}>
+                <span className="ico">📖</span><span className="lbl">Kelimelerim</span><span className="count">{wordCount || ""}</span>
+              </div>
             </>
           )}
         </div>
@@ -113,10 +123,10 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
   );
 }
 
-function NavItem({ icon, label, count, active, onClick }: { icon: string; label: string; count: number; active: boolean; onClick: () => void }) {
+function NavItem({ icon, label, count, active, onClick, unread }: { icon: string; label: string; count: number; active: boolean; onClick: () => void; unread?: boolean }) {
   return (
     <div className={`nav ${active ? "active" : ""}`} onClick={onClick}>
-      <span className="ico">{icon}</span><span className="lbl">{label}</span><span className="count">{count || ""}</span>
+      <span className="ico">{icon}</span><span className="lbl">{label}</span><span className={`count ${unread ? "unread" : ""}`}>{count || ""}</span>
     </div>
   );
 }

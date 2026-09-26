@@ -5,7 +5,7 @@ import { FAKE_TRANSLATE } from "./config";
 
 const cache = new Map<string, string>();
 
-async function gtx(text: string, lang: string): Promise<string> {
+export async function gtx(text: string, lang: string): Promise<string> {
   const url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&dt=t"
     + `&tl=${encodeURIComponent(lang)}&q=${encodeURIComponent(text)}`;
   const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });

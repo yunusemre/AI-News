@@ -3,6 +3,9 @@ import type { Article, ReaderArticle } from "@shared/types";
 import type { Library } from "../hooks/useLibrary";
 import NotesPanel from "./NotesPanel";
 import { useLang, type Lang } from "../lib/lang";
+import DictPopover from "./DictPopover";
+import { useWords } from "../hooks/useWords";
+import { getProgress, setProgress } from "../hooks/useProgress";
 import { catLabel, catStyle, dateLong, hostOf } from "../lib/format";
 import { sanitizeArticle, translatableBlocks } from "../lib/sanitize";
 
@@ -29,7 +32,10 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
   const [notesOpen, setNotesOpen] = useState(() => localStorage.getItem("aih:notes") === "1");
   const toggleNotes = (v?: boolean) => setNotesOpen((o) => { const n = v ?? !o; try { localStorage.setItem("aih:notes", n ? "1" : "0"); } catch {} return n; });
   const [draftQuote, setDraftQuote] = useState<string | null>(null);
-  const [selPop, setSelPop] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [selPop, setSelPop] = useState<{ x: number; y: number; text: string; context: string } | null>(null);
+  const [dict, setDict] = useState<{ x: number; y: number; word: string; context: string } | null>(null);
+  const { has: hasWord } = useWords();
+  const [resumed, setResumed] = useState(0);   // kaldığı yerden devam edildiyse yüzde
   const bodyRef = useRef<HTMLDivElement>(null);
   const mounted = useRef(true);
   const trStarted = useRef(false);
@@ -110,10 +116,17 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
   const onMouseUp = () => {
     const sel = window.getSelection();
     const text = sel?.toString().trim() || "";
-    if (!sel || sel.rangeCount === 0 || text.length < 3 || !bodyRef.current?.contains(sel.anchorNode)) { setSelPop(null); return; }
+    if (!sel || sel.rangeCount === 0 || text.length < 2 || !bodyRef.current?.contains(sel.anchorNode)) { setSelPop(null); return; }
     const r = sel.getRangeAt(0).getBoundingClientRect();
-    setSelPop({ x: r.left + r.width / 2, y: r.top, text: text.slice(0, 2000) });
+    setSelPop({ x: r.left + r.width / 2, y: r.top, text: text.slice(0, 2000), context: sentenceAround(sel, text) });
   };
+  const isWord = (t: string) => t.length <= 40 && t.split(/\s+/).length <= 3;
+  const openDict = () => {
+    if (!selPop) return;
+    setDict({ x: selPop.x, y: selPop.y, word: selPop.text.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ""), context: selPop.context });
+    setSelPop(null);
+  };
+  const closeDict = useCallback(() => setDict(null), []);
   const highlight = (withNote: boolean) => {
     if (!selPop || !baseItem) return;
     if (withNote) { setDraftQuote(selPop.text); toggleNotes(true); }
@@ -121,6 +134,33 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
     window.getSelection()?.removeAllRanges();
     setSelPop(null);
   };
+  // Kaldığın yerden devam: kaydırma oranını kaydet, makale açılınca geri yükle
+  const restored = useRef(false);
+  const bodyReady = mode === "reader" && !!view && (lang === "orig" || tr.status === "done" || tr.status === "error" || !!view.a.lang?.startsWith("tr"));
+  useEffect(() => {
+    const el = (ref as React.RefObject<HTMLDivElement>)?.current;
+    if (!el || !bodyReady) return;
+    if (!restored.current) {
+      restored.current = true;
+      const p = getProgress(url);
+      if (p > 0.03 && p < 0.97) {
+        requestAnimationFrame(() => { el.scrollTop = p * (el.scrollHeight - el.clientHeight); setResumed(Math.round(p * 100)); });
+        setTimeout(() => setResumed(0), 6000);
+      }
+    }
+    let t = 0;
+    const onScroll = () => {
+      window.clearTimeout(t);
+      t = window.setTimeout(() => {
+        const max = el.scrollHeight - el.clientHeight;
+        if (max > 200) setProgress(url, Math.min(1, el.scrollTop / max));
+      }, 400);
+    };
+    el.addEventListener("scroll", onScroll);
+    return () => { el.removeEventListener("scroll", onScroll); window.clearTimeout(t); };
+  }, [bodyReady, ref, url]);
+  const startOver = () => { const el = (ref as React.RefObject<HTMLDivElement>)?.current; if (el) el.scrollTop = 0; setResumed(0); };
+
   useEffect(() => { const h = () => setSelPop(null); const el = (ref as React.RefObject<HTMLDivElement>)?.current; el?.addEventListener("scroll", h); return () => el?.removeEventListener("scroll", h); }, [ref, load]);
 
   // Notlardaki alıntıları metinde işaretle
@@ -163,6 +203,8 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
         <button className={`btn ${notesOpen ? "on" : ""}`} disabled={!baseItem} onClick={() => toggleNotes()} title="Notlar ve etiketler">
           ✎ Notlar{notes.length ? ` (${notes.length})` : ""}
         </button>
+        <button className="btn" disabled={!baseItem} title="Paylaş"
+                onClick={() => baseItem && window.api.shareMenu({ url, title: view?.title || baseItem.title, desc: baseItem.desc, source, notes: notes.map((n) => n.quote || n.text).filter(Boolean) })}>⇪ Paylaş</button>
         <button className="btn" onClick={() => window.api.openExternal(url)} title="Tarayıcıda aç">↗</button>
       </header>
 
@@ -213,15 +255,35 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
                     onJump={jumpTo} onClose={() => toggleNotes(false)} />
       )}
       </div>
+      {resumed > 0 && (
+        <div className="resume-chip">↧ Kaldığın yerden devam (%{resumed}) <button onClick={startOver}>Baştan başla</button></div>
+      )}
       {selPop && (
         <div className="sel-pop" style={{ left: selPop.x, top: selPop.y }} onMouseDown={(e) => e.preventDefault()}>
+          {isWord(selPop.text) && <button onClick={openDict}>📖 Sözlük</button>}
           <button onClick={() => highlight(false)}>🖍 Vurgula</button>
           <button onClick={() => highlight(true)}>✎ Not ekle</button>
         </div>
       )}
+      {dict && (
+        <DictPopover word={dict.word} context={dict.context} x={dict.x} y={dict.y} saved={hasWord(dict.word)} onClose={closeDict}
+                     onSave={(d) => window.api.saveWord({ word: d.word, tr: d.tr, phonetic: d.phonetic, meanings: d.meanings, context: dict.context, link: url, title: view?.title || baseItem?.title, addedAt: Date.now() })} />
+      )}
     </>
   );
 });
+
+/** Seçimin geçtiği cümle (sözlükte bağlam olarak kullanılır) */
+function sentenceAround(sel: Selection, text: string): string {
+  const block = (sel.anchorNode?.parentElement?.closest("p,li,blockquote,h2,h3,h4,td,figcaption") || sel.anchorNode?.parentElement)?.textContent || "";
+  const flat = block.replace(/\s+/g, " ").trim();
+  const i = flat.indexOf(text.replace(/\s+/g, " "));
+  if (i < 0) return "";
+  const start = Math.max(flat.lastIndexOf(". ", i) + 1, flat.lastIndexOf("? ", i) + 1, flat.lastIndexOf("! ", i) + 1, 0);
+  const ends = [". ", "? ", "! "].map((e) => flat.indexOf(e, i + text.length)).filter((x) => x >= 0);
+  const end = ends.length ? Math.min(...ends) + 1 : flat.length;
+  return flat.slice(start, end).trim().slice(0, 400);
+}
 
 /** Metin düğümleri üzerinde alıntıyı bulup <mark class="hl"> ile sarar (birden çok düğüme yayılsa da) */
 function markText(root: HTMLElement, quote: string) {

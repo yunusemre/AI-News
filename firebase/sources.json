@@ -758,5 +758,109 @@
     "category": "learn",
     "maxAgeHours": 336,
     "enabled": true
+  },
+  "goodnewsnetwork": {
+    "name": "Good News Network",
+    "url": "https://www.goodnewsnetwork.org/feed/",
+    "category": "good",
+    "enabled": true,
+    "maxPerRun": 4,
+    "maxAgeHours": 72
+  },
+  "positivenews": {
+    "name": "Positive News",
+    "url": "https://www.positive.news/feed/",
+    "category": "good",
+    "enabled": true,
+    "maxPerRun": 3,
+    "maxAgeHours": 168
+  },
+  "reasonstobecheerful": {
+    "name": "Reasons to be Cheerful",
+    "url": "https://reasonstobecheerful.world/feed/",
+    "category": "good",
+    "enabled": true,
+    "maxPerRun": 3,
+    "maxAgeHours": 336
+  },
+  "optimistdaily": {
+    "name": "The Optimist Daily",
+    "url": "https://www.optimistdaily.com/feed/",
+    "category": "good",
+    "enabled": true,
+    "maxPerRun": 3,
+    "maxAgeHours": 72
+  },
+  "guardian-upside": {
+    "name": "The Guardian · The Upside",
+    "url": "https://www.theguardian.com/world/series/the-upside/rss",
+    "category": "good",
+    "enabled": true,
+    "maxPerRun": 3,
+    "maxAgeHours": 336
+  },
+  "betterindia": {
+    "name": "The Better India",
+    "url": "https://www.thebetterindia.com/feed/",
+    "category": "good",
+    "enabled": true,
+    "maxPerRun": 2,
+    "maxAgeHours": 72
+  },
+  "aeon": {
+    "name": "Aeon",
+    "url": "https://aeon.co/feed.rss",
+    "category": "stories",
+    "enabled": true,
+    "maxPerRun": 2,
+    "maxAgeHours": 168
+  },
+  "psyche": {
+    "name": "Psyche",
+    "url": "https://psyche.co/feed",
+    "category": "stories",
+    "enabled": true,
+    "maxPerRun": 2,
+    "maxAgeHours": 168
+  },
+  "marginalian": {
+    "name": "The Marginalian",
+    "url": "https://www.themarginalian.org/feed/",
+    "category": "stories",
+    "enabled": true,
+    "maxPerRun": 2,
+    "maxAgeHours": 336
+  },
+  "nautilus": {
+    "name": "Nautilus",
+    "url": "https://nautil.us/feed/",
+    "category": "stories",
+    "enabled": true,
+    "maxPerRun": 2,
+    "maxAgeHours": 168
+  },
+  "longreads": {
+    "name": "Longreads",
+    "url": "https://longreads.com/feed/",
+    "category": "stories",
+    "enabled": true,
+    "maxPerRun": 2,
+    "maxAgeHours": 168
+  },
+  "atlasobscura": {
+    "name": "Atlas Obscura",
+    "url": "https://www.atlasobscura.com/feeds/latest",
+    "category": "stories",
+    "enabled": true,
+    "maxPerRun": 3,
+    "maxAgeHours": 72
+  },
+  "greatergood": {
+    "name": "Greater Good (Berkeley)",
+    "url": "https://greatergood.berkeley.edu/site/rss/articles",
+    "category": "stories",
+    "enabled": true,
+    "maxPerRun": 2,
+    "maxAgeHours": 336
   }
 }

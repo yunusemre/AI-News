@@ -250,3 +250,49 @@
   .foot-row .ver:hover { color: var(--text); }
   .upd-err { font-size: 11px; color: #d70015; margin-bottom: 4px; }
   .upd-err .link-btn { padding: 0; font-size: 11px; }
+
+  /* ---------- paylaş / link ekle ---------- */
+  .card .star.share { font-size: 14px; }
+  .card .star.share:hover { color: var(--accent); }
+  .add-link { display: flex; gap: 8px; align-items: center; padding: 10px 18px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  .add-link input { flex: 1; padding: 6px 10px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg); color: var(--text); outline: none; }
+  .add-link input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .card .desc { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  /* ---------- izlenen kelimeler / ilerleme ---------- */
+  .card.watched { border-left: 3px solid #f5a623; }
+  .watch-tag { font-size: 11px; font-weight: 600; color: #b26a00; background: color-mix(in srgb, #f5a623 16%, transparent); border-radius: 5px; padding: 0 6px; }
+  @media (prefers-color-scheme: dark) { .watch-tag { color: #ffc15e; } }
+  .prog-txt { font-variant-numeric: tabular-nums; }
+  .prog { height: 3px; background: var(--line); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+  .prog div { height: 100%; background: var(--accent); border-radius: 2px; }
+  .resume-chip { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #2c2c2e; color: #fff; font-size: 12.5px; padding: 7px 8px 7px 14px; border-radius: 20px; box-shadow: 0 6px 20px rgba(0,0,0,.25); display: flex; gap: 10px; align-items: center; z-index: 25; }
+  .resume-chip button { border: 0; background: rgba(255,255,255,.15); color: #fff; border-radius: 14px; padding: 3px 10px; cursor: pointer; font-size: 12px; }
+
+  /* ---------- sözlük ---------- */
+  .dict-bg { position: fixed; inset: 0; z-index: 29; }
+  .dict { position: fixed; width: 340px; max-height: 60vh; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 14px 40px rgba(0,0,0,.25); padding: 12px 14px; z-index: 30; user-select: text; display: flex; flex-direction: column; gap: 8px; }
+  .dict-head { display: flex; align-items: center; gap: 8px; }
+  .dict-head b { font-size: 17px; }
+  .dict-head .link-btn { padding: 0; }
+  .dict-tr { font-size: 15px; font-weight: 600; color: var(--accent); }
+  .dict-m { font-size: 13px; }
+  .dict-m i { color: var(--muted); font-size: 12px; }
+  .dict-m ol { margin: 2px 0 0; padding-left: 18px; }
+  .dict-m li { margin-bottom: 2px; }
+  .dict-ctx { font-size: 12.5px; color: var(--muted); background: var(--bg); border-radius: 7px; padding: 6px 8px; }
+  .dict-ctx span { font-weight: 600; color: var(--text); }
+  .dict-foot { display: flex; justify-content: flex-end; }
+
+  .words { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; padding-top: 12px; }
+  .word-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; user-select: text; }
+  .word-card.learned { opacity: .6; }
+  .wc-head { display: flex; align-items: center; gap: 8px; }
+  .wc-head b { font-size: 16px; }
+  .wc-head .link-btn { padding: 0; font-size: 11.5px; }
+  .wc-tr { font-weight: 600; color: var(--accent); }
+  .wc-tr.hidden { color: var(--muted); font-weight: 400; font-style: italic; cursor: pointer; }
+  .wc-def { font-size: 12.5px; }
+  .wc-def i { color: var(--muted); }
+  .wc-ctx { font-size: 12.5px; color: var(--muted); font-family: "New York", Georgia, serif; }
+  .wc-src { padding: 0; font-size: 11.5px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -19,6 +19,8 @@ const DEFAULTS: Stored = {
   lastNotifiedAt: 0,
   contentLang: "tr",
   autoUpdate: true,
+  watchWords: [],
+  notifyWatchedOnly: false,
 };
 
 const file = () => path.join(app.getPath("userData"), "settings.json");
@@ -46,5 +48,6 @@ export function save(patch: Partial<Stored>): Stored {
 
 export function publicSettings(): Settings {
   const s = load();
-  return { notifications: s.notifications, openAtLogin: s.openAtLogin, localDigestsDir: s.localDigestsDir, contentLang: s.contentLang === "orig" ? "orig" : "tr", autoUpdate: s.autoUpdate !== false };
+  return { notifications: s.notifications, openAtLogin: s.openAtLogin, localDigestsDir: s.localDigestsDir, contentLang: s.contentLang === "orig" ? "orig" : "tr", autoUpdate: s.autoUpdate !== false,
+    watchWords: Array.isArray(s.watchWords) ? s.watchWords : [], notifyWatchedOnly: !!s.notifyWatchedOnly };
 }

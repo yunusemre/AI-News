@@ -54,5 +54,21 @@
     "color": "#2b8a3e",
     "order": 12,
     "group": "tech"
+  },
+  "good": {
+    "label": "İyi Haberler",
+    "short": "İyi Haber",
+    "icon": "🌱",
+    "color": "#2f9e44",
+    "order": 20,
+    "group": "stories"
+  },
+  "stories": {
+    "label": "Hikâye & Deneme",
+    "short": "Hikâye",
+    "icon": "📚",
+    "color": "#c2255c",
+    "order": 21,
+    "group": "stories"
   }
 }
