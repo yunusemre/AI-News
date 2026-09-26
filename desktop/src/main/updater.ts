@@ -51,13 +51,20 @@ async function fetchLatest(): Promise<UpdateInfo | null> {
   const current = app.getVersion();
   if (!rel.tag_name || !newer(rel.tag_name, current)) return null;
   const arch = process.arch === "arm64" ? "arm64" : "x64";
-  const zips = (rel.assets || []).filter((a) => a.name.endsWith(".zip") && a.name.includes("mac"));
-  const asset = zips.find((a) => a.name.includes(arch)) || zips.find((a) => !/arm64|x64/.test(a.name)) || zips[0];
+  const assets = rel.assets || [];
+  let asset: (typeof assets)[number] | undefined;
+  if (process.platform === "win32") {
+    asset = assets.find((a) => /\.exe$/i.test(a.name));   // NSIS kurulum dosyası (News-Setup-x.y.z.exe)
+  } else {
+    const zips = assets.filter((a) => a.name.endsWith(".zip") && a.name.includes("mac"));
+    asset = zips.find((a) => a.name.includes(arch)) || zips.find((a) => !/arm64|x64/.test(a.name)) || zips[0];
+  }
   return { version: rel.tag_name.replace(/^v/, ""), current, url: rel.html_url, assetUrl: asset?.url, size: asset?.size, notes: (rel.body || "").slice(0, 1500) };
 }
 
-const canInstall = () => process.platform === "darwin" && app.isPackaged;
-const cannotInstallReason = () => process.platform !== "darwin" ? "Otomatik kurulum şimdilik sadece macOS'ta." : !app.isPackaged ? "Geliştirme modunda (npm run dev) güncelleme kurulamaz; Releases'tan .dmg indir." : "";
+const isWin = process.platform === "win32";
+const canInstall = () => (process.platform === "darwin" || isWin) && app.isPackaged;
+const cannotInstallReason = () => !["darwin", "win32"].includes(process.platform) ? "Otomatik kurulum bu işletim sisteminde desteklenmiyor." : !app.isPackaged ? "Geliştirme modunda (npm run dev) güncelleme kurulamaz; Releases'tan .dmg indir." : "";
 
 /**
  * Kurulacak klasör. İndirilen uygulama Finder ile taşınmadan açıldıysa macOS onu salt okunur
@@ -98,7 +105,7 @@ async function download(): Promise<void> {
     const r = await fetch(info.assetUrl, { headers: { Accept: "application/octet-stream", "User-Agent": "News-App" }, redirect: "follow" });
     if (!r.ok || !r.body) throw new Error(`İndirme başarısız (HTTP ${r.status}).`);
     const total = Number(r.headers.get("content-length")) || info.size || 0;
-    const file = path.join(os.tmpdir(), `news-update-${info.version}.zip`);
+    const file = path.join(os.tmpdir(), `news-update-${info.version}.${isWin ? "exe" : "zip"}`);
     const out = fs.createWriteStream(file);
     const reader = r.body.getReader();
     let got = 0, lastPct = -1;
@@ -153,6 +160,14 @@ function apply(relaunch: boolean, hidden = false): Result<null> {
   if (applying) return { ok: true, data: null };
   if (!canInstall()) return { ok: false, error: cannotInstallReason() };
   if (!zipPath || !fs.existsSync(zipPath)) return { ok: false, error: "İndirilen dosya bulunamadı, tekrar dene." };
+  if (isWin) {
+    // NSIS: /S sessiz kurulum, --force-run kurulumdan sonra uygulamayı açar. Kurulum dosyası çalışan uygulamanın kapanmasını bekler.
+    applying = true;
+    log(`windows kurulum: ${zipPath} (yeniden aç=${relaunch})`);
+    spawn(zipPath, relaunch ? ["/S", "--force-run"] : ["/S"], { detached: true, stdio: "ignore" }).unref();
+    setTimeout(() => app.quit(), 300);
+    return { ok: true, data: null };
+  }
   // Çalışan uygulamanın .app yolu: .../News.app/Contents/MacOS/News
   const appPath = path.resolve(app.getPath("exe"), "../../..");
   if (!appPath.endsWith(".app")) return { ok: false, error: "Uygulama yolu bulunamadı." };

@@ -18,6 +18,8 @@ let quitting = false;
 const hub = new DataHub();
 
 if (!app.requestSingleInstanceLock()) app.quit();
+// Windows: bildirimlerin "News" adıyla görünmesi için (electron-builder appId ile aynı)
+if (process.platform === "win32") app.setAppUserModelId("com.yunusemretatar.ai-haberleri");
 
 // ------------------------------------------------------------------ pencere
 function createWindow(): void {

@@ -30,7 +30,7 @@ Kategori alanları: `label` (kenar çubuğu), `short` (kart etiketi), `icon`, `c
 # desktop/ altında değişiklik yap, commit + push, sonra:
 git tag v2.1.1 && git push origin v2.1.1
 ```
-GitHub macOS'ta derler ve Releases'a yükler (~10 dk). Açık uygulamalar yeni sürümü görür → **"Güncelle ve yeniden başlat"**. Ayarlar'dan elle de denetlenebilir.
+GitHub **macOS ve Windows** için derler ve aynı release'e yükler (~10 dk). Açık uygulamalar yeni sürümü görür, arka planda indirir ve kurar (kenar çubuğunda **"Güncelle"** düğmesi de çıkar). Ayarlar'dan elle de denetlenebilir.
 
 ## İlk kurulum (bir kez)
 
@@ -62,6 +62,7 @@ git tag v2.1.0 && git push origin v2.1.0
 ```
 - Actions'ta **"Masaüstü sürümü"** biter (~10 dk) → GitHub → **Releases** → `v2.1.0` → `.dmg` indir, uygulamayı `Applications`'a sürükle.
 - İlk açılışta macOS *"geliştirici doğrulanamadı"* derse: uygulamaya **sağ tık → Aç**.
+- **Windows:** aynı release'ten `News-Setup-x.y.z.exe` indir ve çalıştır (yönetici izni istemez). SmartScreen *"Windows bilgisayarınızı korudu"* derse **Ek bilgi → Yine de çalıştır**. Güncellemeler sonra kendiliğinden kurulur.
   Hâlâ açılmazsa: `xattr -dr com.apple.quarantine "/Applications/News.app"`
 - Bundan sonraki sürümler uygulama içinden gelir (üstte **"Güncelle ve yeniden başlat"** şeridi; Ayarlar → *Güncellemeleri denetle*).
 
@@ -78,7 +79,7 @@ bash ~/Desktop/ai-news/notifier/uninstall.sh
 | Bir kaynak hiç gelmiyor | `/meta/lastRun/errors` → hatalı kaynakta `"enabled": false` yap ya da URL'i düzelt |
 | Yeni kategori görünmüyor | `categories.json` push'landı mı? Kurallarda `categories` `.read: true` mu? |
 | Güncelleme şeridi çıkmıyor | Release **draft** değil **published** olmalı; Ayarlar → Güncellemeleri denetle |
-| "Güncelle" hata veriyor | Releases sayfasından `.dmg`'yi elle indirip kur |
+| "Güncelle" hata veriyor | Releases sayfasından `.dmg` (Mac) ya da `News-Setup-x.y.z.exe` (Windows) dosyasını elle indirip kur. Ayrıntı: Mac'te `~/Library/Logs/News/update.log`, Windows'ta `%APPDATA%\AI Haberleri\logs\update.log` |
 | Zamanlanmış tarama durdu | Public repoda 60 gün commit olmazsa GitHub durdurur → Actions'tan tekrar etkinleştir |
 
 ## Geliştirme

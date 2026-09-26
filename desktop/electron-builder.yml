@@ -28,10 +28,18 @@ dmg:
   artifactName: News-${version}-${arch}.${ext}
 win:
   icon: resources/icon.png
-  target: [nsis]
+  target:
+    - target: nsis
+      arch: [x64]
+  # İmza sertifikası yok: ilk kurulumda SmartScreen "Yine de çalıştır" ister
 nsis:
-  oneClick: true
+  oneClick: true            # tek tıkla kullanıcı klasörüne kurar (yönetici izni gerekmez)
   perMachine: false
+  artifactName: News-Setup-${version}.${ext}
+  shortcutName: News
+  uninstallDisplayName: News
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
 linux:
   target: [AppImage]
   category: News

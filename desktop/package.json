@@ -5,7 +5,7 @@
   "description": "Türkçe AI haberleri — Firebase destekli masaüstü uygulaması",
   "main": "./out/main/index.js",
   "author": "Yunus Emre Tatar",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "electron-vite dev",
@@ -15,7 +15,8 @@
     "dist:mac": "electron-vite build && electron-builder --mac",
     "dist:win": "electron-vite build && electron-builder --win",
     "dist:dir": "electron-vite build && electron-builder --dir",
-    "release:mac": "electron-vite build && electron-builder --mac --arm64 --publish always"
+    "release:mac": "electron-vite build && electron-builder --mac --arm64 --publish always",
+    "release:win": "electron-vite build && electron-builder --win --x64 --publish always"
   },
   "dependencies": {
     "@mozilla/readability": "0.6.0",
