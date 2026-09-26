@@ -34,9 +34,52 @@ GitHub macOS'ta derler ve Releases'a yükler (~10 dk). Açık uygulamalar yeni s
 
 ## İlk kurulum (bir kez)
 
-- `FIREBASE_SERVICE_ACCOUNT` secret'ı (Firebase → Proje ayarları → Hizmet hesapları → Yeni özel anahtar)
-- `cd firebase && firebase deploy --only database` (kurallar)
-- İlk sürüm: `git tag v2.1.0 && git push origin v2.1.0`, sonra Releases'tan `.dmg` indirip kur. Sonraki sürümler uygulama içinden gelir.
+**1. Değişiklikleri gönder**
+```bash
+cd ~/Desktop/ai-news/ai-haberleri
+git add -A && git commit -m "feat: git tabanlı kaynak/kategori yönetimi, otomatik sürüm ve güncelleme" && git push
+```
+Push sonrası Actions'ta **"Haber toplayıcı"** kendiliğinden çalışır ve `sources.json` / `categories.json` / `config.json` dosyalarını veritabanına yazar.
+
+**2. Servis hesabı anahtarı (GitHub Secret)**
+- Firebase Console → ⚙️ Proje ayarları → Hizmet hesapları → **Yeni özel anahtar oluştur**
+- GitHub → repo → Settings → Secrets and variables → Actions → **New repository secret**
+  - Ad: `FIREBASE_SERVICE_ACCOUNT`, değer: indirilen JSON dosyasının tüm içeriği
+  - veya: `gh secret set FIREBASE_SERVICE_ACCOUNT < ~/Downloads/<dosya>.json`
+- ⚠️ Anahtar dosyasını repoya ekleme; Secret'a koyduktan sonra bilgisayarından silebilirsin.
+
+**3. Veritabanı kuralları**
+```bash
+cd firebase && firebase deploy --only database && cd ..
+```
+Oturum hatası alırsan (`Failed to get details for project` / 401): `sudo` kullanma, `firebase logout && firebase login --reauth` yap.
+Yine olmazsa Console → Realtime Database → **Rules** sekmesine `firebase/database.rules.json` içeriğini yapıştırıp **Publish** de
+(en azından `"categories": { ".read": true }` satırı olmalı, yoksa uygulama kategorileri okuyamaz).
+
+**4. İlk sürümü yayınla**
+```bash
+git tag v2.1.0 && git push origin v2.1.0
+```
+- Actions'ta **"Masaüstü sürümü"** biter (~10 dk) → GitHub → **Releases** → `v2.1.0` → `.dmg` indir, uygulamayı `Applications`'a sürükle.
+- İlk açılışta macOS *"geliştirici doğrulanamadı"* derse: uygulamaya **sağ tık → Aç**.
+  Hâlâ açılmazsa: `xattr -dr com.apple.quarantine "/Applications/AI Haberleri.app"`
+- Bundan sonraki sürümler uygulama içinden gelir (üstte **"Güncelle ve yeniden başlat"** şeridi; Ayarlar → *Güncellemeleri denetle*).
+
+**5. Eski yerel servisi kaldır** (varsa; yoksa çift bildirim gelir)
+```bash
+bash ~/Desktop/ai-news/notifier/uninstall.sh
+```
+
+## Sorun giderme
+
+| Belirti | Bak / yap |
+|---|---|
+| Haber gelmiyor | GitHub → Actions → "Haber toplayıcı" log'u; Firebase `/meta/lastRun` |
+| Bir kaynak hiç gelmiyor | `/meta/lastRun/errors` → hatalı kaynakta `"enabled": false` yap ya da URL'i düzelt |
+| Yeni kategori görünmüyor | `categories.json` push'landı mı? Kurallarda `categories` `.read: true` mu? |
+| Güncelleme şeridi çıkmıyor | Release **draft** değil **published** olmalı; Ayarlar → Güncellemeleri denetle |
+| "Güncelle" hata veriyor | Releases sayfasından `.dmg`'yi elle indirip kur |
+| Zamanlanmış tarama durdu | Public repoda 60 gün commit olmazsa GitHub durdurur → Actions'tan tekrar etkinleştir |
 
 ## Geliştirme
 
