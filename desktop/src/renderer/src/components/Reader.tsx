@@ -18,7 +18,9 @@ type Tr = { status: "idle" | "working" | "done" | "error"; html?: string; error?
 const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article, onBack, onOpen, isFav, toggleFav }, ref) {
   const [load, setLoad] = useState<Load>({ status: "loading" });
   const [mode, setMode] = useState<"reader" | "web">("reader");
-  const [lang, setLang] = useState<"tr" | "orig">("tr");
+  const [lang, setLang] = useState<"tr" | "orig">(() => (localStorage.getItem("aih:lang") === "orig" ? "orig" : "tr"));
+  // Kullanıcının seçimi hatırlanır; otomatik geçişler (zaten Türkçe / çeviri hatası) kaydedilmez
+  const chooseLang = (l: "tr" | "orig") => { setLang(l); try { localStorage.setItem("aih:lang", l); } catch {} };
   const [tr, setTr] = useState<Tr>({ status: "idle" });
   const mounted = useRef(true);
   const trStarted = useRef(false);
@@ -88,10 +90,10 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
         <div className="spacer" />
         {mode === "reader" && load.status === "ok" && (
           <div className="seg" title="Makale dili">
-            <button className={lang === "tr" ? "on" : ""} onClick={() => setLang("tr")}>
+            <button className={lang === "tr" ? "on" : ""} onClick={() => chooseLang("tr")}>
               {tr.status === "working" && <span className="spin">↻</span>} Türkçe
             </button>
-            <button className={lang === "orig" ? "on" : ""} onClick={() => setLang("orig")}>Orijinal</button>
+            <button className={lang === "orig" ? "on" : ""} onClick={() => chooseLang("orig")}>Orijinal</button>
           </div>
         )}
         <div className="seg" title="Görünüm">
