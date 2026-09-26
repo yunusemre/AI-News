@@ -7,7 +7,6 @@ import { useReadState } from "./hooks/useReadState";
 import { useFavorites } from "./hooks/useFavorites";
 import Sidebar from "./components/Sidebar";
 import NewsView from "./components/NewsView";
-import DigestView from "./components/DigestView";
 import Reader from "./components/Reader";
 import SettingsDialog from "./components/SettingsDialog";
 import { ToastProvider } from "./components/Toast";
@@ -99,9 +98,6 @@ export default function App() {
         <UpdateBanner />
         {view.kind === "news" && (
           <NewsView ref={contentRef} cat={view.cat} articles={view.cat === "favorites" ? fav.list : payload.articles} read={read} markRead={markRead} onOpen={openReader} isFav={fav.has} toggleFav={fav.toggle} categories={payload.categories} />
-        )}
-        {view.kind === "digest" && (
-          <DigestView ref={contentRef} digests={payload.digests} date={view.date} onOpen={openReader} />
         )}
         {view.kind === "reader" && (
           <Reader key={view.url} ref={contentRef} url={view.url} article={view.article} onBack={goBack} onOpen={openReader} isFav={fav.has} toggleFav={fav.toggle} />
