@@ -60,7 +60,7 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
       <div className="section">Haberler</div>
       {groups.map((g, gi) => (
         <div key={g.id}>
-          {gi > 0 && (g.id === "stories" ? <div className="section">Hikâyeler</div> : <div className="side-sep" />)}
+          {gi > 0 && <div className="side-sep" />}
           {g.items.map((n) => {
             const c = counts(n.cat);
             const isActive = active.kind === "news" && active.cat === n.cat;

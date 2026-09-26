@@ -42,6 +42,15 @@ async function syncConfig(db) {
     console.log(`↻ ${node}: ${Object.keys(data).length} kayıt (${file})`);
   }
   if (Object.keys(updates).length) await db.ref().update(updates);
+
+  // Kaldırılan kategorilere ait haberleri temizle (aksi halde saklama süresi dolana kadar veritabanında kalır)
+  if (updates.categories) {
+    const valid = new Set(Object.keys(updates.categories));
+    const snap = await db.ref("articles").once("value");
+    const del = {};
+    snap.forEach((ch) => { const a = ch.val() || {}; if (a.cat && !valid.has(a.cat)) del[`articles/${ch.key}`] = null; });
+    if (Object.keys(del).length) { await db.ref().update(del); console.log(`🗑 kaldırılan kategorilerden ${Object.keys(del).length} haber silindi`); }
+  }
 }
 
 const started = Date.now();

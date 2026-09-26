@@ -17,9 +17,7 @@ export function setupNotifications(hub: DataHub, onOpen: (id?: string) => void):
     if (!s.lastNotifiedAt) { settings.save({ lastNotifiedAt: newest }); return; }
 
     const watch = normalizeWatch(s.watchWords);
-    // Hikâyeler bölümü sakin okuma içindir: bildirim göndermez
-    const quiet = new Set(hub.categories.filter((c) => c.group === "stories").map((c) => c.id));
-    let fresh = articles.filter((a) => a.createdAt > s.lastNotifiedAt && ![a.cat, ...(a.cats || [])].every((c) => quiet.has(c)));
+    let fresh = articles.filter((a) => a.createdAt > s.lastNotifiedAt);
     if (!fresh.length) return;
     settings.save({ lastNotifiedAt: newest });
     // İzlenen kelime geçenler önce; "sadece izlenenler" açıksa diğerleri bildirilmez
