@@ -17,6 +17,12 @@ import * as settings from "./settings";
 const CHECK_EVERY = 3 * 60 * 60 * 1000;   // 3 saat
 const FIRST_CHECK = 15 * 1000;
 
+// Tanı için günlük: ~/Library/Logs/News/update.log
+const logFile = () => path.join(app.getPath("logs"), "update.log");
+function log(msg: string) {
+  try { fs.mkdirSync(path.dirname(logFile()), { recursive: true }); fs.appendFileSync(logFile(), `${new Date().toISOString()} ${msg}\n`); } catch { /* yoksay */ }
+}
+
 let state: UpdateState = { status: "idle", current: app.getVersion() };
 let zipPath = "";
 let applying = false;
@@ -24,6 +30,7 @@ let timer: NodeJS.Timeout | null = null;
 
 function set(patch: Partial<UpdateState>) {
   state = { ...state, ...patch };
+  if (patch.status && patch.status !== "downloading") log(`durum=${state.status}${state.info ? ` v${state.info.version}` : ""}${state.error ? ` hata=${state.error}` : ""}`);
   for (const w of BrowserWindow.getAllWindows()) if (!w.isDestroyed()) w.webContents.send("update:state", state);
 }
 export const getState = () => state;
@@ -50,6 +57,21 @@ async function fetchLatest(): Promise<UpdateInfo | null> {
 }
 
 const canInstall = () => process.platform === "darwin" && app.isPackaged;
+const cannotInstallReason = () => process.platform !== "darwin" ? "Otomatik kurulum şimdilik sadece macOS'ta." : !app.isPackaged ? "Geliştirme modunda (npm run dev) güncelleme kurulamaz; Releases'tan .dmg indir." : "";
+
+/**
+ * Kurulacak klasör. İndirilen uygulama Finder ile taşınmadan açıldıysa macOS onu salt okunur
+ * geçici bir yerden çalıştırır (App Translocation) ya da .dmg içinden açılmış olabilir; o durumda /Applications'a kur.
+ */
+function targetDir(appPath: string): string {
+  const dir = path.dirname(appPath);
+  const writable = (d: string) => { try { fs.accessSync(d, fs.constants.W_OK); return true; } catch { return false; } };
+  if (!/AppTranslocation|^\/Volumes\//.test(appPath) && writable(dir)) return dir;
+  if (writable("/Applications")) return "/Applications";
+  const home = path.join(os.homedir(), "Applications");
+  try { fs.mkdirSync(home, { recursive: true }); } catch { /* yoksay */ }
+  return home;
+}
 const windowVisible = () => BrowserWindow.getAllWindows().some((w) => !w.isDestroyed() && w.isVisible());
 
 /** Son sürümü kontrol eder; otomatik güncelleme açıksa indirir */
@@ -72,7 +94,8 @@ async function download(): Promise<void> {
   if (!info?.assetUrl) return;
   set({ status: "downloading", progress: 0, error: undefined });
   try {
-    const r = await fetch(info.assetUrl, { headers: { Accept: "application/octet-stream", "User-Agent": "News-App" } });
+    log(`indirme başladı ${info.assetUrl}`);
+    const r = await fetch(info.assetUrl, { headers: { Accept: "application/octet-stream", "User-Agent": "News-App" }, redirect: "follow" });
     if (!r.ok || !r.body) throw new Error(`İndirme başarısız (HTTP ${r.status}).`);
     const total = Number(r.headers.get("content-length")) || info.size || 0;
     const file = path.join(os.tmpdir(), `news-update-${info.version}.zip`);
@@ -88,6 +111,8 @@ async function download(): Promise<void> {
       if (pct !== lastPct && pct % 5 === 0) { lastPct = pct; set({ progress: pct }); }
     }
     await new Promise<void>((res, rej) => out.end((err?: Error | null) => (err ? rej(err) : res())));
+    if (total && got < total * 0.98) throw new Error(`Eksik indirildi (${got}/${total} bayt).`);
+    log(`indirme bitti ${got} bayt → ${file}`);
     zipPath = file;
     set({ status: "ready", progress: 100 });
     // Kullanıcı uygulamayı arka planda tutuyorsa beklemeden kur
@@ -98,17 +123,23 @@ async function download(): Promise<void> {
 }
 
 const SCRIPT = `#!/bin/bash
-# $1 = indirilen zip, $2 = uygulama yolu, $3 = kapanmasını beklenecek PID, $4 = yeniden aç (1/0), $5 = gizli aç (1/0)
-ZIP="$1"; APP_PATH="$2"; PID="$3"; RELAUNCH="$4"; HIDDEN="$5"
+# $1 = zip, $2 = çalışan uygulama yolu, $3 = PID, $4 = yeniden aç (1/0), $5 = gizli aç (1/0), $6 = kurulacak klasör, $7 = günlük dosyası
+ZIP="$1"; APP_PATH="$2"; PID="$3"; RELAUNCH="$4"; HIDDEN="$5"; TARGET="$6"; LOG="$7"
+exec >>"$LOG" 2>&1
+echo "$(date) script: $APP_PATH → $TARGET"
 TMP="$(mktemp -d)"
-ditto -xk "$ZIP" "$TMP/x" || exit 1
+ditto -xk "$ZIP" "$TMP/x" || { echo "zip açılamadı"; exit 1; }
 NEW="$(find "$TMP/x" -maxdepth 2 -name '*.app' | head -1)"
-[ -d "$NEW" ] || exit 1
+[ -d "$NEW" ] || { echo "zip içinde .app yok"; exit 1; }
 for i in $(seq 1 60); do kill -0 "$PID" 2>/dev/null || break; sleep 0.5; done
-# Yeni paket adıyla (ör. News.app) aynı klasöre kur; eski adlı paketi kaldır
-DEST="$(dirname "$APP_PATH")/$(basename "$NEW")"
-rm -rf "$APP_PATH" "$DEST"
-ditto "$NEW" "$DEST"
+kill -0 "$PID" 2>/dev/null && { echo "uygulama kapanmadı, zorla kapatılıyor"; kill -9 "$PID"; sleep 1; }
+# Yeni paket adıyla (ör. News.app) kur; eski adlı paketi (yazılabilir yerdeyse) kaldır
+DEST="$TARGET/$(basename "$NEW")"
+case "$APP_PATH" in *AppTranslocation*|/Volumes/*) ;; *) rm -rf "$APP_PATH" ;; esac
+[ "$TARGET" = "/Applications" ] && [ -d "/Applications/AI Haberleri.app" ] && rm -rf "/Applications/AI Haberleri.app"
+rm -rf "$DEST"
+ditto "$NEW" "$DEST" || { echo "kopyalanamadı: $DEST"; exit 1; }
+echo "kuruldu: $DEST"
 xattr -dr com.apple.quarantine "$DEST" 2>/dev/null
 codesign --force --deep --sign - "$DEST" >/dev/null 2>&1
 if [ "$RELAUNCH" = "1" ]; then
@@ -120,7 +151,7 @@ rm -rf "$TMP" "$ZIP"
 /** İndirilen sürümü kurar. relaunch=false: sadece çıkışta kur, yeniden açma */
 function apply(relaunch: boolean, hidden = false): Result<null> {
   if (applying) return { ok: true, data: null };
-  if (!canInstall()) return { ok: false, error: app.isPackaged ? "Otomatik kurulum şimdilik sadece macOS'ta." : "Geliştirme modunda güncelleme kurulamaz." };
+  if (!canInstall()) return { ok: false, error: cannotInstallReason() };
   if (!zipPath || !fs.existsSync(zipPath)) return { ok: false, error: "İndirilen dosya bulunamadı, tekrar dene." };
   // Çalışan uygulamanın .app yolu: .../News.app/Contents/MacOS/News
   const appPath = path.resolve(app.getPath("exe"), "../../..");
@@ -128,18 +159,22 @@ function apply(relaunch: boolean, hidden = false): Result<null> {
   applying = true;
   const script = path.join(os.tmpdir(), "news-update.sh");
   fs.writeFileSync(script, SCRIPT, { mode: 0o755 });
-  spawn("/bin/bash", [script, zipPath, appPath, String(process.pid), relaunch ? "1" : "0", hidden ? "1" : "0"], { detached: true, stdio: "ignore" }).unref();
+  const target = targetDir(appPath);
+  log(`kurulum: ${appPath} → ${target} (yeniden aç=${relaunch})`);
+  spawn("/bin/bash", [script, zipPath, appPath, String(process.pid), relaunch ? "1" : "0", hidden ? "1" : "0", target, logFile()], { detached: true, stdio: "ignore" }).unref();
   if (relaunch) setTimeout(() => app.quit(), 300);
   return { ok: true, data: null };
 }
 
 /** "Güncelle" düğmesi: gerekirse indirir, sonra kurup yeniden başlatır */
 export async function installNow(): Promise<Result<null>> {
+  log("güncelle düğmesine basıldı");
+  if (!canInstall()) { set({ error: cannotInstallReason() }); return { ok: false, error: cannotInstallReason() }; }
   if (state.status !== "ready") {
     if (state.status !== "available") await check(true);
     else await download();
   }
-  if (state.status !== "ready") return { ok: false, error: state.error || "Yeni sürüm bulunamadı." };
+  if (state.status !== "ready") return { ok: false, error: state.error || (state.status === "latest" ? "Zaten en güncel sürüm." : "Güncelleme indirilemedi.") };
   return apply(true);
 }
 

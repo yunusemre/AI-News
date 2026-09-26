@@ -248,3 +248,5 @@
   .foot-row { display: flex; align-items: center; justify-content: space-between; }
   .foot-row .ver { font-size: 11px; color: var(--muted); cursor: pointer; padding-top: 4px; }
   .foot-row .ver:hover { color: var(--text); }
+  .upd-err { font-size: 11px; color: #d70015; margin-bottom: 4px; }
+  .upd-err .link-btn { padding: 0; font-size: 11px; }

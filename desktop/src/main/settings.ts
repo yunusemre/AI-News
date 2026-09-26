@@ -7,13 +7,15 @@ import type { Settings } from "@shared/types";
 interface Stored extends Settings {
   /** Bildirim gönderilen en son haberin createdAt değeri (tekrar bildirmemek için) */
   lastNotifiedAt: number;
+  desktopMigrated?: boolean;
   windowBounds?: { x?: number; y?: number; width: number; height: number };
 }
 
 const DEFAULTS: Stored = {
   notifications: true,
   openAtLogin: false,
-  localDigestsDir: path.join(os.homedir(), "Desktop", "ai-news"),
+  // Varsayılan kapalı: Masaüstü gibi korumalı klasörlere erişmek macOS izin penceresi açar
+  localDigestsDir: "",
   lastNotifiedAt: 0,
   contentLang: "tr",
   autoUpdate: true,
@@ -26,6 +28,13 @@ export function load(): Stored {
   if (cache) return cache;
   try { cache = { ...DEFAULTS, ...JSON.parse(fs.readFileSync(file(), "utf8")) }; }
   catch { cache = { ...DEFAULTS }; }
+  // Eski sürümler varsayılan olarak ~/Desktop/ai-news klasörünü izliyordu; bu her açılışta
+  // (ad-hoc imzalı uygulama güncellenince izin unutulduğu için) "Masaüstüne erişim" soruyordu. Bir kez temizle.
+  if (!cache!.desktopMigrated) {
+    if (cache!.localDigestsDir === path.join(os.homedir(), "Desktop", "ai-news")) cache!.localDigestsDir = "";
+    cache!.desktopMigrated = true;
+    try { fs.mkdirSync(path.dirname(file()), { recursive: true }); fs.writeFileSync(file(), JSON.stringify(cache, null, 2)); } catch { /* yoksay */ }
+  }
   return cache!;
 }
 

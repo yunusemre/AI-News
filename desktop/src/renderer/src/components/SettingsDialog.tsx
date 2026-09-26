@@ -7,6 +7,7 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
   const [s, setS] = useState<Settings | null>(null);
   const [dir, setDir] = useState("");
   const u = useUpdate();
+  const [err, alertErr] = useState("");
   const [lang, setLang] = useLang();
 
   useEffect(() => { window.api.getSettings().then((x) => { setS(x); setDir(x.localDigestsDir); }); }, []);
@@ -53,7 +54,7 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
           <b>Yerel özet klasörü</b>
           <small>Bu klasördeki YYYY-AA-GG.md dosyaları “Günlük Özetler”de görünür. Boş bırakırsan kapanır.</small>
           <div className="inline">
-            <input className="text" value={dir} onChange={(e) => setDir(e.target.value)} placeholder="/Users/…/Desktop/ai-news" />
+            <input className="text" value={dir} onChange={(e) => setDir(e.target.value)} placeholder="Kapalı — örn. /Users/…/Documents/ozetler" />
             <button className="btn" onClick={() => update({ localDigestsDir: dir.trim() })} disabled={dir.trim() === s.localDigestsDir}>Kaydet</button>
           </div>
         </div>
@@ -63,9 +64,9 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
           <small>News v{u.current}. Yeni sürümler 3 saatte bir denetlenir.</small>
           <div className="inline">
             {u.status === "available" || u.status === "ready"
-              ? <button className="btn primary" onClick={() => window.api.installUpdate()}>{u.status === "ready" ? "Yeniden başlat ve kur" : "Güncelle"}</button>
+              ? <button className="btn primary" onClick={() => window.api.installUpdate().then((r) => { if (!r.ok) alertErr(r.error); })}>{u.status === "ready" ? "Yeniden başlat ve kur" : "Güncelle"}</button>
               : <button className="btn" disabled={u.status === "checking" || u.status === "downloading"} onClick={() => window.api.checkUpdate()}>Güncellemeleri denetle</button>}
-            <span className="muted small" style={{ alignSelf: "center" }}>{updText}</span>
+            <span className="muted small" style={{ alignSelf: "center" }}>{err ? `⚠︎ ${err}` : updText}</span>
           </div>
         </div>
 

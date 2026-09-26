@@ -42,6 +42,7 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
   };
 
   const upd = useUpdate();
+  const [updErr, setUpdErr] = useState("");
   const isActive = (cat: string) => active.kind === "news" && active.cat === cat;
   const conn = payload.connection;
   const updated = payload.meta.updated;
@@ -97,11 +98,12 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
         </div>
         {updated ? <div>Son tarama: {ago(updated)}</div> : null}
         {upd.info && (upd.status === "available" || upd.status === "downloading" || upd.status === "ready") ? (
-          <button className="upd-btn" disabled={upd.status === "downloading"} onClick={() => window.api.installUpdate()}
+          <button className="upd-btn" disabled={upd.status === "downloading"} onClick={() => window.api.installUpdate().then((r) => { if (!r.ok) setUpdErr(r.error); })}
                   title={upd.status === "ready" ? "Kur ve yeniden başlat" : "İndir, kur ve yeniden başlat"}>
             {upd.status === "downloading" ? `⬇︎ v${upd.info.version} %${upd.progress || 0}` : upd.status === "ready" ? `⟳ v${upd.info.version}: yeniden başlat` : `⬆︎ v${upd.info.version}: güncelle`}
           </button>
         ) : null}
+        {updErr && <div className="upd-err">{updErr} <button className="link-btn" onClick={() => upd.info && window.api.openExternal(upd.info.url)}>Elle indir ↗</button></div>}
         <div className="foot-row">
           <button className="link-btn" onClick={onSettings}>⚙︎ Ayarlar</button>
           {upd.current && <span className="ver" title="Güncellemeleri denetle" onClick={() => window.api.checkUpdate()}>v{upd.current}{upd.status === "checking" ? " ↻" : ""}</span>}
