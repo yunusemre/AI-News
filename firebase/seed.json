@@ -466,6 +466,299 @@
       ],
       "enabled": true,
       "maxAgeHours": 336
+    },
+    "sidebar-io": {
+      "name": "Sidebar.io",
+      "url": "https://sidebar.io/feed.xml",
+      "category": "frontend",
+      "maxAgeHours": 72,
+      "enabled": true
+    },
+    "medium-react": {
+      "name": "Medium · React",
+      "url": "https://medium.com/feed/tag/react",
+      "category": "frontend",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "medium-react-native": {
+      "name": "Medium · React Native",
+      "url": "https://medium.com/feed/tag/react-native",
+      "category": "frontend",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "devto-react": {
+      "name": "dev.to · React",
+      "url": "https://dev.to/feed/tag/react",
+      "category": "frontend",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "devto-reactnative": {
+      "name": "dev.to · React Native",
+      "url": "https://dev.to/feed/tag/reactnative",
+      "category": "frontend",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "medium-dotnet": {
+      "name": "Medium · .NET",
+      "url": "https://medium.com/feed/tag/dotnet",
+      "category": "backend",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "medium-csharp": {
+      "name": "Medium · C#",
+      "url": "https://medium.com/feed/tag/csharp",
+      "category": "backend",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "medium-redis": {
+      "name": "Medium · Redis",
+      "url": "https://medium.com/feed/tag/redis",
+      "category": "backend",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "medium-rabbitmq": {
+      "name": "Medium · RabbitMQ",
+      "url": "https://medium.com/feed/tag/rabbitmq",
+      "category": "backend",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "devto-dotnet": {
+      "name": "dev.to · .NET",
+      "url": "https://dev.to/feed/tag/dotnet",
+      "category": "backend",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "devto-csharp": {
+      "name": "dev.to · C#",
+      "url": "https://dev.to/feed/tag/csharp",
+      "category": "backend",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "bytebytego": {
+      "name": "ByteByteGo (Substack)",
+      "url": "https://blog.bytebytego.com/feed",
+      "category": "backend",
+      "maxAgeHours": 336,
+      "excludePatterns": [
+        "last call",
+        "enrollment",
+        "\\bcohort\\b",
+        "sponsor"
+      ],
+      "enabled": true
+    },
+    "medium-kubernetes": {
+      "name": "Medium · Kubernetes",
+      "url": "https://medium.com/feed/tag/kubernetes",
+      "category": "devops",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "medium-devops": {
+      "name": "Medium · DevOps",
+      "url": "https://medium.com/feed/tag/devops",
+      "category": "devops",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "devto-devops": {
+      "name": "dev.to · DevOps",
+      "url": "https://dev.to/feed/tag/devops",
+      "category": "devops",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "devto-kubernetes": {
+      "name": "dev.to · Kubernetes",
+      "url": "https://dev.to/feed/tag/kubernetes",
+      "category": "devops",
+      "maxPerRun": 4,
+      "maxAgeHours": 72,
+      "excludePatterns": [
+        "\\bcourse\\b",
+        "\\budemy\\b",
+        "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+        "interview questions",
+        "cheat ?sheet",
+        "\\bhiring\\b",
+        "\\bjob\\b",
+        "\\bfree\\b.*\\b(ebook|pdf)\\b",
+        "\\bpart \\d+ of \\d+\\b"
+      ],
+      "enabled": true
+    },
+    "pragmatic-engineer": {
+      "name": "The Pragmatic Engineer (Substack)",
+      "url": "https://newsletter.pragmaticengineer.com/feed",
+      "category": "learn",
+      "maxAgeHours": 336,
+      "enabled": true
     }
   },
   "config": {

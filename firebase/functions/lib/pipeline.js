@@ -197,6 +197,8 @@ async function runPipeline({ sources, config, state, deps }) {
     stats.sources++;
     stats.fetched += items.length;
     const kw = (src.keywords || []).map((k) => String(k).toLowerCase());
+    const perRunLimit = Number(src.maxPerRun) || Infinity;   // gürültülü kaynaklar (Medium, dev.to) için üst sınır
+    let taken = 0;
     for (const it of items) {
       const h = sha(`${id}::${it.guid}`);
       if (state.seen?.[h] || seenNew[h]) continue;
@@ -207,6 +209,8 @@ async function runPipeline({ sources, config, state, deps }) {
       if (it.ts && it.ts > now + 3600) it.ts = now;            // gelecekteki tarihleri düzelt
       const srcExclude = Array.isArray(src.excludePatterns) ? exclude.concat(src.excludePatterns) : exclude;   // kaynak bazında ek filtre
       if (isNoise(it.title, srcExclude) || isDuplicate(it.title, recentTitles)) { stats.skipped++; continue; }
+      if (taken >= perRunLimit) { stats.skipped++; continue; }
+      taken++;
       recentTitles.push(it.title);
       fresh.push({
         id: sha(it.link),

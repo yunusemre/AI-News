@@ -172,6 +172,17 @@ const ATOM = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><ti
     assert.strictEqual(Object.values(r.articles)[0].cat, "backend");
   });
 
+  await test("runPipeline: kaynak bazında maxPerRun", async () => {
+    let xml = `<?xml version="1.0"?><rss version="2.0"><channel><title>m</title>`;
+    const titles = ["Minimal APIs without the mess", "Entity Framework migrations explained", "Background jobs using Hangfire",
+      "Health checks for Kubernetes probes", "Rate limiting middleware tricks", "Output caching deep dive"];
+    titles.forEach((t, i) => { xml += `<item><title>${t}</title><link>https://m.ex/${i}</link><pubDate>${rfc(NOW - i * 60)}</pubDate></item>`; });
+    xml += `</channel></rss>`;
+    const r = await runPipeline({ sources: { med: { name: "Medium", url: "x", category: "backend", maxPerRun: 3 } },
+      config: {}, state: { seen: {} }, deps: { fetchText: async () => xml, translate: async (t) => t, now: () => NOW, log: () => {} } });
+    assert.strictEqual(r.stats.added, 3);
+  });
+
   await test("runPipeline: learn kategorisi + kaynak bazında maxAgeHours", async () => {
     const OLD = `<?xml version="1.0"?><rss version="2.0"><channel><title>b</title>
 <item><title>Building a production RAG pipeline with rerankers</title><link>https://blog.ex/rag</link><pubDate>${rfc(NOW - 5 * 86400)}</pubDate></item>
