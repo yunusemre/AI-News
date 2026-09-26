@@ -1,6 +1,6 @@
 {
   "name": "ai-haberleri",
-  "productName": "AI Haberleri",
+  "productName": "News",
   "version": "2.1.0",
   "description": "Türkçe AI haberleri — Firebase destekli masaüstü uygulaması",
   "main": "./out/main/index.js",

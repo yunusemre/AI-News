@@ -1,4 +1,5 @@
-// AI Haberleri — Electron ana süreç
+// News — Electron ana süreç
+import "./userdata";
 import { app, BrowserWindow, ipcMain, shell, Menu, nativeTheme, session } from "electron";
 import path from "path";
 import type { Command, Settings } from "@shared/types";
@@ -21,7 +22,7 @@ function createWindow(): void {
   win = new BrowserWindow({
     width: b?.width || 1140, height: b?.height || 780, x: b?.x, y: b?.y,
     minWidth: 780, minHeight: 520,
-    title: "AI Haberleri",
+    title: "News",
     titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
     trafficLightPosition: { x: 16, y: 18 },
     backgroundColor: nativeTheme.shouldUseDarkColors ? "#1c1c1e" : "#f5f5f7",
@@ -113,14 +114,14 @@ function buildMenu(): void {
     ...(isMac ? [{
       label: app.name,
       submenu: [
-        { role: "about" as const, label: "AI Haberleri Hakkında" },
+        { role: "about" as const, label: "News Hakkında" },
         { type: "separator" as const },
         { label: "Ayarlar…", accelerator: "Cmd+,", click: () => send({ type: "open-settings" }) },
         { type: "separator" as const },
-        { role: "hide" as const, label: "AI Haberleri'ni Gizle" },
+        { role: "hide" as const, label: "News'i Gizle" },
         { role: "hideOthers" as const, label: "Diğerlerini Gizle" },
         { type: "separator" as const },
-        { role: "quit" as const, label: "AI Haberleri'nden Çık" },
+        { role: "quit" as const, label: "News'ten Çık" },
       ],
     }] : []),
     {
@@ -155,7 +156,7 @@ app.on("before-quit", () => { quitting = true; });
 // Geliştirme modunda da Dock'ta uygulama ikonu görünsün
 app.whenReady().then(() => { if (process.platform === "darwin" && !app.isPackaged) app.dock?.setIcon(path.join(__dirname, "../../resources/icon.png")); });
 app.whenReady().then(() => {
-  app.setName("AI Haberleri");
+  app.setName("News");
   session.fromPartition(READER_PARTITION).setPermissionRequestHandler((_wc, _p, cb) => cb(false));
   buildMenu();
   createWindow();

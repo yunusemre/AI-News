@@ -38,7 +38,7 @@ export function setupNotifications(hub: DataHub, onOpen: (id?: string) => void):
     const extra = fresh.length - shown.length;
     if (extra > 0) {
       setTimeout(() => {
-        const n = new Notification({ title: "AI Haberleri", body: `+${extra} yeni haber daha`, silent: true });
+        const n = new Notification({ title: "News", body: `+${extra} yeni haber daha`, silent: true });
         n.on("click", () => onOpen());
         n.show();
       }, shown.length * 400);

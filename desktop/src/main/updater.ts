@@ -42,11 +42,13 @@ ditto -xk "$ZIP" "$TMP/x" || exit 1
 NEW="$(find "$TMP/x" -maxdepth 2 -name '*.app' | head -1)"
 [ -d "$NEW" ] || exit 1
 for i in $(seq 1 60); do kill -0 "$PID" 2>/dev/null || break; sleep 0.5; done
-rm -rf "$APP_PATH"
-ditto "$NEW" "$APP_PATH"
-xattr -dr com.apple.quarantine "$APP_PATH" 2>/dev/null
-codesign --force --deep --sign - "$APP_PATH" >/dev/null 2>&1
-open "$APP_PATH"
+# Yeni paket adıyla (ör. News.app) aynı klasöre kur; eski adlı paketi kaldır
+DEST="$(dirname "$APP_PATH")/$(basename "$NEW")"
+rm -rf "$APP_PATH" "$DEST"
+ditto "$NEW" "$DEST"
+xattr -dr com.apple.quarantine "$DEST" 2>/dev/null
+codesign --force --deep --sign - "$DEST" >/dev/null 2>&1
+open "$DEST"
 rm -rf "$TMP" "$ZIP"
 `;
 
@@ -54,7 +56,7 @@ export async function installUpdate(info: UpdateInfo): Promise<Result<null>> {
   if (process.platform !== "darwin") return { ok: false, error: "Otomatik kurulum şimdilik sadece macOS'ta." };
   if (!app.isPackaged) return { ok: false, error: "Geliştirme modunda güncelleme kurulamaz." };
   if (!info?.assetUrl) return { ok: false, error: "Bu sürüm için indirilebilir dosya bulunamadı." };
-  // Çalışan uygulamanın .app yolu: .../AI Haberleri.app/Contents/MacOS/AI Haberleri
+  // Çalışan uygulamanın .app yolu: .../News.app/Contents/MacOS/News
   const appPath = path.resolve(app.getPath("exe"), "../../..");
   if (!appPath.endsWith(".app")) return { ok: false, error: "Uygulama yolu bulunamadı." };
   try {

@@ -49,7 +49,7 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
 
         <div className="row col">
           <b>Sürüm</b>
-          <small>AI Haberleri v{version}. Yeni sürümler otomatik denetlenir.</small>
+          <small>News v{version}. Yeni sürümler otomatik denetlenir.</small>
           <div className="inline"><button className="btn" onClick={checkNow}>Güncellemeleri denetle</button><span className="muted small" style={{ alignSelf: "center" }}>{upd}</span></div>
         </div>
 

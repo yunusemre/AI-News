@@ -1,5 +1,5 @@
 appId: com.yunusemretatar.ai-haberleri
-productName: AI Haberleri
+productName: News
 directories:
   buildResources: resources
   output: dist
@@ -22,10 +22,10 @@ mac:
   identity: "-"
   hardenedRuntime: false
   notarize: false
-  artifactName: AI-Haberleri-${version}-${arch}-mac.${ext}
+  artifactName: News-${version}-${arch}-mac.${ext}
 dmg:
-  title: AI Haberleri
-  artifactName: AI-Haberleri-${version}-${arch}.${ext}
+  title: News
+  artifactName: News-${version}-${arch}.${ext}
 win:
   icon: resources/icon.png
   target: [nsis]

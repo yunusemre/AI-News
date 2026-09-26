@@ -1,4 +1,4 @@
-# AI Haberleri
+# News (AI Haberleri)
 
 | Klasör | İçerik |
 |---|---|
@@ -62,7 +62,7 @@ git tag v2.1.0 && git push origin v2.1.0
 ```
 - Actions'ta **"Masaüstü sürümü"** biter (~10 dk) → GitHub → **Releases** → `v2.1.0` → `.dmg` indir, uygulamayı `Applications`'a sürükle.
 - İlk açılışta macOS *"geliştirici doğrulanamadı"* derse: uygulamaya **sağ tık → Aç**.
-  Hâlâ açılmazsa: `xattr -dr com.apple.quarantine "/Applications/AI Haberleri.app"`
+  Hâlâ açılmazsa: `xattr -dr com.apple.quarantine "/Applications/News.app"`
 - Bundan sonraki sürümler uygulama içinden gelir (üstte **"Güncelle ve yeniden başlat"** şeridi; Ayarlar → *Güncellemeleri denetle*).
 
 **5. Eski yerel servisi kaldır** (varsa; yoksa çift bildirim gelir)

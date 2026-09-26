@@ -44,7 +44,7 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, f
 
   return (
     <aside>
-      <div className="brand"><img className="logo" src={logo} alt="" /> AI Haberleri</div>
+      <div className="brand"><img className="logo" src={logo} alt="" /> News</div>
 
       <div className="section">Haberler</div>
       {groups.map((g, gi) => (
