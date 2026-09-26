@@ -6,7 +6,8 @@ import path from "path";
 import {
   getDatabase, ref, query, orderByChild, limitToLast, onValue, type Unsubscribe,
 } from "firebase/database";
-import type { Article, ConnectionState, Digest, Meta, Payload } from "@shared/types";
+import type { Article, CategoryDef, ConnectionState, Digest, Meta, Payload } from "@shared/types";
+import { DEFAULT_CATEGORIES, normalizeCategories } from "@shared/categories";
 import { firebaseApp } from "./firebase";
 import { FAKE_DATA_FILE, MAX_ARTICLES } from "./config";
 import * as settings from "./settings";
@@ -16,7 +17,7 @@ type RawMap<T> = Record<string, T> | null | undefined;
 function normalizeArticles(raw: RawMap<Partial<Article>>): Article[] {
   return Object.entries(raw || {})
     .map(([id, a]) => ({
-      id, sourceId: a.sourceId || "", source: a.source || "", cat: (["lab", "dev", "general", "learn", "backend", "frontend", "devops"].includes(a.cat as string) ? a.cat : "general") as Article["cat"],
+      id, sourceId: a.sourceId || "", source: a.source || "", cat: String(a.cat || "general"),
       title: a.title || a.title_orig || "", title_orig: a.title_orig || a.title || "",
       desc: a.desc || "", desc_orig: a.desc_orig || "", link: a.link || "",
       ts: Number(a.ts) || 0, createdAt: Number(a.createdAt) || Number(a.ts) || 0, translated: !!a.translated,
@@ -29,6 +30,7 @@ function normalizeArticles(raw: RawMap<Partial<Article>>): Article[] {
 export class DataHub extends EventEmitter {
   articles: Article[] = [];
   meta: Meta = {};
+  categories: CategoryDef[] = DEFAULT_CATEGORIES;
   connection: ConnectionState = "connecting";
   private cloudDigests: Digest[] = [];
   private localDigests: Digest[] = [];
@@ -53,7 +55,7 @@ export class DataHub extends EventEmitter {
     // Aynı gün hem bulutta hem yerelde varsa yerel olan öncelikli
     for (const d of [...this.cloudDigests, ...this.localDigests]) byDate.set(d.date, d);
     const digests = [...byDate.values()].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 60);
-    return { articles: this.articles, digests, meta: this.meta, connection: this.connection };
+    return { articles: this.articles, digests, meta: this.meta, categories: this.categories, connection: this.connection };
   }
 
   private changed(): void {
@@ -75,6 +77,8 @@ export class DataHub extends EventEmitter {
 
     this.unsubs.push(onValue(ref(db, "meta"), (snap) => { this.meta = snap.val() || {}; this.changed(); }, () => {}));
 
+    this.unsubs.push(onValue(ref(db, "categories"), (snap) => { this.categories = normalizeCategories(snap.val()); this.changed(); }, () => {}));
+
     this.unsubs.push(onValue(query(ref(db, "digests"), limitToLast(30)), (snap) => {
       const v = (snap.val() || {}) as Record<string, { md?: string }>;
       this.cloudDigests = Object.entries(v).filter(([, d]) => d?.md).map(([date, d]) => ({ date, md: d.md!, origin: "cloud" as const }));
@@ -94,6 +98,7 @@ export class DataHub extends EventEmitter {
         const d = JSON.parse(fs.readFileSync(FAKE_DATA_FILE, "utf8"));
         this.articles = normalizeArticles(d.articles);
         this.meta = d.meta || {};
+        this.categories = normalizeCategories(d.categories);
         this.cloudDigests = Object.entries((d.digests || {}) as Record<string, { md: string }>).map(([date, x]) => ({ date, md: x.md, origin: "cloud" as const }));
         this.connection = "online";
         this.ready = true;

@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import type { Article, ReaderArticle } from "@shared/types";
-import { CAT_LABEL, dateLong, hostOf } from "../lib/format";
+import { catLabel, catStyle, dateLong, hostOf } from "../lib/format";
 import { sanitizeArticle, translatableBlocks } from "../lib/sanitize";
 
 interface Props {
@@ -124,7 +124,7 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
         {mode === "reader" && view && (
           <article className="article" onClick={onContentClick}>
             <div className="kicker">
-              {article && <span className={`tag ${article.cat}`}>{CAT_LABEL[article.cat]}</span>}
+              {article && <span className="tag" style={catStyle(article.cat)}>{catLabel(article.cat)}</span>}
               <span>{view.a.siteName || source}</span>
               {view.pub && !isNaN(+view.pub) && <span>· {dateLong(view.pub)}</span>}
               <span>· {view.minutes} dk okuma</span>

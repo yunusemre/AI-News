@@ -216,7 +216,7 @@ async function runPipeline({ sources, config, state, deps }) {
         id: sha(it.link),
         sourceId: id,
         source: src.name || id,
-        cat: ["lab", "dev", "general", "learn", "backend", "frontend", "devops"].includes(src.category) ? src.category : "general",
+        cat: /^[a-z0-9-]{1,30}$/.test(String(src.category || "")) ? src.category : "general",   // kategoriler /categories altında tanımlı
         title_orig: it.title,
         desc_orig: shortDesc(it.summary, it.title),
         link: it.link,

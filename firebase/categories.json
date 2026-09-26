@@ -1,0 +1,58 @@
+{
+  "lab": {
+    "label": "Lab & Şirket",
+    "short": "Lab",
+    "icon": "🧪",
+    "color": "#7a4cd9",
+    "order": 1,
+    "group": "news"
+  },
+  "dev": {
+    "label": "Geliştirici",
+    "short": "Geliştirici",
+    "icon": "🛠️",
+    "color": "#0f8a5f",
+    "order": 2,
+    "group": "news"
+  },
+  "general": {
+    "label": "Genel",
+    "short": "Genel",
+    "icon": "📰",
+    "color": "#c46a00",
+    "order": 3,
+    "group": "news"
+  },
+  "learn": {
+    "label": "Öğren & Projeler",
+    "short": "Öğren",
+    "icon": "🎓",
+    "color": "#0a7ea4",
+    "order": 4,
+    "group": "news"
+  },
+  "backend": {
+    "label": "Backend",
+    "short": "Backend",
+    "icon": "⚙️",
+    "color": "#5b4bd6",
+    "order": 10,
+    "group": "tech"
+  },
+  "frontend": {
+    "label": "Frontend",
+    "short": "Frontend",
+    "icon": "🎨",
+    "color": "#d6336c",
+    "order": 11,
+    "group": "tech"
+  },
+  "devops": {
+    "label": "DevOps",
+    "short": "DevOps",
+    "icon": "🚀",
+    "color": "#2b8a3e",
+    "order": 12,
+    "group": "tech"
+  }
+}

@@ -4,8 +4,16 @@ import type { Settings } from "@shared/types";
 export default function SettingsDialog({ onClose }: { onClose: () => void }) {
   const [s, setS] = useState<Settings | null>(null);
   const [dir, setDir] = useState("");
+  const [version, setVersion] = useState("");
+  const [upd, setUpd] = useState<string>("");
 
-  useEffect(() => { window.api.getSettings().then((x) => { setS(x); setDir(x.localDigestsDir); }); }, []);
+  useEffect(() => { window.api.getSettings().then((x) => { setS(x); setDir(x.localDigestsDir); }); window.api.getVersion().then(setVersion); }, []);
+  const checkNow = async () => {
+    setUpd("Kontrol ediliyor…");
+    const info = await window.api.checkUpdate();
+    setUpd(info ? `Yeni sürüm var: v${info.version}` : "En güncel sürümü kullanıyorsun.");
+    if (info) window.dispatchEvent(new Event("aih:check-update"));
+  };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
@@ -37,6 +45,12 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
             <input className="text" value={dir} onChange={(e) => setDir(e.target.value)} placeholder="/Users/…/Desktop/ai-news" />
             <button className="btn" onClick={() => update({ localDigestsDir: dir.trim() })} disabled={dir.trim() === s.localDigestsDir}>Kaydet</button>
           </div>
+        </div>
+
+        <div className="row col">
+          <b>Sürüm</b>
+          <small>AI Haberleri v{version}. Yeni sürümler otomatik denetlenir.</small>
+          <div className="inline"><button className="btn" onClick={checkNow}>Güncellemeleri denetle</button><span className="muted small" style={{ alignSelf: "center" }}>{upd}</span></div>
         </div>
 
         <div className="modal-foot"><button className="btn primary" onClick={onClose}>Tamam</button></div>

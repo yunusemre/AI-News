@@ -15,3 +15,6 @@ export const MAX_NOTIFICATIONS = 5;
 /** Test/geliştirme: Firebase yerine yerel JSON dosyasından veri oku */
 export const FAKE_DATA_FILE = process.env.AIH_FAKE_DATA || "";
 export const FAKE_TRANSLATE = !!process.env.AIH_FAKE_TRANSLATE;
+
+/** Güncellemelerin kontrol edildiği GitHub deposu (owner/repo) */
+export const GITHUB_REPO = process.env.AIH_GITHUB_REPO || "yunusemre/AI-News";

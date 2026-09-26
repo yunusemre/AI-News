@@ -15,7 +15,9 @@ mac:
   darkModeSupport: true
   target:
     - target: dmg
-    - target: zip
+      arch: [arm64]
+    - target: zip          # uygulama içi güncelleme bu dosyayı indirir
+      arch: [arm64]
   # Apple Developer hesabı olmadan: ad-hoc imza (sadece kendi Mac'lerinde çalışır)
   identity: "-"
   hardenedRuntime: false
@@ -31,3 +33,10 @@ nsis:
 linux:
   target: [AppImage]
   category: News
+
+# GitHub Releases'a yayın (release workflow'u kullanır)
+publish:
+  provider: github
+  owner: yunusemre
+  repo: AI-News
+  releaseType: release

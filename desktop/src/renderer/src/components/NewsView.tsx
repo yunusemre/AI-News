@@ -1,8 +1,9 @@
 import { forwardRef, useMemo, useState } from "react";
-import type { Article } from "@shared/types";
+import type { Article, CategoryDef } from "@shared/types";
 import type { CatFilter } from "../App";
-import { CAT_LABEL, CAT_TITLE, dayKey, dayLabel, hm } from "../lib/format";
+import { catLabel, catStyle, viewTitle, dayKey, dayLabel, hm } from "../lib/format";
 import { useToast } from "./Toast";
+import { newsCategoryIds } from "@shared/categories";
 
 interface Props {
   cat: CatFilter;
@@ -12,20 +13,22 @@ interface Props {
   onOpen: (url: string) => void;
   isFav: (link: string) => boolean;
   toggleFav: (a: Article) => void;
+  categories: CategoryDef[];
 }
 
-const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, articles, read, markRead, onOpen, isFav, toggleFav }, ref) {
+const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, articles, read, markRead, onOpen, isFav, toggleFav, categories }, ref) {
   const [q, setQ] = useState("");
   const [unreadOnly, setUnreadOnly] = useState(false);
   const toast = useToast();
 
+  const newsIds = useMemo(() => newsCategoryIds(categories), [categories]);
   const list = useMemo(() => {
     const needle = q.trim().toLocaleLowerCase("tr");
     return articles.filter((a) =>
-      (cat === "all" || cat === "favorites" || a.cat === cat) &&
+      (cat === "favorites" || (cat === "all" ? newsIds.has(a.cat) : a.cat === cat)) &&
       (!unreadOnly || !read.has(a.link)) &&
       (!needle || `${a.title} ${a.desc} ${a.title_orig} ${a.source}`.toLocaleLowerCase("tr").includes(needle)));
-  }, [articles, cat, q, unreadOnly, read]);
+  }, [articles, cat, q, unreadOnly, read, newsIds]);
 
   const groups = useMemo(() => {
     const out: { key: string; label: string; items: Article[] }[] = [];
@@ -45,7 +48,7 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
   return (
     <>
       <header>
-        <h1>{CAT_TITLE[cat]}</h1>
+        <h1>{viewTitle(cat)}</h1>
         <div className="spacer" />
         <div className="search">
           <input id="search" placeholder="Ara…" value={q} autoComplete="off"
@@ -72,7 +75,7 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
             {g.items.map((a) => (
               <div key={a.id} className={`card ${read.has(a.link) ? "read" : "unread"}`} onClick={(e) => open(a, e)}>
                 <div className="meta">
-                  <span className={`tag ${a.cat}`}>{CAT_LABEL[a.cat]}</span>{a.source}
+                  <span className="tag" style={catStyle(a.cat)}>{catLabel(a.cat)}</span>{a.source}
                   <span className="time">{hm(a.ts)}</span>
                   <button className={`star ${isFav(a.link) ? "on" : ""}`} title={isFav(a.link) ? "Favorilerden çıkar" : "Favorilere ekle"}
                           onClick={(e) => { e.stopPropagation(); toggleFav(a); }}>{isFav(a.link) ? "★" : "☆"}</button>

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Article, Category } from "@shared/types";
+import type { Article } from "@shared/types";
+import { setCategories } from "./lib/format";
+import UpdateBanner from "./components/UpdateBanner";
 import { usePayload } from "./hooks/usePayload";
 import { useReadState } from "./hooks/useReadState";
 import { useFavorites } from "./hooks/useFavorites";
@@ -10,7 +12,8 @@ import Reader from "./components/Reader";
 import SettingsDialog from "./components/SettingsDialog";
 import { ToastProvider } from "./components/Toast";
 
-export type CatFilter = Category | "all" | "favorites";
+/** "all", "favorites" veya Firebase'deki bir kategori kimliği */
+export type CatFilter = string;
 
 export type View =
   | { kind: "news"; cat: CatFilter }
@@ -19,6 +22,7 @@ export type View =
 
 export default function App() {
   const payload = usePayload();
+  setCategories(payload.categories);
   const { read, markRead } = useReadState();
   const fav = useFavorites();
   const [view, setView] = useState<View>({ kind: "news", cat: "all" });
@@ -92,8 +96,9 @@ export default function App() {
         favCount={fav.count}
       />
       <main>
+        <UpdateBanner />
         {view.kind === "news" && (
-          <NewsView ref={contentRef} cat={view.cat} articles={view.cat === "favorites" ? fav.list : payload.articles} read={read} markRead={markRead} onOpen={openReader} isFav={fav.has} toggleFav={fav.toggle} />
+          <NewsView ref={contentRef} cat={view.cat} articles={view.cat === "favorites" ? fav.list : payload.articles} read={read} markRead={markRead} onOpen={openReader} isFav={fav.has} toggleFav={fav.toggle} categories={payload.categories} />
         )}
         {view.kind === "digest" && (
           <DigestView ref={contentRef} digests={payload.digests} date={view.date} onOpen={openReader} />

@@ -5,8 +5,6 @@ import type { DataHub } from "./dataHub";
 import { MAX_NOTIFICATIONS } from "./config";
 import * as settings from "./settings";
 
-const CAT_ORDER: Record<string, number> = { lab: 0, dev: 1, backend: 2, frontend: 3, devops: 4, learn: 5, general: 6 };
-const ICON: Record<string, string> = { lab: "🧪", dev: "🛠️", general: "📰", learn: "🎓", backend: "⚙️", frontend: "🎨", devops: "🚀" };
 
 export function setupNotifications(hub: DataHub, onOpen: (id?: string) => void): void {
   hub.on("articles", (articles: Article[]) => {
@@ -22,12 +20,13 @@ export function setupNotifications(hub: DataHub, onOpen: (id?: string) => void):
     settings.save({ lastNotifiedAt: newest });
     if (!s.notifications || !Notification.isSupported()) return;
 
-    fresh.sort((a, b) => (CAT_ORDER[a.cat] ?? 9) - (CAT_ORDER[b.cat] ?? 9) || b.ts - a.ts);
+    const catOf = (id: string) => hub.categories.find((c) => c.id === id);
+    fresh.sort((a, b) => (catOf(a.cat)?.order ?? 99) - (catOf(b.cat)?.order ?? 99) || b.ts - a.ts);
     const shown = fresh.slice(0, MAX_NOTIFICATIONS);
     shown.forEach((a, i) => {
       setTimeout(() => {
         const n = new Notification({
-          title: `${ICON[a.cat] || ""} ${a.source}`.trim(),
+          title: `${catOf(a.cat)?.icon || ""} ${a.source}`.trim(),
           subtitle: a.desc ? a.title : undefined,       // macOS: başlık alt başlıkta, açıklama gövdede
           body: a.desc || a.title,
           silent: i > 0,

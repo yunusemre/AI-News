@@ -7,6 +7,7 @@ import { setupNotifications } from "./notifications";
 import { extractArticle, READER_PARTITION } from "./reader";
 import { translateArticle } from "./translate";
 import * as settings from "./settings";
+import { checkForUpdate, installUpdate } from "./updater";
 
 let win: BrowserWindow | null = null;
 let quitting = false;
@@ -94,6 +95,9 @@ ipcMain.handle("settings:set", (_e, patch: Partial<Settings>) => {
   if ("localDigestsDir" in clean) hub.rescanLocal();
   return settings.publicSettings();
 });
+ipcMain.handle("app:version", () => app.getVersion());
+ipcMain.handle("update:check", () => checkForUpdate());
+ipcMain.handle("update:install", (_e, info) => installUpdate(info));
 ipcMain.on("open-external", (_e, url: string) => { if (/^https?:/.test(url)) shell.openExternal(url); });
 ipcMain.on("badge", (_e, n: number) => {
   if (process.platform === "darwin") app.dock?.setBadge(n > 0 ? String(n) : "");

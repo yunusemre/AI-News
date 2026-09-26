@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import type { Payload } from "@shared/types";
+import { DEFAULT_CATEGORIES } from "@shared/categories";
 
-const EMPTY: Payload = { articles: [], digests: [], meta: {}, connection: "connecting" };
+const EMPTY: Payload = { articles: [], digests: [], meta: {}, categories: DEFAULT_CATEGORIES, connection: "connecting" };
 
 /** Ana süreçten gelen canlı veri (Firebase + yerel özetler) */
 export function usePayload(): Payload {

@@ -16,6 +16,9 @@ const api: Api = {
   setBadge: (n) => ipcRenderer.send("badge", n),
   getSettings: () => ipcRenderer.invoke("settings:get"),
   setSettings: (patch) => ipcRenderer.invoke("settings:set", patch),
+  getVersion: () => ipcRenderer.invoke("app:version"),
+  checkUpdate: () => ipcRenderer.invoke("update:check"),
+  installUpdate: (info) => ipcRenderer.invoke("update:install", info),
   onCommand: (cb) => {
     const h = (_e: unknown, c: Command) => cb(c);
     ipcRenderer.on("command", h);

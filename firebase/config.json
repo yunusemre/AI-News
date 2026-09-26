@@ -1,0 +1,7 @@
+{
+  "maxAgeHours": 48,
+  "retentionDays": 14,
+  "maxNewPerRun": 80,
+  "excludePatterns": [],
+  "targetLang": "tr"
+}

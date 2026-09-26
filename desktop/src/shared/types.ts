@@ -1,6 +1,26 @@
 // Ana süreç ile arayüz arasında paylaşılan tipler
 
-export type Category = "lab" | "dev" | "general" | "learn" | "backend" | "frontend" | "devops";
+/** Kategori kimliği — Firebase /categories altından gelir (örn. "lab", "backend") */
+export type Category = string;
+
+export interface CategoryDef {
+  id: string;
+  label: string;   // kenar çubuğu / başlık
+  short: string;   // kart etiketi
+  icon: string;
+  color: string;
+  order: number;
+  /** Kenar çubuğu grubu: "news" = Haberler (Tümü'ye dahil), diğerleri çizgiyle ayrılmış ayrı bölüm */
+  group: string;
+}
+
+export interface UpdateInfo {
+  version: string;
+  current: string;
+  url: string;          // release sayfası
+  assetUrl?: string;    // .zip (otomatik kurulum için)
+  notes?: string;
+}
 
 /** Firebase RTDB /articles/{id} kaydı (Cloud Function yazar) */
 export interface Article {
@@ -35,6 +55,7 @@ export interface Payload {
   articles: Article[];
   digests: Digest[];
   meta: Meta;
+  categories: CategoryDef[];
   connection: ConnectionState;
 }
 
@@ -70,6 +91,9 @@ export interface Api {
   getSettings(): Promise<Settings>;
   setSettings(patch: Partial<Settings>): Promise<Settings>;
   onCommand(cb: (cmd: Command) => void): () => void;
+  getVersion(): Promise<string>;
+  checkUpdate(): Promise<UpdateInfo | null>;
+  installUpdate(info: UpdateInfo): Promise<Result<null>>;
 }
 
 export type Command =

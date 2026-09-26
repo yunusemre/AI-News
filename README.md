@@ -1,49 +1,46 @@
 # AI Haberleri
 
-- `firebase/` → Toplayıcı (RSS → filtre → Türkçe → RTDB) ve RTDB kuralları
-- `.github/workflows/ingest.yml` → Toplayıcıyı her 30 dakikada bir **ücretsiz** çalıştırır
-- `desktop/` → Electron + React + TypeScript masaüstü uygulaması
+| Klasör | İçerik |
+|---|---|
+| `firebase/sources.json` | **Tüm kaynaklar** (RSS / html) — tek doğru kaynak |
+| `firebase/categories.json` | **Kategoriler** — ad, ikon, renk, sıra, grup |
+| `firebase/config.json` | Genel ayarlar (maxAgeHours, retentionDays …) |
+| `firebase/functions/` | Toplayıcı (RSS → filtre → Türkçe → RTDB) + testler |
+| `desktop/` | Electron + React + TypeScript masaüstü uygulaması |
+| `.github/workflows/ingest.yml` | Toplayıcı: günde 3 kez + JSON dosyaları değişince |
+| `.github/workflows/release.yml` | Uygulama sürümü: `v*` etiketi push'layınca derler ve yayınlar |
 
-Tamamen ücretsiz kurgu: Firebase Spark planı (RTDB) + GitHub Actions (public repo) + ücretsiz Google çevirisi.
+## Günlük iş akışı — derleme gerekmez
 
-## Kurulum (bir kez)
+**Kaynak / kategori eklemek, değiştirmek, kapatmak**
 
-1. **Kaynakları yükle:** Firebase Console → Realtime Database → ⋮ → Import JSON → `firebase/seed.json`
-2. **Kuralları yükle:**
-   ```bash
-   npm i -g firebase-tools && firebase login
-   cd firebase && firebase deploy --only database
-   ```
-3. **Servis hesabı anahtarı al:** Firebase Console → ⚙️ Proje ayarları → Hizmet hesapları → **Yeni özel anahtar oluştur** (bir .json dosyası iner)
-4. **GitHub'a yükle:**
-   ```bash
-   cd ~/Desktop/ai-news/ai-haberleri
-   git init && git add . && git commit -m "feat: ai haberleri"
-   gh repo create ai-haberleri --public --source=. --push
-   gh secret set FIREBASE_SERVICE_ACCOUNT < ~/Downloads/news-2afea-firebase-adminsdk-XXXX.json
-   ```
-   (`gh` yoksa: GitHub'da repo aç → Settings → Secrets and variables → Actions → **New repository secret**, ad: `FIREBASE_SERVICE_ACCOUNT`, değer: JSON dosyasının tüm içeriği)
-5. **İlk taramayı başlat:** GitHub → repo → **Actions** → "Haber toplayıcı" → **Run workflow**
+1. `firebase/sources.json` veya `firebase/categories.json` dosyasını düzenle
+2. `git commit -am "kaynak: X eklendi" && git push`
+3. GitHub Actions veritabanını günceller ve hemen tarar; uygulama canlı olarak yeni kategoriyi/haberleri gösterir.
 
-⚠️ Anahtar dosyasını repoya **ekleme** (`.gitignore` json anahtarları dışarıda tutar). İndirdikten sonra Secrets'a koyup bilgisayarından silebilirsin.
+> Kaynaklar ve kategoriler **git'ten** yönetilir. Firebase Console'dan yapılan değişiklikler bir sonraki çalışmada üzerine yazılır.
 
-## Günlük kullanım
+Kaynak alanları: `name`, `url`, `category`, `enabled`, `type` ("html" ise `linkPattern`, `externalOnly`), `keywords`, `excludePatterns`, `maxAgeHours`, `maxPerRun`.
 
-- **Kaynak ekle/kapat:** Console'da `/sources/<id>` → `{ name, url, category: "lab"|"dev"|"general", enabled: true }`
-- **Ayarlar:** `/config` (maxAgeHours, retentionDays, excludePatterns …)
-- **Son çalışma:** `/meta/lastRun` (eklenen/elenen/hatalı kaynaklar) veya GitHub Actions logları
-- **Yerelde elle çalıştır:** `cd firebase/functions && npm install && GOOGLE_APPLICATION_CREDENTIALS=anahtar.json npm run ingest`
-- **Testler:** `cd firebase/functions && npm test`
+Kategori alanları: `label` (kenar çubuğu), `short` (kart etiketi), `icon`, `color`, `order`, `group` (`"news"` = Haberler bölümü ve "Tümü"ye dahil; başka bir değer = çizgiyle ayrılmış ayrı bölüm).
 
-GitHub, 60 gün boyunca hiç commit olmayan public repolarda zamanlanmış işleri durdurur. Durursa Actions sekmesinden tekrar etkinleştir.
-
-## Masaüstü uygulaması
+**Uygulamada kod değişikliği (yeni sürüm)**
 
 ```bash
-cd desktop && npm install
-npm run dev          # geliştirme
-npm run dist:mac     # dist/ içine .dmg + .zip
+# desktop/ altında değişiklik yap, commit + push, sonra:
+git tag v2.1.1 && git push origin v2.1.1
 ```
+GitHub macOS'ta derler ve Releases'a yükler (~10 dk). Açık uygulamalar yeni sürümü görür → **"Güncelle ve yeniden başlat"**. Ayarlar'dan elle de denetlenebilir.
 
-## İleride (opsiyonel, ücretli)
-`firebase/functions/index.js` Cloud Functions sürümünü içerir (Blaze + Cloud Translation). Geçmek istersen `firebase deploy --only functions` ve GitHub Actions'ı kapat.
+## İlk kurulum (bir kez)
+
+- `FIREBASE_SERVICE_ACCOUNT` secret'ı (Firebase → Proje ayarları → Hizmet hesapları → Yeni özel anahtar)
+- `cd firebase && firebase deploy --only database` (kurallar)
+- İlk sürüm: `git tag v2.1.0 && git push origin v2.1.0`, sonra Releases'tan `.dmg` indirip kur. Sonraki sürümler uygulama içinden gelir.
+
+## Geliştirme
+
+```bash
+cd desktop && npm install && npm run dev      # hot reload
+cd firebase/functions && npm install && npm test
+```

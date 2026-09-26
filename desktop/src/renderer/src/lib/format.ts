@@ -1,7 +1,17 @@
-import type { Category } from "@shared/types";
+import type { CSSProperties } from "react";
+import type { CategoryDef } from "@shared/types";
+import { DEFAULT_CATEGORIES } from "@shared/categories";
 
-export const CAT_LABEL: Record<Category, string> = { lab: "Lab", dev: "Geliştirici", general: "Genel", learn: "Öğren", backend: "Backend", frontend: "Frontend", devops: "DevOps" };
-export const CAT_TITLE: Record<Category | "all" | "favorites", string> = { all: "Tümü", favorites: "Favoriler", lab: "Lab & Şirket", dev: "Geliştirici", general: "Genel", learn: "Öğren & Projeler", backend: "Backend", frontend: "Frontend", devops: "DevOps" };
+// Kategoriler Firebase'den gelir; App her veri güncellemesinde setCategories çağırır.
+let cats: CategoryDef[] = DEFAULT_CATEGORIES;
+export const setCategories = (list: CategoryDef[]) => { cats = list && list.length ? list : DEFAULT_CATEGORIES; };
+export const catDef = (id: string) => cats.find((c) => c.id === id);
+export const catLabel = (id: string) => catDef(id)?.short ?? id;
+export const viewTitle = (cat: string) => (cat === "all" ? "Tümü" : cat === "favorites" ? "Favoriler" : catDef(cat)?.label ?? cat);
+export function catStyle(id: string): CSSProperties | undefined {
+  const c = catDef(id)?.color;
+  return c ? { color: c, background: `color-mix(in srgb, ${c} 14%, transparent)` } : undefined;
+}
 
 export const dayKey = (ts: number) => { const d = new Date(ts * 1000); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
 

@@ -2,17 +2,9 @@ import { useEffect, useState } from "react";
 import type { Payload } from "@shared/types";
 import type { CatFilter, View } from "../App";
 import { ago, digestLabel } from "../lib/format";
+import { newsCategoryIds } from "@shared/categories";
 
-const NAV: { cat: CatFilter; icon: string; label: string }[] = [
-  { cat: "all", icon: "◉", label: "Tümü" },
-  { cat: "lab", icon: "🧪", label: "Lab & Şirket" },
-  { cat: "dev", icon: "🛠️", label: "Geliştirici" },
-  { cat: "general", icon: "📰", label: "Genel" },
-  { cat: "learn", icon: "🎓", label: "Öğren & Projeler" },
-  { cat: "backend", icon: "⚙️", label: "Backend" },
-  { cat: "frontend", icon: "🎨", label: "Frontend" },
-  { cat: "devops", icon: "🚀", label: "DevOps" },
-];
+
 
 interface Props {
   payload: Payload;
@@ -28,8 +20,20 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, f
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 60000); return () => clearInterval(t); }, []);
 
+  // Gruplar: "news" (Haberler, Tümü dahil) önce, diğer gruplar çizgiyle ayrılmış bölümler halinde
+  const newsIds = newsCategoryIds(payload.categories);
+  const groups: { id: string; items: { cat: CatFilter; icon: string; label: string }[] }[] = [];
+  for (const c of payload.categories) {
+    let g = groups.find((x) => x.id === c.group);
+    if (!g) { g = { id: c.group, items: [] }; groups.push(g); }
+    g.items.push({ cat: c.id, icon: c.icon, label: c.label });
+  }
+  groups.sort((a, b) => (a.id === "news" ? -1 : b.id === "news" ? 1 : 0));
+  const news = groups.find((g) => g.id === "news");
+  if (news) news.items.unshift({ cat: "all", icon: "◉", label: "Tümü" });
+
   const counts = (cat: CatFilter) => {
-    const list = payload.articles.filter((a) => cat === "all" || a.cat === cat);
+    const list = payload.articles.filter((a) => (cat === "all" ? newsIds.has(a.cat) : a.cat === cat));
     const unread = list.filter((a) => !read.has(a.link)).length;
     return { total: list.length, unread };
   };
@@ -42,21 +46,27 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, f
       <div className="brand"><span className="dot">✦</span> AI Haberleri</div>
 
       <div className="section">Haberler</div>
-      {NAV.map((n) => {
-        const c = counts(n.cat);
-        const isActive = active.kind === "news" && active.cat === n.cat;
-        return (
-          <div key={n.cat} className={`nav ${isActive ? "active" : ""}`} onClick={() => onSelect({ kind: "news", cat: n.cat })}>
-            <span className="ico">{n.icon}</span>{n.label}
-            <span className={`count ${c.unread ? "unread" : ""}`}>{c.unread || c.total || ""}</span>
-          </div>
-        );
-      })}
-
-      <div className={`nav ${active.kind === "news" && active.cat === "favorites" ? "active" : ""}`}
-           onClick={() => onSelect({ kind: "news", cat: "favorites" })}>
-        <span className="ico">⭐</span>Favoriler<span className="count">{favCount || ""}</span>
-      </div>
+      {groups.map((g, gi) => (
+        <div key={g.id}>
+          {gi > 0 && <div className="side-sep" />}
+          {g.items.map((n) => {
+            const c = counts(n.cat);
+            const isActive = active.kind === "news" && active.cat === n.cat;
+            return (
+              <div key={n.cat} className={`nav ${isActive ? "active" : ""}`} onClick={() => onSelect({ kind: "news", cat: n.cat })}>
+                <span className="ico">{n.icon}</span>{n.label}
+                <span className={`count ${c.unread ? "unread" : ""}`}>{c.unread || c.total || ""}</span>
+              </div>
+            );
+          })}
+          {g.id === "news" && (
+            <div className={`nav ${active.kind === "news" && active.cat === "favorites" ? "active" : ""}`}
+                 onClick={() => onSelect({ kind: "news", cat: "favorites" })}>
+              <span className="ico">⭐</span>Favoriler<span className="count">{favCount || ""}</span>
+            </div>
+          )}
+        </div>
+      ))}
 
       <div className="section">Günlük Özetler</div>
       {payload.digests.length === 0 && <div className="nav muted"><span className="ico">·</span>Henüz özet yok</div>}

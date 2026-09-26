@@ -25,6 +25,9 @@
       ".indexOn": [
         "ts"
       ]
+    },
+    "categories": {
+      ".read": true
     }
   }
 }

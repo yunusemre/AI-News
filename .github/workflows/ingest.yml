@@ -6,6 +6,13 @@ on:
   schedule:
     - cron: "0 6,11,17 * * *"     # 09:00, 14:00, 20:00 (Türkiye saati, UTC+3)
   workflow_dispatch: {}
+  # Kaynak / kategori / ayar dosyaları değişince hemen senkronize et ve tara
+  push:
+    branches: [main, master]
+    paths:
+      - firebase/sources.json
+      - firebase/categories.json
+      - firebase/config.json
 
 concurrency:
   group: ingest
@@ -26,7 +33,7 @@ jobs:
           cache: npm
           cache-dependency-path: firebase/functions/package-lock.json
       - run: npm ci --omit=dev --no-audit --no-fund
-      - run: npm run ingest
+      - run: npm run ingest -- --sync-config
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           DATABASE_URL: https://news-2afea-default-rtdb.firebaseio.com
