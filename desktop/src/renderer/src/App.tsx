@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Article } from "@shared/types";
 import { setCategories } from "./lib/format";
+import { getLang } from "./lib/lang";
 import UpdateBanner from "./components/UpdateBanner";
 import { usePayload } from "./hooks/usePayload";
 import { useReadState } from "./hooks/useReadState";
-import { useFavorites } from "./hooks/useFavorites";
+import { useLibrary } from "./hooks/useLibrary";
 import Sidebar from "./components/Sidebar";
-import NewsView from "./components/NewsView";
+import NewsView, { isLibraryView } from "./components/NewsView";
 import Reader from "./components/Reader";
 import SettingsDialog from "./components/SettingsDialog";
 import { ToastProvider } from "./components/Toast";
 
-/** "all", "favorites" veya Firebase'deki bir kategori kimliği */
+/** "all", "favorites", "later", "tag:<ad>" veya Firebase'deki bir kategori kimliği */
 export type CatFilter = string;
 
 export type View =
@@ -23,7 +24,7 @@ export default function App() {
   const payload = usePayload();
   setCategories(payload.categories);
   const { read, markRead } = useReadState();
-  const fav = useFavorites();
+  const lib = useLibrary();
   const [view, setView] = useState<View>({ kind: "news", cat: "all" });
   const [prev, setPrev] = useState<Exclude<View, { kind: "reader" }>>({ kind: "news", cat: "all" });
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -35,6 +36,8 @@ export default function App() {
   // Dock rozeti: okunmamış haber sayısı
   const unread = useMemo(() => payload.articles.filter((a) => !read.has(a.link)).length, [payload.articles, read]);
   useEffect(() => { window.api.setBadge(unread); }, [unread]);
+  // Dil tercihini ana sürece bildir (bildirimler için)
+  useEffect(() => { window.api.setSettings({ contentLang: getLang() }).catch(() => {}); }, []);
 
   const viewKey = (v: View) => (v.kind === "news" ? `news:${v.cat}` : v.kind === "digest" ? `digest:${v.date}` : "reader");
 
@@ -46,8 +49,8 @@ export default function App() {
 
   const openReader = useCallback((url: string) => {
     markRead([url]);
-    navigate({ kind: "reader", url, article: byLink.get(url) || fav.get(url) || null });
-  }, [byLink, fav, markRead, navigate]);
+    navigate({ kind: "reader", url, article: byLink.get(url) || lib.get(url)?.article || null });
+  }, [byLink, lib, markRead, navigate]);
 
   const goBack = useCallback(() => {
     if (view.kind === "reader") setView(prev);
@@ -83,6 +86,8 @@ export default function App() {
   }, [goBack, settingsOpen]);
 
   const sidebarView = view.kind === "reader" ? prev : view;
+  const libArticles = (cat: string) =>
+    (cat === "favorites" ? lib.favorites : cat === "later" ? lib.later : lib.items.filter((i) => i.tags.includes(cat.slice(4)))).map((i) => i.article);
 
   return (
     <ToastProvider>
@@ -92,15 +97,15 @@ export default function App() {
         active={sidebarView}
         onSelect={navigate}
         onSettings={() => setSettingsOpen(true)}
-        favCount={fav.count}
+        lib={lib}
       />
       <main>
         <UpdateBanner />
         {view.kind === "news" && (
-          <NewsView ref={contentRef} cat={view.cat} articles={view.cat === "favorites" ? fav.list : payload.articles} read={read} markRead={markRead} onOpen={openReader} isFav={fav.has} toggleFav={fav.toggle} categories={payload.categories} />
+          <NewsView ref={contentRef} cat={view.cat} articles={isLibraryView(view.cat) ? libArticles(view.cat) : payload.articles} read={read} markRead={markRead} onOpen={openReader} lib={lib} categories={payload.categories} />
         )}
         {view.kind === "reader" && (
-          <Reader key={view.url} ref={contentRef} url={view.url} article={view.article} onBack={goBack} onOpen={openReader} isFav={fav.has} toggleFav={fav.toggle} />
+          <Reader key={view.url} ref={contentRef} url={view.url} article={view.article} onBack={goBack} onOpen={openReader} lib={lib} />
         )}
       </main>
       {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}

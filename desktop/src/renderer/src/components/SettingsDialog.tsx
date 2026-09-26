@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import type { Settings } from "@shared/types";
+import { useLang } from "../lib/lang";
 
 export default function SettingsDialog({ onClose }: { onClose: () => void }) {
   const [s, setS] = useState<Settings | null>(null);
   const [dir, setDir] = useState("");
   const [version, setVersion] = useState("");
   const [upd, setUpd] = useState<string>("");
+  const [lang, setLang] = useLang();
 
   useEffect(() => { window.api.getSettings().then((x) => { setS(x); setDir(x.localDigestsDir); }); window.api.getVersion().then(setVersion); }, []);
   const checkNow = async () => {
@@ -27,6 +29,15 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
     <div className="modal-bg" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h2>Ayarlar</h2>
+
+        <div className="row col">
+          <b>İçerik dili</b>
+          <small>Başlıklar, açıklamalar, bildirimler ve okuma modu bu dilde gösterilir. “Orijinal” seçilince makaleler çevrilmez. Okuma ekranındaki Türkçe/Orijinal düğmesi de bu ayarı değiştirir.</small>
+          <div className="seg" style={{ marginTop: 6 }}>
+            <button className={lang === "tr" ? "on" : ""} onClick={() => setLang("tr")}>Türkçe</button>
+            <button className={lang === "orig" ? "on" : ""} onClick={() => setLang("orig")}>Orijinal (İngilizce)</button>
+          </div>
+        </div>
 
         <label className="row">
           <input type="checkbox" checked={s.notifications} onChange={(e) => update({ notifications: e.target.checked })} />

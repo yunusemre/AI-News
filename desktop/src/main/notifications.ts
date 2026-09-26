@@ -23,12 +23,15 @@ export function setupNotifications(hub: DataHub, onOpen: (id?: string) => void):
     const catOf = (id: string) => hub.categories.find((c) => c.id === id);
     fresh.sort((a, b) => (catOf(a.cat)?.order ?? 99) - (catOf(b.cat)?.order ?? 99) || b.ts - a.ts);
     const shown = fresh.slice(0, MAX_NOTIFICATIONS);
+    const orig = s.contentLang === "orig";
+    const title = (a: (typeof fresh)[number]) => (orig ? a.title_orig || a.title : a.title);
+    const desc = (a: (typeof fresh)[number]) => (orig ? a.desc_orig || "" : a.desc || "");
     shown.forEach((a, i) => {
       setTimeout(() => {
         const n = new Notification({
           title: `${catOf(a.cat)?.icon || ""} ${a.source}`.trim(),
-          subtitle: a.desc ? a.title : undefined,       // macOS: başlık alt başlıkta, açıklama gövdede
-          body: a.desc || a.title,
+          subtitle: desc(a) ? title(a) : undefined,       // macOS: başlık alt başlıkta, açıklama gövdede
+          body: desc(a) || title(a),
           silent: i > 0,
         });
         n.on("click", () => onOpen(a.id));

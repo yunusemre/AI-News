@@ -198,3 +198,45 @@
   .update-bar .link-btn { padding: 0; font-size: 13px; }
   .update-bar .err { color: #d70015; }
   .tag { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 5px; color: var(--muted); background: var(--hover); }
+
+  /* ---------- kütüphane: sonra oku, etiketler, notlar ---------- */
+  .nav .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .card .star.later { font-size: 13px; filter: grayscale(1); }
+  .card .star.later.on { filter: none; opacity: 1; }
+  .btn.later-btn { font-size: 13px; line-height: 1; padding: 5px 9px; filter: grayscale(1); opacity: .7; }
+  .btn.later-btn.on { filter: none; opacity: 1; }
+  .card .snippet { font-size: 12.5px; color: var(--muted); margin-top: 6px; padding: 5px 8px; background: var(--bg); border-radius: 6px; }
+  .card .snippet span { font-weight: 600; color: var(--accent); }
+  .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .card-tags span { font-size: 11px; color: var(--accent); background: var(--accent-soft); border-radius: 5px; padding: 0 6px; }
+
+  .reader-wrap { flex: 1; display: flex; min-height: 0; position: relative; }
+  .reader-wrap > .content { flex: 1; min-width: 0; }
+  .notes-panel { width: 320px; flex-shrink: 0; border-left: 1px solid var(--line); background: var(--panel); overflow-y: auto; padding: 12px 14px 30px; display: flex; flex-direction: column; gap: 6px; user-select: text; }
+  .np-head { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .np-head .link-btn { padding: 0; }
+  .np-sec { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .chip { display: inline-flex; align-items: center; gap: 2px; font-size: 12px; color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 2px 4px 2px 8px; }
+  .chip button { border: 0; background: none; color: inherit; cursor: pointer; padding: 0 3px; font-size: 13px; }
+  .chip-input { flex: 1; min-width: 110px; border: 1px dashed var(--line); background: transparent; color: var(--text); border-radius: 6px; padding: 3px 8px; font-size: 12px; outline: none; }
+  .chip-input:focus { border-color: var(--accent); border-style: solid; }
+  .np-text { width: 100%; resize: vertical; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); padding: 8px 10px; font: 13px/1.45 -apple-system, system-ui, sans-serif; outline: none; }
+  .np-text:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .np-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+  .np-actions .muted { margin-right: auto; }
+  .np-quote { position: relative; margin: 0; padding: 6px 22px 6px 10px; border-left: 3px solid #f5c542; background: color-mix(in srgb, #f5c542 12%, transparent); border-radius: 0 6px 6px 0; font: 13px/1.45 "New York", Georgia, serif; white-space: pre-wrap; max-height: 160px; overflow: auto; }
+  .np-quote .link-btn { position: absolute; top: 2px; right: 6px; padding: 0; font-size: 14px; }
+  .np-quote.clickable { cursor: pointer; padding-right: 10px; }
+  .np-quote.clickable:hover { background: color-mix(in srgb, #f5c542 22%, transparent); }
+  .np-note { border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+  .np-body { font-size: 13px; white-space: pre-wrap; }
+  .np-meta { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--muted); }
+  .np-meta .link-btn { padding: 0; font-size: 11px; }
+
+  mark.hl { background: color-mix(in srgb, #f5c542 38%, transparent); color: inherit; border-radius: 2px; padding: 0 1px; transition: background .3s; }
+  mark.hl.flash { background: #f5c542; }
+  .sel-pop { position: fixed; transform: translate(-50%, calc(-100% - 8px)); display: flex; background: #2c2c2e; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.3); overflow: hidden; z-index: 30; }
+  .sel-pop button { border: 0; background: none; color: #fff; padding: 6px 11px; font-size: 12.5px; cursor: pointer; white-space: nowrap; }
+  .sel-pop button + button { border-left: 1px solid rgba(255,255,255,.15); }
+  .sel-pop button:hover { background: rgba(255,255,255,.12); }

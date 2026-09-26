@@ -9,6 +9,7 @@ import { extractArticle, READER_PARTITION } from "./reader";
 import { translateArticle } from "./translate";
 import * as settings from "./settings";
 import { checkForUpdate, installUpdate } from "./updater";
+import * as library from "./library";
 
 let win: BrowserWindow | null = null;
 let quitting = false;
@@ -88,6 +89,7 @@ ipcMain.handle("settings:set", (_e, patch: Partial<Settings>) => {
   const clean: Partial<Settings> = {};
   if (typeof patch.notifications === "boolean") clean.notifications = patch.notifications;
   if (typeof patch.localDigestsDir === "string") clean.localDigestsDir = patch.localDigestsDir;
+  if (patch.contentLang === "tr" || patch.contentLang === "orig") clean.contentLang = patch.contentLang;
   if (typeof patch.openAtLogin === "boolean") {
     clean.openAtLogin = patch.openAtLogin;
     if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: patch.openAtLogin, args: ["--hidden"] });
@@ -96,6 +98,13 @@ ipcMain.handle("settings:set", (_e, patch: Partial<Settings>) => {
   if ("localDigestsDir" in clean) hub.rescanLocal();
   return settings.publicSettings();
 });
+ipcMain.handle("library:get", () => library.list());
+ipcMain.handle("library:update", (_e, a, patch) => library.update(a, patch || {}));
+ipcMain.handle("library:import", (_e, arr) => library.importItems(Array.isArray(arr) ? arr : []));
+ipcMain.handle("library:search", (_e, q: string) => library.search(q));
+ipcMain.handle("library:export", (_e, links: string[], title: string) => library.exportMarkdown(Array.isArray(links) ? links : [], String(title || "Notlar")));
+ipcMain.on("library:index", (_e, link: string, title: string, source: string, text: string, minutes: number) =>
+  library.indexText(String(link), String(title || ""), String(source || ""), String(text || "").slice(0, 80000), +minutes || 0));
 ipcMain.handle("app:version", () => app.getVersion());
 ipcMain.handle("update:check", () => checkForUpdate());
 ipcMain.handle("update:install", (_e, info) => installUpdate(info));
@@ -151,7 +160,7 @@ function buildMenu(): void {
 
 // ------------------------------------------------------------------ başlat
 app.on("second-instance", showWindow);
-app.on("before-quit", () => { quitting = true; });
+app.on("before-quit", () => { quitting = true; library.flush(); });
 
 // Geliştirme modunda da Dock'ta uygulama ikonu görünsün
 app.whenReady().then(() => { if (process.platform === "darwin" && !app.isPackaged) app.dock?.setIcon(path.join(__dirname, "../../resources/icon.png")); });

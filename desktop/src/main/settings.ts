@@ -15,6 +15,7 @@ const DEFAULTS: Stored = {
   openAtLogin: false,
   localDigestsDir: path.join(os.homedir(), "Desktop", "ai-news"),
   lastNotifiedAt: 0,
+  contentLang: "tr",
 };
 
 const file = () => path.join(app.getPath("userData"), "settings.json");
@@ -35,5 +36,5 @@ export function save(patch: Partial<Stored>): Stored {
 
 export function publicSettings(): Settings {
   const s = load();
-  return { notifications: s.notifications, openAtLogin: s.openAtLogin, localDigestsDir: s.localDigestsDir };
+  return { notifications: s.notifications, openAtLogin: s.openAtLogin, localDigestsDir: s.localDigestsDir, contentLang: s.contentLang === "orig" ? "orig" : "tr" };
 }

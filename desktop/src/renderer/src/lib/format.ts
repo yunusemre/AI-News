@@ -7,7 +7,9 @@ let cats: CategoryDef[] = DEFAULT_CATEGORIES;
 export const setCategories = (list: CategoryDef[]) => { cats = list && list.length ? list : DEFAULT_CATEGORIES; };
 export const catDef = (id: string) => cats.find((c) => c.id === id);
 export const catLabel = (id: string) => catDef(id)?.short ?? id;
-export const viewTitle = (cat: string) => (cat === "all" ? "Tümü" : cat === "favorites" ? "Favoriler" : catDef(cat)?.label ?? cat);
+export const viewTitle = (cat: string) =>
+  cat === "all" ? "Tümü" : cat === "favorites" ? "Favoriler" : cat === "later" ? "Sonra oku"
+    : cat.startsWith("tag:") ? `#${cat.slice(4)}` : catDef(cat)?.label ?? cat;
 export function catStyle(id: string): CSSProperties | undefined {
   const c = catDef(id)?.color;
   return c ? { color: c, background: `color-mix(in srgb, ${c} 14%, transparent)` } : undefined;

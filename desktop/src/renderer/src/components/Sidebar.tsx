@@ -4,6 +4,7 @@ import type { CatFilter, View } from "../App";
 import { ago, digestLabel } from "../lib/format";
 import { newsCategoryIds } from "@shared/categories";
 import logo from "../assets/logo.png";
+import type { Library } from "../hooks/useLibrary";
 
 
 
@@ -13,10 +14,10 @@ interface Props {
   active: Exclude<View, { kind: "reader" }>;
   onSelect: (v: View) => void;
   onSettings: () => void;
-  favCount: number;
+  lib: Library;
 }
 
-export default function Sidebar({ payload, read, active, onSelect, onSettings, favCount }: Props) {
+export default function Sidebar({ payload, read, active, onSelect, onSettings, lib }: Props) {
   // "x dk önce" metnini canlı tut
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 60000); return () => clearInterval(t); }, []);
@@ -39,6 +40,7 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, f
     return { total: list.length, unread };
   };
 
+  const isActive = (cat: string) => active.kind === "news" && active.cat === cat;
   const conn = payload.connection;
   const updated = payload.meta.updated;
 
@@ -61,13 +63,22 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, f
             );
           })}
           {g.id === "news" && (
-            <div className={`nav ${active.kind === "news" && active.cat === "favorites" ? "active" : ""}`}
-                 onClick={() => onSelect({ kind: "news", cat: "favorites" })}>
-              <span className="ico">⭐</span>Favoriler<span className="count">{favCount || ""}</span>
-            </div>
+            <>
+              <NavItem icon="⭐" label="Favoriler" count={lib.favorites.length} active={isActive("favorites")} onClick={() => onSelect({ kind: "news", cat: "favorites" })} />
+              <NavItem icon="🔖" label="Sonra oku" count={lib.later.length} active={isActive("later")} onClick={() => onSelect({ kind: "news", cat: "later" })} />
+            </>
           )}
         </div>
       ))}
+
+      {lib.tags.length > 0 && (
+        <>
+          <div className="section">Etiketler</div>
+          {lib.tags.map((t) => (
+            <NavItem key={t.name} icon="#" label={t.name} count={t.count} active={isActive(`tag:${t.name}`)} onClick={() => onSelect({ kind: "news", cat: `tag:${t.name}` })} />
+          ))}
+        </>
+      )}
 
       <div className="section">Günlük Özetler</div>
       {payload.digests.length === 0 && <div className="nav muted"><span className="ico">·</span>Henüz özet yok</div>}
@@ -86,5 +97,13 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, f
         <button className="link-btn" onClick={onSettings}>⚙︎ Ayarlar</button>
       </div>
     </aside>
+  );
+}
+
+function NavItem({ icon, label, count, active, onClick }: { icon: string; label: string; count: number; active: boolean; onClick: () => void }) {
+  return (
+    <div className={`nav ${active ? "active" : ""}`} onClick={onClick}>
+      <span className="ico">{icon}</span><span className="lbl">{label}</span><span className="count">{count || ""}</span>
+    </div>
   );
 }
