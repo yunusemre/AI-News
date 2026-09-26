@@ -63,6 +63,14 @@
     "order": 13,
     "group": "tech"
   },
+  "sql": {
+    "label": "SQL & Veritabanı",
+    "short": "SQL",
+    "icon": "🗄️",
+    "color": "#0b7285",
+    "order": 14,
+    "group": "tech"
+  },
   "good": {
     "label": "İyi Haberler",
     "short": "İyi Haber",

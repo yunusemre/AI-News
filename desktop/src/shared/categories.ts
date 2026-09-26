@@ -10,6 +10,7 @@ export const DEFAULT_CATEGORIES: CategoryDef[] = [
   { id: "frontend", label: "Frontend", short: "Frontend", icon: "🎨", color: "#d6336c", order: 6, group: "tech" },
   { id: "devops", label: "DevOps", short: "DevOps", icon: "🚀", color: "#2b8a3e", order: 7, group: "tech" },
   { id: "mobile", label: "Mobil", short: "Mobil", icon: "📱", color: "#1971c2", order: 8, group: "tech" },
+  { id: "sql", label: "SQL & Veritabanı", short: "SQL", icon: "🗄️", color: "#0b7285", order: 9, group: "tech" },
   { id: "good", label: "İyi Haberler", short: "İyi Haber", icon: "🌱", color: "#2f9e44", order: 20, group: "stories" },
   { id: "stories", label: "Hikâye & Deneme", short: "Hikâye", icon: "📚", color: "#c2255c", order: 21, group: "stories" },
 ];

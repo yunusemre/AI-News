@@ -981,5 +981,136 @@
     "enabled": true,
     "maxAgeHours": 336,
     "maxPerRun": 2
+  },
+  "sqlserver-blog": {
+    "name": "SQL Server Blog",
+    "url": "https://www.microsoft.com/en-us/sql-server/blog/feed/",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "azure-sql-devblog": {
+    "name": "Azure SQL Dev Corner",
+    "url": "https://devblogs.microsoft.com/azure-sql/feed/",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "brent-ozar": {
+    "name": "Brent Ozar",
+    "url": "https://www.brentozar.com/feed/",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 3
+  },
+  "erik-darling": {
+    "name": "Erik Darling",
+    "url": "https://erikdarling.com/feed/",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 3
+  },
+  "simple-talk": {
+    "name": "Redgate Simple Talk",
+    "url": "https://www.red-gate.com/simple-talk/feed/",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 3
+  },
+  "sqlservercentral": {
+    "name": "SQLServerCentral",
+    "url": "https://www.sqlservercentral.com/articles/feed",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 168,
+    "maxPerRun": 3
+  },
+  "postgresql-news": {
+    "name": "PostgreSQL News",
+    "url": "https://www.postgresql.org/news.rss",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "planet-postgresql": {
+    "name": "Planet PostgreSQL",
+    "url": "https://planet.postgresql.org/rss20.xml",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 72,
+    "maxPerRun": 4
+  },
+  "crunchy-data": {
+    "name": "Crunchy Data Blog",
+    "url": "https://www.crunchydata.com/blog/rss.xml",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 3
+  },
+  "percona-blog": {
+    "name": "Percona Blog",
+    "url": "https://www.percona.com/blog/feed/",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 168,
+    "maxPerRun": 3
+  },
+  "r-sqlserver": {
+    "name": "r/SQLServer",
+    "url": "https://www.reddit.com/r/SQLServer/top/.rss?t=week",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 168,
+    "maxPerRun": 4
+  },
+  "r-postgresql": {
+    "name": "r/PostgreSQL",
+    "url": "https://www.reddit.com/r/PostgreSQL/top/.rss?t=week",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 168,
+    "maxPerRun": 4
+  },
+  "medium-sql": {
+    "name": "Medium · SQL",
+    "url": "https://medium.com/feed/tag/sql",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 72,
+    "maxPerRun": 3,
+    "excludePatterns": [
+      "\\bcourse\\b",
+      "\\budemy\\b",
+      "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+      "interview questions",
+      "cheat ?sheet",
+      "\\bhiring\\b",
+      "\\bjob\\b",
+      "\\bfree\\b.*\\b(ebook|pdf)\\b",
+      "\\bpart \\d+ of \\d+\\b"
+    ]
+  },
+  "devto-sql": {
+    "name": "dev.to · SQL",
+    "url": "https://dev.to/feed/tag/sql",
+    "category": "sql",
+    "enabled": true,
+    "maxAgeHours": 72,
+    "maxPerRun": 3,
+    "excludePatterns": [
+      "\\bcourse\\b",
+      "\\budemy\\b",
+      "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+      "interview questions",
+      "cheat ?sheet",
+      "\\bhiring\\b",
+      "\\bjob\\b",
+      "\\bfree\\b.*\\b(ebook|pdf)\\b",
+      "\\bpart \\d+ of \\d+\\b"
+    ]
   }
 }
