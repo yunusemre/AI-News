@@ -22,7 +22,9 @@ type Tr = { status: "idle" | "working" | "done" | "error"; html?: string; error?
 
 const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article, onBack, onOpen, lib }, ref) {
   const [load, setLoad] = useState<Load>({ status: "loading" });
-  const [mode, setMode] = useState<"reader" | "web">("reader");
+  // Görünüm (Okuma / Web sayfası) son seçilen şekilde açılır; hata sonrası otomatik geçiş kaydedilmez
+  const [mode, setMode] = useState<"reader" | "web">(() => (localStorage.getItem("aih:mode") === "web" ? "web" : "reader"));
+  const chooseMode = (m: "reader" | "web") => { setMode(m); try { localStorage.setItem("aih:mode", m); } catch { /* yoksay */ } };
   // Genel dil tercihi (Ayarlar'daki "İçerik dili" ile aynı); otomatik geçişler (zaten Türkçe / çeviri hatası) kaydedilmez
   const [prefLang, setPrefLang] = useLang();
   const [lang, setLang] = useState<Lang>(prefLang);
@@ -193,8 +195,8 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
           </div>
         )}
         <div className="seg" title="Görünüm">
-          <button className={mode === "reader" ? "on" : ""} onClick={() => setMode("reader")}>Okuma</button>
-          <button className={mode === "web" ? "on" : ""} onClick={() => setMode("web")}>Web sayfası</button>
+          <button className={mode === "reader" ? "on" : ""} onClick={() => chooseMode("reader")}>Okuma</button>
+          <button className={mode === "web" ? "on" : ""} onClick={() => chooseMode("web")}>Web sayfası</button>
         </div>
         <button className={`btn later-btn ${later ? "on" : ""}`} disabled={!baseItem} onClick={() => baseItem && lib.toggleLater(baseItem)}
                 title={later ? "Sonra oku listesinden çıkar" : "Sonra oku"}>🔖</button>

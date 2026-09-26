@@ -354,7 +354,7 @@
   "react-native-blog": {
     "name": "React Native Blog",
     "url": "https://reactnative.dev/blog/rss.xml",
-    "category": "frontend",
+    "category": "mobile",
     "enabled": true,
     "maxAgeHours": 336
   },
@@ -368,9 +368,16 @@
   "expo-releases": {
     "name": "Expo Releases",
     "url": "https://github.com/expo/expo/releases.atom",
-    "category": "frontend",
+    "category": "mobile",
     "enabled": true,
-    "maxAgeHours": 336
+    "maxAgeHours": 336,
+    "excludePatterns": [
+      "alpha",
+      "beta",
+      "\\brc\\b",
+      "canary",
+      "preview"
+    ]
   },
   "javascript-weekly": {
     "name": "JavaScript Weekly",
@@ -495,7 +502,7 @@
   "medium-react-native": {
     "name": "Medium · React Native",
     "url": "https://medium.com/feed/tag/react-native",
-    "category": "frontend",
+    "category": "mobile",
     "maxPerRun": 4,
     "maxAgeHours": 72,
     "excludePatterns": [
@@ -533,7 +540,7 @@
   "devto-reactnative": {
     "name": "dev.to · React Native",
     "url": "https://dev.to/feed/tag/reactnative",
-    "category": "frontend",
+    "category": "mobile",
     "maxPerRun": 4,
     "maxAgeHours": 72,
     "excludePatterns": [
@@ -862,5 +869,114 @@
     "enabled": true,
     "maxPerRun": 2,
     "maxAgeHours": 336
+  },
+  "expo-blog": {
+    "name": "Expo Blog",
+    "url": "https://expo.dev/blog",
+    "type": "html",
+    "linkPattern": "^/blog/[a-z0-9-]+$",
+    "category": "mobile",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 4
+  },
+  "expo-changelog": {
+    "name": "Expo Changelog",
+    "url": "https://expo.dev/changelog",
+    "type": "html",
+    "linkPattern": "^/changelog/[a-z0-9-]+$",
+    "category": "mobile",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 4
+  },
+  "thisweekinreact": {
+    "name": "This Week In React",
+    "url": "https://thisweekinreact.com/newsletter/rss.xml",
+    "category": "mobile",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "infinite-red": {
+    "name": "Infinite Red (Red Shift)",
+    "url": "https://shift.infinite.red/feed",
+    "category": "mobile",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "software-mansion": {
+    "name": "Software Mansion",
+    "url": "https://blog.swmansion.com/feed",
+    "category": "mobile",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "callstack-blog": {
+    "name": "Callstack Blog",
+    "url": "https://www.callstack.com/blog",
+    "type": "html",
+    "linkPattern": "^/blog/[a-z0-9-]+$",
+    "category": "mobile",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 4
+  },
+  "r-reactnative": {
+    "name": "r/reactnative",
+    "url": "https://www.reddit.com/r/reactnative/top/.rss?t=week",
+    "category": "mobile",
+    "maxAgeHours": 168,
+    "maxPerRun": 5,
+    "enabled": true
+  },
+  "rn-releases": {
+    "name": "React Native Releases",
+    "url": "https://github.com/facebook/react-native/releases.atom",
+    "category": "mobile",
+    "excludePatterns": [
+      "alpha",
+      "beta",
+      "\\brc\\b",
+      "-rc",
+      "nightly",
+      "canary",
+      "next\\."
+    ],
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "react-navigation-releases": {
+    "name": "React Navigation Releases",
+    "url": "https://github.com/react-navigation/react-navigation/releases.atom",
+    "category": "mobile",
+    "excludePatterns": [
+      "alpha",
+      "beta",
+      "\\brc\\b",
+      "-rc",
+      "nightly",
+      "canary",
+      "next\\."
+    ],
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 2
+  },
+  "reanimated-releases": {
+    "name": "Reanimated Releases",
+    "url": "https://github.com/software-mansion/react-native-reanimated/releases.atom",
+    "category": "mobile",
+    "excludePatterns": [
+      "alpha",
+      "beta",
+      "\\brc\\b",
+      "-rc",
+      "nightly",
+      "canary",
+      "next\\."
+    ],
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 2
   }
 }

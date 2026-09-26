@@ -55,6 +55,14 @@
     "order": 12,
     "group": "tech"
   },
+  "mobile": {
+    "label": "Mobil",
+    "short": "Mobil",
+    "icon": "📱",
+    "color": "#1971c2",
+    "order": 13,
+    "group": "tech"
+  },
   "good": {
     "label": "İyi Haberler",
     "short": "İyi Haber",
