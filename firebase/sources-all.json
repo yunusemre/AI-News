@@ -260,5 +260,210 @@
     "category": "learn",
     "enabled": true,
     "maxAgeHours": 336
+  },
+  "dotnet-blog": {
+    "name": ".NET Blog",
+    "url": "https://devblogs.microsoft.com/dotnet/feed/",
+    "category": "backend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "andrew-lock": {
+    "name": "Andrew Lock (.NET)",
+    "url": "https://andrewlock.net/rss.xml",
+    "category": "backend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "milan-jovanovic": {
+    "name": "Milan Jovanović (.NET)",
+    "url": "https://www.milanjovanovic.tech/rss/feed.xml",
+    "category": "backend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "r-dotnet": {
+    "name": "r/dotnet",
+    "url": "https://www.reddit.com/r/dotnet/top/.rss?t=week",
+    "category": "backend",
+    "maxAgeHours": 168,
+    "enabled": true
+  },
+  "redis-blog": {
+    "name": "Redis Blog",
+    "url": "https://redis.io/blog/feed/",
+    "category": "backend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "redis-releases": {
+    "name": "Redis Releases",
+    "url": "https://github.com/redis/redis/releases.atom",
+    "category": "backend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "rabbitmq-blog": {
+    "name": "RabbitMQ Blog",
+    "url": "https://www.rabbitmq.com/blog/rss.xml",
+    "category": "backend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "rabbitmq-releases": {
+    "name": "RabbitMQ Releases",
+    "url": "https://github.com/rabbitmq/rabbitmq-server/releases.atom",
+    "category": "backend",
+    "excludePatterns": [
+      "alpha",
+      "beta",
+      "rc\\d"
+    ],
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "infoq-backend": {
+    "name": "InfoQ",
+    "url": "https://feed.infoq.com/",
+    "category": "backend",
+    "keywords": [
+      ".net",
+      "dotnet",
+      "c#",
+      "asp.net",
+      "redis",
+      "rabbitmq",
+      "masstransit",
+      "entity framework",
+      "ef core",
+      "blazor",
+      "aspire",
+      "kafka",
+      "microservice"
+    ],
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "react-blog": {
+    "name": "React Blog",
+    "url": "https://react.dev/rss.xml",
+    "category": "frontend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "react-native-blog": {
+    "name": "React Native Blog",
+    "url": "https://reactnative.dev/blog/rss.xml",
+    "category": "frontend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "typescript-blog": {
+    "name": "TypeScript Blog",
+    "url": "https://devblogs.microsoft.com/typescript/feed/",
+    "category": "frontend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "expo-releases": {
+    "name": "Expo Releases",
+    "url": "https://github.com/expo/expo/releases.atom",
+    "category": "frontend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "javascript-weekly": {
+    "name": "JavaScript Weekly",
+    "url": "https://cprss.s3.amazonaws.com/javascriptweekly.com.xml",
+    "category": "frontend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "frontend-focus": {
+    "name": "Frontend Focus",
+    "url": "https://cprss.s3.amazonaws.com/frontendfoc.us.xml",
+    "category": "frontend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "react-status": {
+    "name": "React Status",
+    "url": "https://cprss.s3.amazonaws.com/react.statuscode.com.xml",
+    "category": "frontend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "smashing": {
+    "name": "Smashing Magazine",
+    "url": "https://www.smashingmagazine.com/feed/",
+    "category": "frontend",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "kubernetes-blog": {
+    "name": "Kubernetes Blog",
+    "url": "https://kubernetes.io/feed.xml",
+    "category": "devops",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "docker-blog": {
+    "name": "Docker Blog",
+    "url": "https://www.docker.com/blog/feed/",
+    "category": "devops",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "hashicorp-blog": {
+    "name": "HashiCorp Blog",
+    "url": "https://www.hashicorp.com/blog/feed.xml",
+    "category": "devops",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "cncf-blog": {
+    "name": "CNCF Blog",
+    "url": "https://www.cncf.io/feed/",
+    "category": "devops",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "github-changelog": {
+    "name": "GitHub Changelog",
+    "url": "https://github.blog/changelog/feed/",
+    "category": "devops",
+    "keywords": [
+      "actions",
+      "copilot",
+      "packages",
+      "container",
+      "security",
+      "codespaces",
+      "runner"
+    ],
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "the-new-stack": {
+    "name": "The New Stack",
+    "url": "https://thenewstack.io/feed/",
+    "category": "devops",
+    "keywords": [
+      "kubernetes",
+      "k8s",
+      "docker",
+      "terraform",
+      "devops",
+      "ci/cd",
+      "platform engineering",
+      "observability",
+      "opentelemetry",
+      "helm",
+      "argo",
+      "gitops",
+      "sre"
+    ],
+    "enabled": true,
+    "maxAgeHours": 336
   }
 }

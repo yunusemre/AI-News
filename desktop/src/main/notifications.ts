@@ -5,8 +5,8 @@ import type { DataHub } from "./dataHub";
 import { MAX_NOTIFICATIONS } from "./config";
 import * as settings from "./settings";
 
-const CAT_ORDER: Record<string, number> = { lab: 0, dev: 1, learn: 2, general: 3 };
-const ICON: Record<string, string> = { lab: "🧪", dev: "🛠️", general: "📰", learn: "🎓" };
+const CAT_ORDER: Record<string, number> = { lab: 0, dev: 1, backend: 2, frontend: 3, devops: 4, learn: 5, general: 6 };
+const ICON: Record<string, string> = { lab: "🧪", dev: "🛠️", general: "📰", learn: "🎓", backend: "⚙️", frontend: "🎨", devops: "🚀" };
 
 export function setupNotifications(hub: DataHub, onOpen: (id?: string) => void): void {
   hub.on("articles", (articles: Article[]) => {

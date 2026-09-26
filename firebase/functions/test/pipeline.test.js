@@ -161,6 +161,17 @@ const ATOM = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><ti
     assert.strictEqual(r2.stats.added, 2);
   });
 
+  await test("runPipeline: backend kategorisi + kaynak bazında excludePatterns", async () => {
+    const REL = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><title>r</title>
+<entry><title>RabbitMQ 4.3.1</title><link href="https://gh.ex/r/4.3.1"/><id>1</id><updated>${iso(NOW - 60)}</updated></entry>
+<entry><title>RabbitMQ 4.4.0-beta.2</title><link href="https://gh.ex/r/4.4b2"/><id>2</id><updated>${iso(NOW - 60)}</updated></entry>
+</feed>`;
+    const r = await runPipeline({ sources: { rmq: { name: "RMQ", url: "x", category: "backend", excludePatterns: ["beta", "rc\\d"] } },
+      config: {}, state: { seen: {} }, deps: { fetchText: async () => REL, translate: async (t) => t, now: () => NOW, log: () => {} } });
+    assert.deepStrictEqual(Object.values(r.articles).map((a) => a.title_orig), ["RabbitMQ 4.3.1"]);
+    assert.strictEqual(Object.values(r.articles)[0].cat, "backend");
+  });
+
   await test("runPipeline: learn kategorisi + kaynak bazında maxAgeHours", async () => {
     const OLD = `<?xml version="1.0"?><rss version="2.0"><channel><title>b</title>
 <item><title>Building a production RAG pipeline with rerankers</title><link>https://blog.ex/rag</link><pubDate>${rfc(NOW - 5 * 86400)}</pubDate></item>

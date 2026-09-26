@@ -205,13 +205,14 @@ async function runPipeline({ sources, config, state, deps }) {
       const maxAge = (Number(src.maxAgeHours) || cfg.maxAgeHours) * 3600;   // kaynak bazında ezilebilir (bloglar için uzun)
       if (it.ts && now - it.ts > maxAge) continue;
       if (it.ts && it.ts > now + 3600) it.ts = now;            // gelecekteki tarihleri düzelt
-      if (isNoise(it.title, exclude) || isDuplicate(it.title, recentTitles)) { stats.skipped++; continue; }
+      const srcExclude = Array.isArray(src.excludePatterns) ? exclude.concat(src.excludePatterns) : exclude;   // kaynak bazında ek filtre
+      if (isNoise(it.title, srcExclude) || isDuplicate(it.title, recentTitles)) { stats.skipped++; continue; }
       recentTitles.push(it.title);
       fresh.push({
         id: sha(it.link),
         sourceId: id,
         source: src.name || id,
-        cat: ["lab", "dev", "general", "learn"].includes(src.category) ? src.category : "general",
+        cat: ["lab", "dev", "general", "learn", "backend", "frontend", "devops"].includes(src.category) ? src.category : "general",
         title_orig: it.title,
         desc_orig: shortDesc(it.summary, it.title),
         link: it.link,

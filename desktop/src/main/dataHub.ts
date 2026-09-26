@@ -16,7 +16,7 @@ type RawMap<T> = Record<string, T> | null | undefined;
 function normalizeArticles(raw: RawMap<Partial<Article>>): Article[] {
   return Object.entries(raw || {})
     .map(([id, a]) => ({
-      id, sourceId: a.sourceId || "", source: a.source || "", cat: (["lab", "dev", "general", "learn"].includes(a.cat as string) ? a.cat : "general") as Article["cat"],
+      id, sourceId: a.sourceId || "", source: a.source || "", cat: (["lab", "dev", "general", "learn", "backend", "frontend", "devops"].includes(a.cat as string) ? a.cat : "general") as Article["cat"],
       title: a.title || a.title_orig || "", title_orig: a.title_orig || a.title || "",
       desc: a.desc || "", desc_orig: a.desc_orig || "", link: a.link || "",
       ts: Number(a.ts) || 0, createdAt: Number(a.createdAt) || Number(a.ts) || 0, translated: !!a.translated,

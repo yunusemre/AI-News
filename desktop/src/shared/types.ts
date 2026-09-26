@@ -1,6 +1,6 @@
 // Ana süreç ile arayüz arasında paylaşılan tipler
 
-export type Category = "lab" | "dev" | "general" | "learn";
+export type Category = "lab" | "dev" | "general" | "learn" | "backend" | "frontend" | "devops";
 
 /** Firebase RTDB /articles/{id} kaydı (Cloud Function yazar) */
 export interface Article {
