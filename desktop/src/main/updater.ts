@@ -22,13 +22,13 @@ export async function checkForUpdate(): Promise<UpdateInfo | null> {
       headers: { Accept: "application/vnd.github+json", "User-Agent": "AI-Haberleri" },
     });
     if (!r.ok) return null;
-    const rel = (await r.json()) as { tag_name: string; html_url: string; body?: string; assets?: { name: string; browser_download_url: string }[] };
+    const rel = (await r.json()) as { tag_name: string; html_url: string; body?: string; assets?: { name: string; url: string; browser_download_url: string }[] };
     const current = app.getVersion();
     if (!rel.tag_name || !newer(rel.tag_name, current)) return null;
     const arch = process.arch === "arm64" ? "arm64" : "x64";
     const zips = (rel.assets || []).filter((a) => a.name.endsWith(".zip") && a.name.includes("mac"));
     const asset = zips.find((a) => a.name.includes(arch)) || zips.find((a) => !/arm64|x64/.test(a.name)) || zips[0];
-    return { version: rel.tag_name.replace(/^v/, ""), current, url: rel.html_url, assetUrl: asset?.browser_download_url, notes: (rel.body || "").slice(0, 1500) };
+    return { version: rel.tag_name.replace(/^v/, ""), current, url: rel.html_url, assetUrl: asset?.url, notes: (rel.body || "").slice(0, 1500) };
   } catch {
     return null;
   }
@@ -58,7 +58,7 @@ export async function installUpdate(info: UpdateInfo): Promise<Result<null>> {
   const appPath = path.resolve(app.getPath("exe"), "../../..");
   if (!appPath.endsWith(".app")) return { ok: false, error: "Uygulama yolu bulunamadı." };
   try {
-    const r = await fetch(info.assetUrl);
+    const r = await fetch(info.assetUrl, { headers: { Accept: "application/octet-stream", "User-Agent": "AI-Haberleri" } });
     if (!r.ok) return { ok: false, error: `İndirme başarısız (HTTP ${r.status}).` };
     const zip = path.join(os.tmpdir(), `ai-haberleri-${info.version}.zip`);
     fs.writeFileSync(zip, Buffer.from(await r.arrayBuffer()));

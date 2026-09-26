@@ -22,8 +22,10 @@ mac:
   identity: "-"
   hardenedRuntime: false
   notarize: false
+  artifactName: AI-Haberleri-${version}-${arch}-mac.${ext}
 dmg:
   title: AI Haberleri
+  artifactName: AI-Haberleri-${version}-${arch}.${ext}
 win:
   icon: resources/icon.png
   target: [nsis]
