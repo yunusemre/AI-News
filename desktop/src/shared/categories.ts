@@ -31,4 +31,9 @@ export function normalizeCategories(raw: Record<string, Partial<CategoryDef>> | 
 }
 
 /** "Tümü" görünümüne dahil olan (Haberler grubundaki) kategori kimlikleri */
+/** Haber bu kategoride mi? (ana kategori ya da ek kategorilerden biri) */
+export const inCat = (a: { cat: string; cats?: string[] }, id: string) => a.cat === id || !!a.cats?.includes(id);
+/** Haberin kategorilerinden biri kümede mi? */
+export const inAnyCat = (a: { cat: string; cats?: string[] }, ids: Set<string>) => ids.has(a.cat) || !!a.cats?.some((c) => ids.has(c));
+
 export const newsCategoryIds = (cats: CategoryDef[]) => new Set(cats.filter((c) => c.group === "news").map((c) => c.id));

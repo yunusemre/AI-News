@@ -88,6 +88,15 @@ const ATOM = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><ti
     assert.strictEqual(a.ts, NOW);
   });
 
+  await test("Birden fazla kategori: cat ilk kategori, cats hepsi", async () => {
+    const html = '<a href="/p/react-native-new-architecture-deep-dive-issue">React Native new architecture: a deep dive into Fabric</a>';
+    const r = await runPipeline({ sources: { t: { name: "React Status", url: "https://nl.ex/", type: "html", linkPattern: "/p/", category: ["frontend", "mobile"] } },
+      config: {}, state: { seen: {} }, deps: { fetchText: async () => html, translate: async (t) => t, now: () => NOW, log: () => {} } });
+    const a = Object.values(r.articles)[0];
+    assert.strictEqual(a.cat, "frontend");
+    assert.deepStrictEqual(a.cats, ["frontend", "mobile"]);
+  });
+
   await test("Bozuk XML → boş liste", () => {
     assert.deepStrictEqual(parseFeed("<rss><channel><item>"), []);
     assert.deepStrictEqual(parseFeed("not xml"), []);

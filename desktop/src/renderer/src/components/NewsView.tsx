@@ -5,7 +5,7 @@ import type { Library } from "../hooks/useLibrary";
 import { catLabel, catStyle, viewTitle, dayKey, dayLabel, hm } from "../lib/format";
 import { display, useLang } from "../lib/lang";
 import { useToast } from "./Toast";
-import { newsCategoryIds } from "@shared/categories";
+import { inAnyCat, inCat, newsCategoryIds } from "@shared/categories";
 import { matchWatch } from "@shared/watch";
 import { useWatchWords } from "../hooks/useWatch";
 import { useProgressMap } from "../hooks/useProgress";
@@ -47,7 +47,7 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
   const list = useMemo(() => {
     const needle = q.trim().toLocaleLowerCase("tr");
     return articles.filter((a) =>
-      (libView || (cat === "all" ? newsIds.has(a.cat) : cat === "watched" ? watchOf.has(a.link) : a.cat === cat)) &&
+      (libView || (cat === "all" ? inAnyCat(a, newsIds) : cat === "watched" ? watchOf.has(a.link) : inCat(a, cat))) &&
       (!unreadOnly || !read.has(a.link)) &&
       (!needle || hitMap.has(a.link) ||
         `${a.title} ${a.desc} ${a.title_orig} ${a.desc_orig || ""} ${a.source} ${(lib.get(a.link)?.tags || []).join(" ")}`.toLocaleLowerCase("tr").includes(needle)));
@@ -100,6 +100,9 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
     setAdding(true);
     try { const t = (await navigator.clipboard.readText()).trim(); if (/^https?:\/\/\S+$/i.test(t)) setNewUrl(t); } catch { /* izin yoksa boş */ }
   };
+
+  // Birden fazla kategorideki haberde, bakılan kategorinin etiketi gösterilir
+  const shownCat = (a: Article) => (a.cats?.includes(cat) ? cat : a.cat);
 
   const open = (link: string, e: React.MouseEvent) => {
     if (e.metaKey || e.ctrlKey) { markRead([link]); window.api.openExternal(link); }
@@ -164,7 +167,7 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
               return (
                 <div key={a.id || a.link} className={`card ${read.has(a.link) ? "read" : "unread"} ${ww ? "watched" : ""}`} onClick={(e) => open(a.link, e)} onContextMenu={(e) => share(a, e)}>
                   <div className="meta">
-                    <span className="tag" style={catStyle(a.cat)}>{catLabel(a.cat)}</span>{a.source}
+                    <span className="tag" style={catStyle(shownCat(a))}>{catLabel(shownCat(a))}</span>{a.source}
                     {it?.minutes ? <span>· {it.minutes} dk</span> : null}
                     {it?.notes.length ? <span title="Not sayısı">· ✎ {it.notes.length}</span> : null}
                     {p > 0.03 && <span className="prog-txt" title="Okuma ilerlemesi">· {p >= 0.97 ? "✓ bitti" : `%${Math.round(p * 100)}`}</span>}

@@ -395,8 +395,11 @@
   },
   "react-status": {
     "name": "React Status",
-    "url": "https://cprss.s3.amazonaws.com/react.statuscode.com.xml",
-    "category": "frontend",
+    "url": "https://react.statuscode.com/rss/",
+    "category": [
+      "frontend",
+      "mobile"
+    ],
     "enabled": true,
     "maxAgeHours": 336
   },

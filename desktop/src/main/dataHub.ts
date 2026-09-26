@@ -18,6 +18,7 @@ function normalizeArticles(raw: RawMap<Partial<Article>>): Article[] {
   return Object.entries(raw || {})
     .map(([id, a]) => ({
       id, sourceId: a.sourceId || "", source: a.source || "", cat: String(a.cat || "general"),
+      ...(Array.isArray(a.cats) && a.cats.length ? { cats: a.cats.map(String) } : {}),
       title: a.title || a.title_orig || "", title_orig: a.title_orig || a.title || "",
       desc: a.desc || "", desc_orig: a.desc_orig || "", link: a.link || "",
       ts: Number(a.ts) || 0, createdAt: Number(a.createdAt) || Number(a.ts) || 0, translated: !!a.translated,

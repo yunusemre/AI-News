@@ -38,6 +38,7 @@ export interface Article {
   sourceId: string;
   source: string;
   cat: Category;
+  cats?: Category[];      // birden fazla kategoride görünecekse (ilk eleman = cat)
   title: string;          // Türkçe başlık
   title_orig: string;     // orijinal başlık
   desc?: string;          // Türkçe kısa açıklama

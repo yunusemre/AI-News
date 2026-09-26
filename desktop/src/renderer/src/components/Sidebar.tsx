@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { Payload } from "@shared/types";
 import type { CatFilter, View } from "../App";
 import { ago, digestLabel } from "../lib/format";
-import { newsCategoryIds } from "@shared/categories";
+import { inAnyCat, inCat, newsCategoryIds } from "@shared/categories";
 import logo from "../assets/logo.png";
 import type { Library } from "../hooks/useLibrary";
 import { useUpdate } from "../hooks/useUpdate";
@@ -39,7 +39,7 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
   if (news) news.items.unshift({ cat: "all", icon: "◉", label: "Tümü" });
 
   const counts = (cat: CatFilter) => {
-    const list = payload.articles.filter((a) => (cat === "all" ? newsIds.has(a.cat) : a.cat === cat));
+    const list = payload.articles.filter((a) => (cat === "all" ? inAnyCat(a, newsIds) : inCat(a, cat)));
     const unread = list.filter((a) => !read.has(a.link)).length;
     return { total: list.length, unread };
   };
