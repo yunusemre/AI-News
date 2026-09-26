@@ -3,6 +3,7 @@ import type { Payload } from "@shared/types";
 import type { CatFilter, View } from "../App";
 import { ago, digestLabel } from "../lib/format";
 import { newsCategoryIds } from "@shared/categories";
+import logo from "../assets/logo.png";
 
 
 
@@ -43,7 +44,7 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, f
 
   return (
     <aside>
-      <div className="brand"><span className="dot">✦</span> AI Haberleri</div>
+      <div className="brand"><img className="logo" src={logo} alt="" /> AI Haberleri</div>
 
       <div className="section">Haberler</div>
       {groups.map((g, gi) => (

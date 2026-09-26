@@ -152,6 +152,8 @@ function buildMenu(): void {
 app.on("second-instance", showWindow);
 app.on("before-quit", () => { quitting = true; });
 
+// Geliştirme modunda da Dock'ta uygulama ikonu görünsün
+app.whenReady().then(() => { if (process.platform === "darwin" && !app.isPackaged) app.dock?.setIcon(path.join(__dirname, "../../resources/icon.png")); });
 app.whenReady().then(() => {
   app.setName("AI Haberleri");
   session.fromPartition(READER_PARTITION).setPermissionRequestHandler((_wc, _p, cb) => cb(false));
