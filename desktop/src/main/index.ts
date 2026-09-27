@@ -18,6 +18,8 @@ let quitting = false;
 const hub = new DataHub();
 
 if (!app.requestSingleInstanceLock()) app.quit();
+// Beklenmeyen hatalar kullanıcıya "JavaScript error" penceresi olarak çıkmasın; günlüğe yazılsın
+process.on("uncaughtException", (e) => { console.error("[uncaught]", e); try { require("fs").appendFileSync(require("path").join(app.getPath("logs"), "main.log"), `${new Date().toISOString()} ${e?.stack || e}\n`); } catch { /* yoksay */ } });
 // Windows: bildirimlerin "News" adıyla görünmesi için (electron-builder appId ile aynı)
 if (process.platform === "win32") app.setAppUserModelId("com.yunusemretatar.ai-haberleri");
 

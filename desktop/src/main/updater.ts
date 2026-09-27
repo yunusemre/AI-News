@@ -96,35 +96,70 @@ export async function check(manual = false): Promise<UpdateState> {
   return state;
 }
 
-async function download(): Promise<void> {
+let inflight: Promise<void> | null = null;
+/** Aynı anda tek indirme; ikinci çağrı mevcut indirmeyi bekler */
+function download(): Promise<void> {
+  if (!inflight) inflight = doDownload().finally(() => { inflight = null; });
+  return inflight;
+}
+
+/** Eski güncelleme dosyalarını temizle (kilitli olanları atla) */
+function cleanupOld(keep?: string) {
+  try {
+    for (const f of fs.readdirSync(os.tmpdir())) {
+      if (!/^news-update-/.test(f)) continue;
+      const full = path.join(os.tmpdir(), f);
+      if (full !== keep) try { fs.unlinkSync(full); } catch { /* kullanımda: atla */ }
+    }
+  } catch { /* yoksay */ }
+}
+
+async function doDownload(): Promise<void> {
   const info = state.info;
   if (!info?.assetUrl) return;
+  const ext = isWin ? "exe" : "zip";
+  // Aynı sürüm daha önce eksiksiz indirildiyse tekrar indirme
+  const done = path.join(os.tmpdir(), `news-update-${info.version}.${ext}`);
+  try {
+    if (info.size && fs.statSync(done).size === info.size) { zipPath = done; set({ status: "ready", progress: 100 }); log(`önceden indirilmiş dosya kullanılıyor ${done}`); return; }
+  } catch { /* yok */ }
+  cleanupOld();
   set({ status: "downloading", progress: 0, error: undefined });
+  // Windows'ta bir önceki kurulum dosyası hâlâ açık/taranıyor olabilir (EBUSY): her denemede benzersiz geçici ad kullan
+  const part = path.join(os.tmpdir(), `news-update-${info.version}-${Date.now()}.part`);
   try {
     log(`indirme başladı ${info.assetUrl}`);
     const r = await fetch(info.assetUrl, { headers: { Accept: "application/octet-stream", "User-Agent": "News-App" }, redirect: "follow" });
     if (!r.ok || !r.body) throw new Error(`İndirme başarısız (HTTP ${r.status}).`);
     const total = Number(r.headers.get("content-length")) || info.size || 0;
-    const file = path.join(os.tmpdir(), `news-update-${info.version}.${isWin ? "exe" : "zip"}`);
-    const out = fs.createWriteStream(file);
+    const out = fs.createWriteStream(part);
+    let streamErr: Error | null = null;
+    out.on("error", (e) => { streamErr = e; });   // yakalanmazsa uygulama "JavaScript error" penceresiyle çöker
     const reader = r.body.getReader();
     let got = 0, lastPct = -1;
     for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
+      if (streamErr) throw streamErr;
+      const { done: end, value } = await reader.read();
+      if (end) break;
       got += value.length;
-      if (!out.write(value)) await new Promise<void>((res) => out.once("drain", () => res()));
+      if (!out.write(value)) await new Promise<void>((res) => { out.once("drain", () => res()); out.once("error", () => res()); });
       const pct = total ? Math.floor((got / total) * 100) : 0;
       if (pct !== lastPct && pct % 5 === 0) { lastPct = pct; set({ progress: pct }); }
     }
-    await new Promise<void>((res, rej) => out.end((err?: Error | null) => (err ? rej(err) : res())));
+    await new Promise<void>((res, rej) => out.end((err?: Error | null) => (err || streamErr ? rej(err || streamErr) : res())));
     if (total && got < total * 0.98) throw new Error(`Eksik indirildi (${got}/${total} bayt).`);
+    // Son adı ver; hedef kilitliyse .part adıyla devam et
+    let file = part.replace(/\.part$/, `.${ext}`);
+    try { fs.renameSync(part, file); } catch { file = part; }
+    if (isWin && !file.endsWith(".exe")) { const alt = part + ".exe"; try { fs.renameSync(part, alt); file = alt; } catch { /* yoksay */ } }
+    try { if (info.size && got === info.size) { fs.copyFileSync(file, done); file = done; } } catch { /* kilitliyse benzersiz adla devam */ }
     log(`indirme bitti ${got} bayt → ${file}`);
     zipPath = file;
     set({ status: "ready", progress: 100 });
     // Kullanıcı uygulamayı arka planda tutuyorsa beklemeden kur
     if (!windowVisible()) apply(true, true);
   } catch (e) {
+    try { fs.unlinkSync(part); } catch { /* yoksay */ }
     set({ status: "error", error: "Güncelleme indirilemedi: " + (e as Error).message });
   }
 }
@@ -186,7 +221,8 @@ export async function installNow(): Promise<Result<null>> {
   log("güncelle düğmesine basıldı");
   if (!canInstall()) { set({ error: cannotInstallReason() }); return { ok: false, error: cannotInstallReason() }; }
   if (state.status !== "ready") {
-    if (state.status !== "available") await check(true);
+    if (inflight) await inflight;
+    else if (state.status !== "available") await check(true);
     else await download();
   }
   if (state.status !== "ready") return { ok: false, error: state.error || (state.status === "latest" ? "Zaten en güncel sürüm." : "Güncelleme indirilemedi.") };
