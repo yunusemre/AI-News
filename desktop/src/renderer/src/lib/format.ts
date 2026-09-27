@@ -36,6 +36,19 @@ export function ago(ts: number): string {
 }
 
 export const dateLong = (d: Date) => d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+/** Haftalık özet etiketi: "Bu hafta" ya da "14–20 Eyl" */
+export function weekLabel(d: { date: string; from?: number; to?: number }): string {
+  const now = new Date();
+  const monday = new Date(now); monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const key = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, "0")}-${String(monday.getDate()).padStart(2, "0")}`;
+  if (d.date === key) return "Bu hafta";
+  const a = d.from ? new Date(d.from * 1000) : new Date(d.date + "T12:00:00");
+  const b = d.to ? new Date(d.to * 1000) : new Date(a.getTime() + 6 * 86400000);
+  const m = (x: Date) => x.toLocaleDateString("tr-TR", { month: "short" });
+  return a.getMonth() === b.getMonth() ? `${a.getDate()}–${b.getDate()} ${m(b)}` : `${a.getDate()} ${m(a)} – ${b.getDate()} ${m(b)}`;
+}
+export const digestTitle = (d: { date: string; kind?: string; from?: number; to?: number }) => (d.kind === "week" ? weekLabel(d) : digestLabel(d.date));
+
 export const digestLabel = (date: string) => new Date(date + "T12:00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "short" });
 
 export const hostOf = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };

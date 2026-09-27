@@ -9,6 +9,7 @@ import { useLibrary } from "./hooks/useLibrary";
 import Sidebar from "./components/Sidebar";
 import NewsView, { isLibraryView } from "./components/NewsView";
 import WordsView from "./components/WordsView";
+import DigestView from "./components/DigestView";
 import { useWords } from "./hooks/useWords";
 import Reader from "./components/Reader";
 import SettingsDialog from "./components/SettingsDialog";
@@ -109,6 +110,7 @@ export default function App() {
         {view.kind === "news" && (
           <NewsView ref={contentRef} cat={view.cat} articles={isLibraryView(view.cat) ? libArticles(view.cat) : payload.articles} read={read} markRead={markRead} onOpen={openReader} lib={lib} categories={payload.categories} />
         )}
+        {view.kind === "digest" && <DigestView ref={contentRef} digests={payload.digests} date={view.date} onOpen={openReader} />}
         {view.kind === "words" && <WordsView ref={contentRef} words={words} onOpen={openReader} />}
         {view.kind === "reader" && (
           <Reader key={view.url} ref={contentRef} url={view.url} article={view.article} onBack={goBack} onOpen={openReader} lib={lib} />

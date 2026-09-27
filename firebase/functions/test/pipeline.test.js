@@ -97,6 +97,27 @@ const ATOM = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><ti
     assert.deepStrictEqual(a.cats, ["frontend", "mobile"]);
   });
 
+  await test("Haftalık özet: öne çıkanlar, kategoriler, 7 günden eskiler hariç", () => {
+    const { buildWeekly, weekKey } = require("../lib/digest");
+    const now = Math.floor(Date.parse("2026-09-27T17:00:00Z") / 1000);
+    const A = [
+      { sourceId: "openai", source: "OpenAI", cat: "lab", title: "OpenAI yeni GPT modeli duyurdu", title_orig: "OpenAI announces new GPT model with longer context", desc: "Daha uzun bağlam.", link: "https://a/1", ts: now - 3600 },
+      { sourceId: "verge", source: "The Verge", cat: "general", title: "OpenAI yeni model", title_orig: "OpenAI announces GPT model with much longer context window", link: "https://a/2", ts: now - 7200 },
+      { sourceId: "redis", source: "Redis Blog", cat: "backend", title: "Redis 8.4 çıktı", title_orig: "Redis 8.4 released", desc: "Yeni veri tipleri.", link: "https://a/3", ts: now - 86400 },
+      { sourceId: "old", source: "Old", cat: "lab", title: "Eski haber", title_orig: "Old news item from last month", link: "https://a/5", ts: now - 9 * 86400 },
+    ];
+    const cats = { lab: { label: "Lab", icon: "🧪", order: 1, group: "news" }, general: { label: "Genel", icon: "📰", order: 3, group: "news" }, backend: { label: "Backend", icon: "⚙️", order: 10, group: "tech" } };
+    const w = buildWeekly({ articles: A, categories: cats, now });
+    assert.strictEqual(w.key, "2026-09-21");
+    assert.strictEqual(w.count, 3);
+    assert.ok(w.md.includes("öne çıkanlar") && w.md.includes("+1 kaynak daha"));
+    assert.ok(w.md.includes("## ⚙️ Backend · 1") && w.md.includes("Redis 8.4 çıktı"));
+    assert.ok(!w.md.includes("## 📰 Genel"), "öne çıkanlara giren haber kategoride tekrar etmez");
+    assert.ok(!w.md.includes("Eski haber"));
+    assert.ok(w.md_orig.includes("Redis 8.4 released"));
+    assert.strictEqual(weekKey(Math.floor(Date.parse("2026-09-28T00:30:00Z") / 1000)), "2026-09-28");   // TR saatiyle pazartesi
+  });
+
   await test("Bozuk XML → boş liste", () => {
     assert.deepStrictEqual(parseFeed("<rss><channel><item>"), []);
     assert.deepStrictEqual(parseFeed("not xml"), []);

@@ -50,9 +50,14 @@ export interface Article {
 }
 
 export interface Digest {
-  date: string;           // YYYY-MM-DD
+  date: string;           // YYYY-MM-DD (haftalık özette haftanın pazartesi günü)
   md: string;
   origin: "cloud" | "local";
+  kind?: "week" | "day";
+  md_orig?: string;       // orijinal dildeki sürüm
+  from?: number;          // kapsadığı aralık (unix saniye)
+  to?: number;
+  count?: number;
 }
 
 export interface Meta {

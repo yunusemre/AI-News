@@ -81,8 +81,10 @@ export class DataHub extends EventEmitter {
     this.unsubs.push(onValue(ref(db, "categories"), (snap) => { this.categories = normalizeCategories(snap.val()); this.changed(); }, () => {}));
 
     this.unsubs.push(onValue(query(ref(db, "digests"), limitToLast(30)), (snap) => {
-      const v = (snap.val() || {}) as Record<string, { md?: string }>;
-      this.cloudDigests = Object.entries(v).filter(([, d]) => d?.md).map(([date, d]) => ({ date, md: d.md!, origin: "cloud" as const }));
+      const v = (snap.val() || {}) as Record<string, { md?: string; md_orig?: string; kind?: "week" | "day"; from?: number; to?: number; count?: number }>;
+      this.cloudDigests = Object.entries(v).filter(([, d]) => d?.md).map(([date, d]) => ({
+        date, md: d.md!, origin: "cloud" as const, kind: d.kind, md_orig: d.md_orig, from: d.from, to: d.to, count: d.count,
+      }));
       this.changed();
     }, () => {}));
 

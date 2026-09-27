@@ -251,4 +251,4 @@ async function runPipeline({ sources, config, state, deps }) {
   return { articles, seen: seenNew, stats };
 }
 
-module.exports = { parseFeed, parseHtmlLinks, shortDesc, isNoise, isDuplicate, runPipeline, sha, DEFAULT_CONFIG, DEFAULT_EXCLUDE, clean };
+module.exports = { parseFeed, parseHtmlLinks, shortDesc, isNoise, isDuplicate, runPipeline, sha, DEFAULT_CONFIG, DEFAULT_EXCLUDE, clean, tokens };

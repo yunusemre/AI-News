@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Payload } from "@shared/types";
 import type { CatFilter, View } from "../App";
-import { ago, digestLabel } from "../lib/format";
+import { ago, digestLabel, digestTitle } from "../lib/format";
 import { inAnyCat, inCat, newsCategoryIds } from "@shared/categories";
 import logo from "../assets/logo.png";
 import type { Library } from "../hooks/useLibrary";
@@ -93,12 +93,12 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
         </>
       )}
 
-      <div className="section">Günlük Özetler</div>
-      {payload.digests.length === 0 && <div className="nav muted"><span className="ico">·</span>Henüz özet yok</div>}
-      {payload.digests.map((d) => (
+      <div className="section">Haftalık Özetler</div>
+      {payload.digests.length === 0 && <div className="nav muted"><span className="ico">·</span>İlk taramadan sonra oluşur</div>}
+      {payload.digests.slice(0, 6).map((d) => (
         <div key={d.date} className={`nav ${active.kind === "digest" && active.date === d.date ? "active" : ""}`}
              onClick={() => onSelect({ kind: "digest", date: d.date })}>
-          <span className="ico">📋</span>{digestLabel(d.date)}
+          <span className="ico">{d.kind === "week" ? "🗓" : "📋"}</span><span className="lbl">{digestTitle(d)}</span>{d.count ? <span className="count">{d.count}</span> : null}
         </div>
       ))}
 
