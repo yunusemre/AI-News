@@ -35,6 +35,10 @@ Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalama
     <td><img src="docs/screenshots/weekly.png" alt="Haftalık özet"><br><b>Haftalık özet</b> — son 7 günün öne çıkanları</td>
   </tr>
   <tr>
+    <td><img src="docs/screenshots/foryou.png" alt="Senin için"><br><b>Senin için</b> — okuduklarına göre sıralanır, nedenini söyler</td>
+    <td><img src="docs/screenshots/stats.png" alt="Okuma istatistikleri"><br><b>Okuma istatistikleri</b> — seri, haftalık okuma, alan dağılımı</td>
+  </tr>
+  <tr>
     <td colspan="2" align="center"><img src="docs/screenshots/interests.png" alt="İlgi alanları" width="70%"><br><b>İlgi alanları</b> — ilk açılışta seç, kenar çubuğu sana göre düzenlensin</td>
   </tr>
 </table>
@@ -44,7 +48,8 @@ Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalama
 ### 📰 Temiz bir haber akışı
 - **İlgi alanlarını seç:** ilk açılışta hangi alanları görmek istediğini seç, kenar çubuğu buna göre düzenlensin.
 - **Günde 3 tarama** (09:00, 14:00, 20:00) — yeni haberler uygulama açıkken canlı olarak düşer.
-- **Kısa ve öz:** her haberde tek cümlelik açıklama; tekrar eden ve gürültülü içerikler otomatik elenir.
+- **Kısa ve öz:** her haberde tek cümlelik açıklama; gürültülü içerikler otomatik elenir.
+- **Tekrar yok:** aynı haberi yazan farklı kaynaklar tek kartta birleşir — kartta **"+N kaynak"**, makale sonunda diğer kaynakların bağlantıları.
 - **Türkçe ya da orijinal:** başlık, açıklama ve makaleler tercihine göre Türkçe veya orijinal dilde.
 - **Bildirimler:** yeni haberler masaüstü bildirimi olarak gelir; istersen sadece takip ettiğin konular için.
 
@@ -74,7 +79,7 @@ Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalama
 ### 🔥 Alışkanlık
 - **Senin için:** okuduklarına göre sıralanan kişisel liste — her önerinin yanında neden önerildiği yazar.
 - **Okuma istatistikleri:** okuma serisi, haftalık okuma ve süre, alanlara ve kaynaklara göre dağılım.
-- **Sabah brifingi:** her sabah tek bildirim — gece gelen haberler, izlediğin konular, paket uyarıları.
+- **Sabah brifingi:** her sabah tek bildirim (varsayılan 08:30) — gece gelen haberler, izlediğin konular, paket uyarıları; saatini Ayarlar'dan değiştir.
 
 ### 🔗 Paylaşım
 - macOS paylaşım menüsü (Mail, Mesajlar, AirDrop, Notlar), bağlantı kopyalama ve **Slack / Teams için hazır özet**.
@@ -116,6 +121,7 @@ Kurulumdan sonra güncellemeler uygulamanın içinden gelir.
 | **Sağ tık** (kartta) | Paylaş menüsü |
 | **Çift tık** (makalede) | Sözlük / vurgula / not ekle |
 | **⌘ / Ctrl + ↩** | Notu kaydet |
+| **Aa** (okuma ekranı) | Yazı boyutu, yazı tipi, genişlik |
 
 ## Gizlilik
 
