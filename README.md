@@ -88,3 +88,7 @@ bash ~/Desktop/ai-news/notifier/uninstall.sh
 cd desktop && npm install && npm run dev      # hot reload
 cd firebase/functions && npm install && npm test
 ```
+
+## Lisans
+
+[MIT](LICENSE) © 2026 Yunus Emre Tatar. Kod imzalama ve gizlilik politikası: [CODE_SIGNING.md](CODE_SIGNING.md).
