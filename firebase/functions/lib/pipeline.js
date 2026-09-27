@@ -138,6 +138,26 @@ function shortDesc(summary, title, limit = 160) {
 
 const tokens = (t) => new Set((t.toLowerCase().match(/[a-z0-9]+/g) || []).filter((w) => w.length > 2 && !STOP.has(w)));
 
+/**
+ * Aynı haberi başka bir kaynağın farklı kelimelerle yazdığı başlıkları da yakalar:
+ * Jaccard ≥ 0.5  ya da  (en az 4 ortak kelime ve kısa başlığın %75'i ortak).
+ */
+function similar(a, b) {
+  if (a.size < 3 || !b.size) return false;
+  let inter = 0;
+  for (const w of a) if (b.has(w)) inter++;
+  if (inter / (a.size + b.size - inter) >= 0.5) return true;
+  return inter >= 4 && inter / Math.min(a.size, b.size) >= 0.75;
+}
+
+/** Aynı konudaki önceki haberin sırası (yoksa -1) */
+function findDuplicate(title, recent) {
+  const a = tokens(title);
+  if (a.size < 3) return -1;
+  for (let i = 0; i < recent.length; i++) if (similar(a, recent[i].tok || (recent[i].tok = tokens(recent[i].title)))) return i;
+  return -1;
+}
+
 function isDuplicate(title, recentTitles, threshold = 0.5) {
   const a = tokens(title);
   if (a.size < 3) return false;
@@ -170,10 +190,12 @@ async function runPipeline({ sources, config, state, deps }) {
   const cfg = { ...DEFAULT_CONFIG, ...(config || {}) };
   const now = deps.now();
   const exclude = DEFAULT_EXCLUDE.concat(cfg.excludePatterns || []);
-  const recentTitles = [...(state.recentTitles || [])];
+  // Son 72 saatin haberleri: { id, title, sourceId } — tekrar tespiti ve "diğer kaynaklar" için
+  const recent = [...(state.recent || []), ...(state.recentTitles || []).map((t) => ({ title: t }))];
+  const also = {};            // mevcut habere eklenecek diğer kaynaklar: { articleId: { sourceId: {source, link} } }
   const seenNew = {};
   const fresh = [];
-  const stats = { sources: 0, fetched: 0, added: 0, skipped: 0, errors: {} };
+  const stats = { sources: 0, fetched: 0, added: 0, skipped: 0, duplicates: 0, errors: {}, perSource: {} };
 
   const active = Object.entries(sources || {}).filter(([, s]) => s && s.url && s.enabled !== false);
   // Kaynakları paralel çek (en fazla 5 aynı anda)
@@ -196,6 +218,7 @@ async function runPipeline({ sources, config, state, deps }) {
   for (const { id, src, items } of results) {
     stats.sources++;
     stats.fetched += items.length;
+    const ps = (stats.perSource[id] = { fetched: items.length, added: 0, dup: 0, noise: 0 });
     const kw = (src.keywords || []).map((k) => String(k).toLowerCase());
     const perRunLimit = Number(src.maxPerRun) || Infinity;   // gürültülü kaynaklar (Medium, dev.to) için üst sınır
     let taken = 0;
@@ -208,13 +231,24 @@ async function runPipeline({ sources, config, state, deps }) {
       if (it.ts && now - it.ts > maxAge) continue;
       if (it.ts && it.ts > now + 3600) it.ts = now;            // gelecekteki tarihleri düzelt
       const srcExclude = Array.isArray(src.excludePatterns) ? exclude.concat(src.excludePatterns) : exclude;   // kaynak bazında ek filtre
-      if (isNoise(it.title, srcExclude) || isDuplicate(it.title, recentTitles)) { stats.skipped++; continue; }
+      if (isNoise(it.title, srcExclude)) { stats.skipped++; ps.noise++; continue; }
+      const di = findDuplicate(it.title, recent);
+      if (di >= 0) {
+        // Aynı haber başka bir kaynaktan: yeni kart açma, ilk habere "diğer kaynak" olarak ekle
+        stats.skipped++; stats.duplicates++; ps.dup++;
+        const orig = recent[di];
+        if (orig.id && orig.sourceId !== id) {
+          const entry = { source: src.name || id, link: it.link };
+          if (orig.fresh) (orig.fresh.also ||= {})[id] = entry;
+          else ((also[orig.id] ||= {})[id] = entry);
+        }
+        continue;
+      }
       if (taken >= perRunLimit) { stats.skipped++; continue; }
       taken++;
-      recentTitles.push(it.title);
       // category tek kimlik ya da dizi olabilir (ör. ["frontend", "mobile"]): ilk kategori ana kategoridir
       const cats = [].concat(src.category || []).map(String).filter((c) => /^[a-z0-9-]{1,30}$/.test(c));
-      fresh.push({
+      const art = {
         id: sha(it.link),
         sourceId: id,
         source: src.name || id,
@@ -225,7 +259,10 @@ async function runPipeline({ sources, config, state, deps }) {
         link: it.link,
         ts: it.ts || now,
         createdAt: now,
-      });
+      };
+      fresh.push(art);
+      recent.push({ id: art.id, title: it.title, sourceId: id, fresh: art });
+      ps.added++;
     }
   }
 
@@ -248,7 +285,8 @@ async function runPipeline({ sources, config, state, deps }) {
   const articles = {};
   for (const a of toAdd) articles[a.id] = a;
   stats.added = toAdd.length;
-  return { articles, seen: seenNew, stats };
+  // Bu çalışmada eklenmeyen (maxNewPerRun'a takılan) haberlere işaret eden "also" kayıtlarını at
+  return { articles, seen: seenNew, stats, also };
 }
 
-module.exports = { parseFeed, parseHtmlLinks, shortDesc, isNoise, isDuplicate, runPipeline, sha, DEFAULT_CONFIG, DEFAULT_EXCLUDE, clean, tokens };
+module.exports = { parseFeed, parseHtmlLinks, shortDesc, isNoise, isDuplicate, findDuplicate, similar, runPipeline, sha, DEFAULT_CONFIG, DEFAULT_EXCLUDE, clean, tokens };

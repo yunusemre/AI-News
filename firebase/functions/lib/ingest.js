@@ -27,13 +27,13 @@ async function ingestOnce({ db, translate, logger = console }) {
   ]);
   const config = { ...DEFAULT_CONFIG, ...(cfgSnap.val() || {}) };
   const now = Math.floor(Date.now() / 1000);
-  const recentTitles = [];
-  recentSnap.forEach((c) => { const a = c.val(); if (a && now - a.ts < 72 * 3600) recentTitles.push(a.title_orig || a.title); });
+  const recent = [];
+  recentSnap.forEach((c) => { const a = c.val(); if (a && now - a.ts < 72 * 3600) recent.push({ id: c.key, title: a.title_orig || a.title, sourceId: a.sourceId }); });
 
-  const { articles, seen, stats } = await runPipeline({
+  const { articles, seen, stats, also } = await runPipeline({
     sources: srcSnap.val() || {},
     config,
-    state: { seen: seenSnap.val() || {}, recentTitles },
+    state: { seen: seenSnap.val() || {}, recent },
     deps: { fetchText, translate, now: () => now, log: (m) => logger.warn(m) },
   });
 
@@ -41,8 +41,17 @@ async function ingestOnce({ db, translate, logger = console }) {
   const updates = {};
   for (const [id, a] of Object.entries(articles)) updates[`articles/${id}`] = a;
   for (const [h, ts] of Object.entries(seen)) updates[`seen/${h}`] = ts;
+  // Aynı haberi yazan diğer kaynaklar mevcut habere eklenir (uygulamada "+2 kaynak")
+  for (const [id, m] of Object.entries(also || {})) for (const [sid, e] of Object.entries(m)) updates[`articles/${id}/also/${sid}`] = e;
+  // Kaynak bazında birikimli istatistik (tekrar oranı yüksek kaynakları bulmak için)
+  const prevStats = (await root.child("meta/sourceStats").get()).val() || {};
+  for (const [sid, p] of Object.entries(stats.perSource || {})) {
+    const o = prevStats[sid] || { added: 0, dup: 0, noise: 0, since: now };
+    updates[`meta/sourceStats/${sid}`] = { added: o.added + p.added, dup: o.dup + p.dup, noise: o.noise + p.noise, since: o.since || now, last: now };
+  }
+  const { perSource, ...runStats } = stats;
   updates["meta/updated"] = now;
-  updates["meta/lastRun"] = { ts: now, ...stats };
+  updates["meta/lastRun"] = { ts: now, ...runStats };
   await root.update(updates);
 
   // Temizlik: eski haberler, eski "seen" kayıtları, eski gövde çevirileri
@@ -75,8 +84,8 @@ async function ingestOnce({ db, translate, logger = console }) {
     if (Object.keys(del).length) await root.update(del);
   } catch (e) { logger.warn("haftalık özet üretilemedi: " + e.message); }
 
-  logger.info("ingest tamam", { ...stats, removed: Object.keys(cleanup).length });
-  return stats;
+  logger.info("ingest tamam", { ...runStats, removed: Object.keys(cleanup).length });
+  return { ...stats, sourceTotals: Object.fromEntries(Object.entries(stats.perSource || {}).map(([sid]) => [sid, updates[`meta/sourceStats/${sid}`]])) };
 }
 
 

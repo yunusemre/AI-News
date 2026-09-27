@@ -8,6 +8,7 @@ import type { Library } from "../hooks/useLibrary";
 import { useUpdate } from "../hooks/useUpdate";
 import { useWatchWords } from "../hooks/useWatch";
 import { useTracker } from "../hooks/useTracker";
+import { streaks, useHabits } from "../lib/habits";
 import { matchWatch } from "@shared/watch";
 
 
@@ -20,9 +21,10 @@ interface Props {
   onSettings: () => void;
   lib: Library;
   wordCount: number;
+  forYouCount: number;
 }
 
-export default function Sidebar({ payload, read, active, onSelect, onSettings, lib, wordCount }: Props) {
+export default function Sidebar({ payload, read, active, onSelect, onSettings, lib, wordCount, forYouCount }: Props) {
   // "x dk önce" metnini canlı tut
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 60000); return () => clearInterval(t); }, []);
@@ -48,6 +50,7 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
   const upd = useUpdate();
   const watch = useWatchWords();
   const trk = useTracker();
+  const streak = streaks(useHabits()).current;
   const watched = watch.length ? payload.articles.filter((a) => matchWatch(a, watch).length) : [];
   const watchedUnread = watched.filter((a) => !read.has(a.link)).length;
   const [updErr, setUpdErr] = useState("");
@@ -75,12 +78,16 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
           })}
           {g.id === "news" && (
             <>
+              <NavItem icon="✨" label="Senin için" count={forYouCount} active={isActive("foryou")} onClick={() => onSelect({ kind: "news", cat: "foryou" })} />
               <NavItem icon="⭐" label="Favoriler" count={lib.favorites.length} active={isActive("favorites")} onClick={() => onSelect({ kind: "news", cat: "favorites" })} />
               <NavItem icon="🔖" label="Sonra oku" count={lib.later.length} active={isActive("later")} onClick={() => onSelect({ kind: "news", cat: "later" })} />
               {watch.length > 0 && <NavItem icon="👁" label="İzlenenler" count={watchedUnread || watched.length} unread={watchedUnread > 0} active={isActive("watched")} onClick={() => onSelect({ kind: "news", cat: "watched" })} />}
               <div className={`nav ${active.kind === "tracker" ? "active" : ""}`} onClick={() => onSelect({ kind: "tracker" })} title="Kullandığın paketlerin yeni sürümleri ve güvenlik açıkları">
                 <span className="ico">📦</span><span className="lbl">Paket takibi</span>
                 <span className={`count ${trk.alerts ? "unread alert" : ""}`}>{trk.alerts || trk.items.length || ""}</span>
+              </div>
+              <div className={`nav ${active.kind === "stats" ? "active" : ""}`} onClick={() => onSelect({ kind: "stats" })}>
+                <span className="ico">📈</span><span className="lbl">İstatistikler</span><span className="count">{streak ? `🔥${streak}` : ""}</span>
               </div>
               <div className={`nav ${active.kind === "words" ? "active" : ""}`} onClick={() => onSelect({ kind: "words" })}>
                 <span className="ico">📖</span><span className="lbl">Kelimelerim</span><span className="count">{wordCount || ""}</span>

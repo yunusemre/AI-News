@@ -8,6 +8,8 @@ interface Stored extends Settings {
   /** Bildirim gönderilen en son haberin createdAt değeri (tekrar bildirmemek için) */
   lastNotifiedAt: number;
   desktopMigrated?: boolean;
+  lastBriefing?: string;       // son brifingin günü (YYYY-MM-DD)
+  lastBriefingAt?: number;     // unix saniye
   windowBounds?: { x?: number; y?: number; width: number; height: number };
 }
 
@@ -23,6 +25,8 @@ const DEFAULTS: Stored = {
   notifyWatchedOnly: false,
   hiddenCategories: [],
   onboarded: false,
+  briefing: true,
+  briefingTime: "08:30",
 };
 
 const file = () => path.join(app.getPath("userData"), "settings.json");
@@ -52,5 +56,6 @@ export function publicSettings(): Settings {
   const s = load();
   return { notifications: s.notifications, openAtLogin: s.openAtLogin, localDigestsDir: s.localDigestsDir, contentLang: s.contentLang === "orig" ? "orig" : "tr", autoUpdate: s.autoUpdate !== false,
     watchWords: Array.isArray(s.watchWords) ? s.watchWords : [], notifyWatchedOnly: !!s.notifyWatchedOnly,
-    hiddenCategories: Array.isArray(s.hiddenCategories) ? s.hiddenCategories : [], onboarded: !!s.onboarded };
+    hiddenCategories: Array.isArray(s.hiddenCategories) ? s.hiddenCategories : [], onboarded: !!s.onboarded,
+    briefing: s.briefing !== false, briefingTime: /^\d{2}:\d{2}$/.test(s.briefingTime || "") ? s.briefingTime : "08:30" };
 }

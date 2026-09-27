@@ -53,6 +53,38 @@ async function syncConfig(db) {
   }
 }
 
+// GitHub Actions özet sayfası: kaynak raporu (tekrar oranı, hiç haber getirmeyenler, hatalar)
+function writeSummary(s, errs) {
+  const out = process.env.GITHUB_STEP_SUMMARY;
+  if (!out) return;
+  const tot = Object.entries(s.sourceTotals || {}).filter(([, t]) => t);
+  const days = (t) => Math.max(1, Math.round((t.last - t.since) / 86400));
+  const rate = (t) => (t.added + t.dup ? t.dup / (t.added + t.dup) : 0);
+  const pct = (x) => `%${Math.round(x * 100)}`;
+  const lines = [
+    "## 📰 Haber toplayıcı",
+    "",
+    `**${s.added}** yeni haber · **${s.duplicates || 0}** tekrar birleştirildi · ${s.skipped} elendi · ${s.sources} kaynak`,
+    "",
+  ];
+  const dupHeavy = tot.filter(([, t]) => t.added + t.dup >= 5 && rate(t) >= 0.5).sort((a, b) => rate(b[1]) - rate(a[1])).slice(0, 15);
+  if (dupHeavy.length) {
+    lines.push("### 🔁 Çoğunlukla başka kaynakların tekrarını getirenler", "", "Bu kaynaklar yeni bir şey eklemiyor olabilir — `sources.json`'da `\"enabled\": false` yapmayı düşün.", "", "| Kaynak | Eklenen | Tekrar | Tekrar oranı | Gün |", "|---|---:|---:|---:|---:|");
+    for (const [id, t] of dupHeavy) lines.push(`| ${id} | ${t.added} | ${t.dup} | ${pct(rate(t))} | ${days(t)} |`);
+    lines.push("");
+  }
+  const silent = tot.filter(([, t]) => t.added === 0 && days(t) >= 14).map(([id]) => id);
+  if (silent.length) lines.push("### 💤 14+ gündür hiç haber eklemeyenler", "", silent.map((x) => `\`${x}\``).join(", "), "");
+  if (errs.length) lines.push("### ⚠️ Hatalı kaynaklar", "", ...errs.map(([k, v]) => `- \`${k}\`: ${v}`), "");
+  const top = [...tot].sort((a, b) => b[1].added - a[1].added).slice(0, 10);
+  if (top.length) {
+    lines.push("<details><summary>En çok haber getiren kaynaklar</summary>", "", "| Kaynak | Eklenen | Tekrar | Gürültü |", "|---|---:|---:|---:|");
+    for (const [id, t] of top) lines.push(`| ${id} | ${t.added} | ${t.dup} | ${t.noise} |`);
+    lines.push("", "</details>");
+  }
+  try { require("fs").appendFileSync(out, lines.join("\n") + "\n"); } catch { /* yoksay */ }
+}
+
 const started = Date.now();
 const db = getDatabase();
 (args.includes("--sync-config") ? syncConfig(db) : Promise.resolve())
@@ -61,6 +93,7 @@ const db = getDatabase();
     console.log(`✅ ${s.added} yeni haber, ${s.skipped} elendi, ${s.sources} kaynak, ${((Date.now() - started) / 1000).toFixed(1)} sn`);
     const errs = Object.entries(s.errors || {});
     if (errs.length) console.log("⚠️ Hatalı kaynaklar:\n" + errs.map(([k, v]) => `  - ${k}: ${v}`).join("\n"));
+    writeSummary(s, errs);
     process.exit(0);
   })
   .catch((e) => { console.error("❌", e); process.exit(1); });

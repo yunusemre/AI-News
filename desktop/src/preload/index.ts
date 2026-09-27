@@ -36,6 +36,7 @@ const api: Api = {
   trackerRemove: (k) => ipcRenderer.invoke("tracker:remove", k),
   trackerSetCurrent: (k, v) => ipcRenderer.invoke("tracker:current", k, v),
   trackerCheck: () => ipcRenderer.invoke("tracker:check"),
+  testBriefing: () => ipcRenderer.invoke("briefing:test"),
   lookupWord: (w, ctx) => ipcRenderer.invoke("dict:lookup", w, ctx),
   getWords: () => ipcRenderer.invoke("words:get"),
   onWords: (cb) => {

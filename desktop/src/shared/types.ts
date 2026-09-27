@@ -40,6 +40,7 @@ export interface Article {
   source: string;
   cat: Category;
   cats?: Category[];      // birden fazla kategoride görünecekse (ilk eleman = cat)
+  also?: { sourceId: string; source: string; link: string }[];   // aynı haberi yazan diğer kaynaklar
   title: string;          // Türkçe başlık
   title_orig: string;     // orijinal başlık
   desc?: string;          // Türkçe kısa açıklama
@@ -178,6 +179,8 @@ export interface Settings {
   notifyWatchedOnly: boolean; // sadece izlenen kelime geçen haberler için bildirim
   hiddenCategories: string[]; // ilgi alanı seçiminde kapatılan kategoriler (kenar çubuğunda görünmez, bildirim gelmez)
   onboarded: boolean;         // ilk açılıştaki ilgi alanı seçimi yapıldı mı
+  briefing: boolean;          // sabah brifingi bildirimi
+  briefingTime: string;       // "08:30"
 }
 
 /** preload'ın window.api olarak açtığı arayüz */
@@ -207,6 +210,7 @@ export interface Api {
   trackerRemove(key: string): Promise<TrackerState>;
   trackerSetCurrent(key: string, version: string): Promise<TrackerState>;
   trackerCheck(): Promise<TrackerState>;
+  testBriefing(): Promise<boolean>;
   // sözlük
   lookupWord(word: string, context?: string): Promise<Result<DictResult>>;
   getWords(): Promise<WordEntry[]>;
@@ -230,4 +234,5 @@ export type Command =
   | { type: "go-back" }
   | { type: "open-article"; id: string }
   | { type: "open-settings" }
-  | { type: "open-tracker" };
+  | { type: "open-tracker" }
+  | { type: "open-foryou" };

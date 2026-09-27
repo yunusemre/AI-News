@@ -9,6 +9,7 @@ import { inAnyCat, inCat, newsCategoryIds } from "@shared/categories";
 import { matchWatch } from "@shared/watch";
 import { useWatchWords } from "../hooks/useWatch";
 import { useProgressMap } from "../hooks/useProgress";
+import type { ForYou } from "../lib/habits";
 
 interface Props {
   cat: CatFilter;
@@ -18,12 +19,13 @@ interface Props {
   onOpen: (url: string) => void;
   lib: Library;
   categories: CategoryDef[];
+  forYou?: ForYou;   // "Senin için" görünümü: sıralı liste + neden önerildi
 }
 
 /** Kütüphane görünümleri: favoriler, sonra oku, etiket */
 export const isLibraryView = (cat: string) => cat === "favorites" || cat === "later" || cat.startsWith("tag:");
 
-const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, articles, read, markRead, onOpen, lib, categories }, ref) {
+const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, articles, read, markRead, onOpen, lib, categories, forYou }, ref) {
   const [q, setQ] = useState("");
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [hits, setHits] = useState<SearchHit[]>([]);
@@ -47,7 +49,7 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
   const list = useMemo(() => {
     const needle = q.trim().toLocaleLowerCase("tr");
     return articles.filter((a) =>
-      (libView || (cat === "all" ? inAnyCat(a, newsIds) : cat === "watched" ? watchOf.has(a.link) : inCat(a, cat))) &&
+      (libView || cat === "foryou" || (cat === "all" ? inAnyCat(a, newsIds) : cat === "watched" ? watchOf.has(a.link) : inCat(a, cat))) &&
       (!unreadOnly || !read.has(a.link)) &&
       (!needle || hitMap.has(a.link) ||
         `${a.title} ${a.desc} ${a.title_orig} ${a.desc_orig || ""} ${a.source} ${(lib.get(a.link)?.tags || []).join(" ")}`.toLocaleLowerCase("tr").includes(needle)));
@@ -61,7 +63,7 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
   }, [hits, list]);
 
   const groups = useMemo(() => {
-    if (libView) return [{ key: "lib", label: "", items: list }];
+    if (libView || cat === "foryou") return [{ key: "lib", label: "", items: list }];
     const out: { key: string; label: string; items: Article[] }[] = [];
     for (const a of list) {
       const k = dayKey(a.ts);
@@ -69,7 +71,7 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
       out[out.length - 1].items.push(a);
     }
     return out;
-  }, [list, libView]);
+  }, [list, libView, cat]);
 
   const totalMin = cat === "later" ? list.reduce((s, a) => s + (lib.get(a.link)?.minutes || 0), 0) : 0;
 
@@ -117,6 +119,7 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
     ? <><b>Okuma listen boş</b>Bir haberi daha sonra okumak için kartındaki 🔖 işaretine bas.</>
     : cat === "favorites"
       ? <><b>Henüz favori yok</b>Bir haberi favorilere eklemek için kartındaki ☆ işaretine bas.</>
+      : cat === "foryou" ? <><b>Şimdilik öneri yok</b>Son 3 günün tüm haberlerini okumuşsun ya da henüz yeterince haber okumadın. Okudukça burası sana göre şekillenir.</>
       : cat === "watched" ? <><b>İzlenen kelime geçen haber yok</b>Ayarlar'dan izlemek istediğin kelimeleri ekle (ör. Redis, .NET, Expo).</>
       : cat.startsWith("tag:") ? <><b>Bu etikette kayıt yok</b>Okuma ekranındaki “✎ Notlar” panelinden etiket ekleyebilirsin.</>
         : <><b>Henüz haber yok</b>Sunucu ilk taramayı yaptığında haberler burada görünecek.</>;
@@ -150,6 +153,9 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
         </div>
       )}
       <div className="content" ref={ref}>
+        {forYou && !forYou.ready && !!articles.length && (
+          <div className="fy-note">✨ Birkaç haber daha okudukça bu liste senin ilgi alanlarına göre şekillenecek. Şimdilik en yeni haberler öne çıkıyor.</div>
+        )}
         {!articles.length && <div className="empty">{empty}</div>}
         {!!articles.length && !list.length && !extraHits.length && (
           <div className="empty"><b>Gösterilecek haber yok</b>{unreadOnly ? "Tüm haberleri okumuşsun 🎉" : "Aramayı veya filtreyi değiştir."}</div>
@@ -168,6 +174,7 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
                 <div key={a.id || a.link} className={`card ${read.has(a.link) ? "read" : "unread"} ${ww ? "watched" : ""}`} onClick={(e) => open(a.link, e)} onContextMenu={(e) => share(a, e)}>
                   <div className="meta">
                     <span className="tag" style={catStyle(shownCat(a))}>{catLabel(shownCat(a))}</span>{a.source}
+                    {a.also?.length ? <span className="also-chip" title={`Aynı haberi yazanlar: ${a.also.map((x) => x.source).join(", ")}`}>+{a.also.length} kaynak</span> : null}
                     {it?.minutes ? <span>· {it.minutes} dk</span> : null}
                     {it?.notes.length ? <span title="Not sayısı">· ✎ {it.notes.length}</span> : null}
                     {p > 0.03 && <span className="prog-txt" title="Okuma ilerlemesi">· {p >= 0.97 ? "✓ bitti" : `%${Math.round(p * 100)}`}</span>}
@@ -182,6 +189,7 @@ const NewsView = forwardRef<HTMLDivElement, Props>(function NewsView({ cat, arti
                   <div className="title">{d.title}</div>
                   {d.desc && <div className="desc">{d.desc}</div>}
                   {d.alt && <div className="orig">{d.alt}</div>}
+                  {forYou?.reasons.get(a.link) && forYou.ready && <div className="fy-why">✨ {forYou.reasons.get(a.link)}</div>}
                   {hit && <div className="snippet"><span>{hit.where === "note" ? "Notta:" : "Metinde:"}</span> {hit.snippet}</div>}
                   {!!it?.tags.length && <div className="card-tags">{it.tags.map((t) => <span key={t}>#{t}</span>)}</div>}
                   {p > 0.03 && p < 0.97 && <div className="prog"><div style={{ width: `${p * 100}%` }} /></div>}

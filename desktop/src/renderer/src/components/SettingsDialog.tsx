@@ -70,6 +70,18 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
           <div><b>Yeni haber bildirimleri</b><small>Uygulama açıkken (pencere kapalı olsa da) yeni haberler bildirilir.</small></div>
         </label>
 
+        <div className="row col">
+          <label className="inline" style={{ alignItems: "center", cursor: "pointer", marginTop: 0 }}>
+            <input type="checkbox" checked={s.briefing} onChange={(e) => update({ briefing: e.target.checked })} />
+            <b>Sabah brifingi</b>
+          </label>
+          <small>Her sabah tek bildirim: gece boyunca gelen haberler, izlediğin konular ve paket uyarıları.</small>
+          <div className="inline" style={{ alignItems: "center" }}>
+            <input className="text" type="time" style={{ flex: "0 0 110px" }} value={s.briefingTime} disabled={!s.briefing} onChange={(e) => e.target.value && update({ briefingTime: e.target.value })} />
+            <button className="btn" onClick={() => window.api.testBriefing()}>Şimdi göster</button>
+          </div>
+        </div>
+
         <label className="row">
           <input type="checkbox" checked={s.openAtLogin} onChange={(e) => update({ openAtLogin: e.target.checked })} />
           <div><b>Bilgisayar açılınca başlat</b><small>Arka planda sessizce açılır; bildirimleri kaçırmazsın.</small></div>

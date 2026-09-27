@@ -389,3 +389,38 @@
   .vuln .vsum { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .trk-foot { margin-top: 14px; }
   .trk-foot a { color: var(--accent); cursor: pointer; }
+
+  /* ---------- senin için / istatistikler ---------- */
+  .fy-note { margin: 14px 0 4px; padding: 10px 12px; border-radius: 9px; background: var(--accent-soft); font-size: 13px; }
+  .fy-why { font-size: 11.5px; color: var(--accent); margin-top: 6px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 14px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
+  .tile .tl { font-size: 12px; color: var(--muted); }
+  .tile b { font-size: 24px; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+  .tile small { font-size: 11.5px; color: var(--muted); }
+  .chart-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-top: 12px; }
+  .chart-card h3 { font-size: 13.5px; margin: 0 0 10px; }
+  .chart-card h3 small { font-weight: 400; color: var(--muted); margin-left: 6px; }
+  .chart-wrap { position: relative; }
+  svg.bars { width: 100%; height: auto; display: block; overflow: visible; }
+  svg.bars .grid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 3; }
+  svg.bars .axis { stroke: var(--line); stroke-width: 1; }
+  svg.bars .tick { font-size: 10.5px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  svg.bars .tick.today { fill: var(--text); font-weight: 600; }
+  svg.bars .bar { fill: var(--accent); opacity: .85; transition: opacity .1s; }
+  svg.bars .bar.hl { opacity: 1; }
+  .chart-tip { position: absolute; top: -6px; transform: translate(-50%, -100%); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; font-size: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.18); pointer-events: none; white-space: nowrap; display: flex; flex-direction: column; }
+  .chart-tip span { color: var(--muted); }
+  .two-col { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+  .two-col .chart-card { margin-top: 12px; }
+  .hbar { display: grid; grid-template-columns: 150px 1fr 34px; gap: 10px; align-items: center; padding: 4px 0; font-size: 13px; }
+  .hl-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hl-track { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+  .hl-fill { display: block; height: 100%; border-radius: 0 5px 5px 0; }
+  .hl-val { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .src-list { margin: 0; padding-left: 18px; font-size: 13px; }
+  .src-list li { padding: 4px 0; }
+  .src-list li span { display: inline-block; max-width: 75%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+  .src-list li b { float: right; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tile b.sm { font-size: 19px; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .also-chip { font-size: 11px; font-weight: 600; color: var(--muted); background: var(--hover); border-radius: 5px; padding: 0 6px; cursor: help; }

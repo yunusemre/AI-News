@@ -12,6 +12,7 @@ import { relatedArticles } from "../lib/related";
 import { display } from "../lib/lang";
 import ReadPrefsButton from "./ReadPrefsPopover";
 import { LINES, WIDTHS, useReadPrefs } from "../hooks/useReadPrefs";
+import { addReadingTime } from "../lib/habits";
 
 interface Props {
   url: string;
@@ -44,6 +45,11 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
     setPrefLang(l === "bi" ? "orig" : l);   // çift dilde listeler orijinal dilde görünür
   };
   const [rp] = useReadPrefs();
+  // Okuma süresi: pencere odaktayken ve sayfa görünürken 15 sn'de bir eklenir (istatistikler)
+  useEffect(() => {
+    const t = setInterval(() => { if (document.hasFocus() && document.visibilityState === "visible") addReadingTime(15); }, 15000);
+    return () => clearInterval(t);
+  }, []);
   const related = useMemo(() => relatedArticles({ link: url, title: article?.title, title_orig: article?.title_orig }, allArticles), [url, article, allArticles]);
   const [tr, setTr] = useState<Tr>({ status: "idle" });
   const [notesOpen, setNotesOpen] = useState(() => localStorage.getItem("aih:notes") === "1");
@@ -266,9 +272,16 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
             {lang !== "orig" && tr.status === "working" && <div className="tr-note"><span className="spin">↻</span> Türkçeye çevriliyor…</div>}
             {tr.status === "error" && <div className="tr-note warn">⚠︎ {tr.error} Orijinal metin gösteriliyor.</div>}
             <div className="a-body" ref={bodyRef} onMouseUp={onMouseUp} dangerouslySetInnerHTML={{ __html: view.body }} />
-            {related.length > 0 && (
+            {(related.length > 0 || !!article?.also?.length) && (
               <section className="related">
                 <h3>Bu konuda diğer kaynaklar</h3>
+                {article?.also?.map((x) => (
+                  <div key={x.link} className="rel-item" onClick={(e) => { if (e.metaKey || e.ctrlKey) window.api.openExternal(x.link); else onOpen(x.link); }}>
+                    <span className="rel-src">{x.source}</span>
+                    <span className="rel-title">Aynı haber — {x.source} anlatımı</span>
+                    <span className="rel-time">↗</span>
+                  </div>
+                ))}
                 {related.map((r) => {
                   const d = display(r, lang === "tr" ? "tr" : "orig");
                   return (

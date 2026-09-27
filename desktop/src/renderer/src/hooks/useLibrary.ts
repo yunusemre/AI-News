@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Article, LibItem, LibPatch, Note } from "@shared/types";
+import { recordInterest } from "../lib/habits";
 
 const OLD_FAV_KEY = "favorites";
 
@@ -45,8 +46,9 @@ export function useLibrary() {
   const get = useCallback((link: string) => byLink.get(link), [byLink]);
   const isFav = useCallback((link: string) => !!byLink.get(link)?.favorite, [byLink]);
   const isLater = useCallback((link: string) => !!byLink.get(link)?.later, [byLink]);
-  const toggleFav = useCallback((a: Article) => update(a, { favorite: !byLink.get(a.link)?.favorite }), [byLink, update]);
-  const toggleLater = useCallback((a: Article) => update(a, { later: !byLink.get(a.link)?.later }), [byLink, update]);
+  // Favori / sonra oku, "Senin için" profilinde okumadan daha güçlü bir ilgi sinyalidir
+  const toggleFav = useCallback((a: Article) => { const on = !byLink.get(a.link)?.favorite; if (on) recordInterest(a); return update(a, { favorite: on }); }, [byLink, update]);
+  const toggleLater = useCallback((a: Article) => { const on = !byLink.get(a.link)?.later; if (on) recordInterest(a); return update(a, { later: on }); }, [byLink, update]);
   const setTags = useCallback((a: Article, t: string[]) => update(a, { tags: t }), [update]);
   const addNote = useCallback((a: Article, n: Omit<Note, "id" | "createdAt">) => {
     const notes = [...(byLink.get(a.link)?.notes || []), { ...n, id: Math.random().toString(36).slice(2, 10), createdAt: Date.now() }];

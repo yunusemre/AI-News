@@ -71,6 +71,11 @@ Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalama
 - Kullandığın **NuGet, npm, PyPI** paketlerini ekle; yeni sürüm (yama / minor / **major**) ve **güvenlik açıkları** (OSV.dev) tek ekranda.
 - Sürümünü yazarsan yalnızca **seni etkileyen** açıklar; yeni sürüm ya da açık çıkınca bildirim.
 
+### 🔥 Alışkanlık
+- **Senin için:** okuduklarına göre sıralanan kişisel liste — her önerinin yanında neden önerildiği yazar.
+- **Okuma istatistikleri:** okuma serisi, haftalık okuma ve süre, alanlara ve kaynaklara göre dağılım.
+- **Sabah brifingi:** her sabah tek bildirim — gece gelen haberler, izlediğin konular, paket uyarıları.
+
 ### 🔗 Paylaşım
 - macOS paylaşım menüsü (Mail, Mesajlar, AirDrop, Notlar), bağlantı kopyalama ve **Slack / Teams için hazır özet**.
 

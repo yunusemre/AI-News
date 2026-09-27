@@ -13,6 +13,10 @@ import DigestView from "./components/DigestView";
 import WhatsNew from "./components/WhatsNew";
 import Onboarding from "./components/Onboarding";
 import TrackerView from "./components/TrackerView";
+import StatsView from "./components/StatsView";
+import { forYou, recordRead, useHabits } from "./lib/habits";
+import { matchWatch } from "@shared/watch";
+import { catLabel } from "./lib/format";
 import { useAppSettings } from "./hooks/useWatch";
 import { useWords } from "./hooks/useWords";
 import Reader from "./components/Reader";
@@ -27,19 +31,28 @@ export type View =
   | { kind: "digest"; date: string | null }
   | { kind: "words" }
   | { kind: "tracker" }
+  | { kind: "stats" }
   | { kind: "reader"; url: string; article: Article | null };
 
 export default function App() {
   const payload = usePayload();
+  const { read, markRead } = useReadState();
   // İlgi alanı seçiminde kapatılan kategoriler kenar çubuğunda ve "Tümü"de görünmez
   const appSettings = useAppSettings();
   const visibleCats = useMemo(() => {
     const hidden = new Set(appSettings?.hiddenCategories || []);
     return payload.categories.filter((c) => !hidden.has(c.id));
   }, [payload.categories, appSettings]);
+  // "Senin için": okunmamış, görünür alanlardaki haberler ilgi profiline göre sıralanır
+  const habits = useHabits();
+  const fy = useMemo(() => {
+    const vis = new Set(visibleCats.map((c) => c.id));
+    const pool = payload.articles.filter((a) => [a.cat, ...(a.cats || [])].some((c) => vis.has(c)));
+    const watched = new Set(pool.filter((a) => matchWatch(a, appSettings?.watchWords || []).length).map((a) => a.link));
+    return forYou(pool, habits, read, watched, catLabel);
+  }, [payload.articles, visibleCats, habits, read, appSettings]);
   const sidePayload = useMemo(() => ({ ...payload, categories: visibleCats }), [payload, visibleCats]);
   setCategories(payload.categories);
-  const { read, markRead } = useReadState();
   const lib = useLibrary();
   const { words } = useWords();
   const [view, setView] = useState<View>({ kind: "news", cat: "all" });
@@ -65,9 +78,11 @@ export default function App() {
   }, [view]);
 
   const openReader = useCallback((url: string) => {
+    const a = byLink.get(url) || lib.get(url)?.article;
+    if (a && !read.has(url)) recordRead(a);   // okuma istatistiği ve ilgi profili (ilk açılışta bir kez)
     markRead([url]);
     navigate({ kind: "reader", url, article: byLink.get(url) || lib.get(url)?.article || null });
-  }, [byLink, lib, markRead, navigate]);
+  }, [byLink, lib, markRead, navigate, read]);
 
   const goBack = useCallback(() => {
     if (view.kind === "reader") setView(prev);
@@ -84,6 +99,7 @@ export default function App() {
     if (cmd.type === "go-back") goBack();
     if (cmd.type === "open-settings") setSettingsOpen(true);
     if (cmd.type === "open-tracker") navigate({ kind: "tracker" });
+    if (cmd.type === "open-foryou") navigate({ kind: "news", cat: "foryou" });
     if (cmd.type === "focus-search") {
       setView((v) => (v.kind === "news" ? v : { kind: "news", cat: "all" }));
       setTimeout(() => document.querySelector<HTMLInputElement>("#search")?.focus(), 50);
@@ -116,15 +132,17 @@ export default function App() {
         onSelect={navigate}
         onSettings={() => setSettingsOpen(true)}
         lib={lib}
+        forYouCount={fy.list.length}
         wordCount={words.filter((w) => !w.learned).length}
       />
       <main>
         <UpdateBanner />
         {view.kind === "news" && (
-          <NewsView ref={contentRef} cat={view.cat} articles={isLibraryView(view.cat) ? libArticles(view.cat) : payload.articles} read={read} markRead={markRead} onOpen={openReader} lib={lib} categories={visibleCats} />
+          <NewsView ref={contentRef} cat={view.cat} articles={view.cat === "foryou" ? fy.list : isLibraryView(view.cat) ? libArticles(view.cat) : payload.articles} forYou={view.cat === "foryou" ? fy : undefined} read={read} markRead={markRead} onOpen={openReader} lib={lib} categories={visibleCats} />
         )}
         {view.kind === "digest" && <DigestView ref={contentRef} digests={payload.digests} date={view.date} onOpen={openReader} />}
         {view.kind === "tracker" && <TrackerView ref={contentRef} />}
+        {view.kind === "stats" && <StatsView ref={contentRef} categories={payload.categories} />}
         {view.kind === "words" && <WordsView ref={contentRef} words={words} onOpen={openReader} />}
         {view.kind === "reader" && (
           <Reader key={view.url} ref={contentRef} url={view.url} article={view.article} onBack={goBack} onOpen={openReader} lib={lib} allArticles={payload.articles} />

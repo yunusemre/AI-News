@@ -43,7 +43,8 @@ function cluster(articles, threshold = 0.3) {
     g.items.push(a);
   }
   for (const g of groups) {
-    g.sources = new Set(g.items.map((x) => x.sourceId || x.source)).size;
+    // Aynı haberi yazan diğer kaynaklar (toplayıcının birleştirdiği "also") da sayılır
+    g.sources = new Set(g.items.flatMap((x) => [x.sourceId || x.source, ...Object.keys(x.also || {})])).size;
     // Kümenin temsilcisi: açıklaması en dolu olan, eşitse en yeni
     g.lead = [...g.items].sort((x, y) => (y.desc || "").length - (x.desc || "").length || y.ts - x.ts)[0];
     g.ts = Math.max(...g.items.map((x) => x.ts));

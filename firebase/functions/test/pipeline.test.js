@@ -118,6 +118,32 @@ const ATOM = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><ti
     assert.strictEqual(weekKey(Math.floor(Date.parse("2026-09-28T00:30:00Z") / 1000)), "2026-09-28");   // TR saatiyle pazartesi
   });
 
+  await test("Tekrar: farklı kaynaktaki aynı haber yeni kart açmaz, ilk habere 'also' olarak eklenir", async () => {
+    const rss = (t, l) => `<rss><channel><item><title>${t}</title><link>${l}</link><pubDate>${new Date(NOW * 1000).toUTCString()}</pubDate></item></channel></rss>`;
+    const feeds = {
+      "https://a.ex/rss": rss("OpenAI releases GPT-6 with a one million token context window", "https://a.ex/gpt6"),
+      "https://b.ex/rss": rss("OpenAI releases GPT-6 featuring 1 million token context window for developers", "https://b.ex/gpt6"),
+    };
+    const sources = { a: { name: "A", url: "https://a.ex/rss", category: "lab" }, b: { name: "B", url: "https://b.ex/rss", category: "general" } };
+    const r = await runPipeline({ sources, config: {}, state: { seen: {}, recent: [] }, deps: { fetchText: async (u) => feeds[u], translate: async (t) => t, now: () => NOW, log: () => {} } });
+    const list = Object.values(r.articles);
+    assert.strictEqual(list.length, 1);
+    assert.strictEqual(r.stats.duplicates, 1);
+    assert.deepStrictEqual(list[0].also, { b: { source: "B", link: "https://b.ex/gpt6" } });
+    assert.strictEqual(r.stats.perSource.b.dup, 1);
+    // Önceki çalışmadan kalan habere de eklenir
+    const r2 = await runPipeline({ sources: { b: sources.b }, config: {}, state: { seen: {}, recent: [{ id: "x1", title: "OpenAI releases GPT-6 with a one million token context window", sourceId: "a" }] },
+      deps: { fetchText: async (u) => feeds[u], translate: async (t) => t, now: () => NOW, log: () => {} } });
+    assert.strictEqual(Object.keys(r2.articles).length, 0);
+    assert.deepStrictEqual(r2.also, { x1: { b: { source: "B", link: "https://b.ex/gpt6" } } });
+  });
+
+  await test("Tekrar: farklı konulardaki benzer başlıklar birleştirilmez", () => {
+    const { findDuplicate } = require("../lib/pipeline");
+    assert.strictEqual(findDuplicate("Redis 8.4 released with vector sets", [{ title: "PostgreSQL 18 released with async IO" }]), -1);
+    assert.strictEqual(findDuplicate("How to build a RAG pipeline with pgvector", [{ title: "Anthropic launches new Claude model" }]), -1);
+  });
+
   await test("Bozuk XML → boş liste", () => {
     assert.deepStrictEqual(parseFeed("<rss><channel><item>"), []);
     assert.deepStrictEqual(parseFeed("not xml"), []);

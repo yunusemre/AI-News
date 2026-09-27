@@ -19,6 +19,7 @@ function normalizeArticles(raw: RawMap<Partial<Article>>): Article[] {
     .map(([id, a]) => ({
       id, sourceId: a.sourceId || "", source: a.source || "", cat: String(a.cat || "general"),
       ...(Array.isArray(a.cats) && a.cats.length ? { cats: a.cats.map(String) } : {}),
+      ...(a.also && typeof a.also === "object" ? { also: Object.entries(a.also as unknown as Record<string, { source?: string; link?: string }>).filter(([, x]) => x?.link).map(([sourceId, x]) => ({ sourceId, source: String(x.source || sourceId), link: String(x.link) })) } : {}),
       title: a.title || a.title_orig || "", title_orig: a.title_orig || a.title || "",
       desc: a.desc || "", desc_orig: a.desc_orig || "", link: a.link || "",
       ts: Number(a.ts) || 0, createdAt: Number(a.createdAt) || Number(a.ts) || 0, translated: !!a.translated,
@@ -102,7 +103,7 @@ export class DataHub extends EventEmitter {
         this.articles = normalizeArticles(d.articles);
         this.meta = d.meta || {};
         this.categories = normalizeCategories(d.categories);
-        this.cloudDigests = Object.entries((d.digests || {}) as Record<string, { md: string }>).map(([date, x]) => ({ date, md: x.md, origin: "cloud" as const }));
+        this.cloudDigests = Object.entries((d.digests || {}) as Record<string, Omit<Digest, "date" | "origin">>).map(([date, x]) => ({ ...x, date, origin: "cloud" as const }));
         this.connection = "online";
         this.ready = true;
         this.emit("articles", this.articles);

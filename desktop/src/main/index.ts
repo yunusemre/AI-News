@@ -13,6 +13,7 @@ import { GITHUB_REPO } from "./config";
 import * as library from "./library";
 import * as words from "./words";
 import * as tracker from "./tracker";
+import * as briefing from "./briefing";
 import { normalizeWatch } from "@shared/watch";
 
 let win: BrowserWindow | null = null;
@@ -103,6 +104,8 @@ ipcMain.handle("settings:set", (_e, patch: Partial<Settings>) => {
   if (typeof patch.notifyWatchedOnly === "boolean") clean.notifyWatchedOnly = patch.notifyWatchedOnly;
   if (Array.isArray(patch.hiddenCategories)) clean.hiddenCategories = patch.hiddenCategories.map(String).filter((c) => /^[a-z0-9-]{1,30}$/.test(c)).slice(0, 50);
   if (typeof patch.onboarded === "boolean") clean.onboarded = patch.onboarded;
+  if (typeof patch.briefing === "boolean") clean.briefing = patch.briefing;
+  if (typeof patch.briefingTime === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(patch.briefingTime)) clean.briefingTime = patch.briefingTime;
   if (typeof patch.openAtLogin === "boolean") {
     clean.openAtLogin = patch.openAtLogin;
     if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: patch.openAtLogin, args: ["--hidden"] });
@@ -225,6 +228,8 @@ app.whenReady().then(() => {
   createWindow();
   hub.start();
   updater.start();
+  briefing.start(hub, () => { showWindow(); send({ type: "open-foryou" }); });
+  ipcMain.handle("briefing:test", () => briefing.show(true));
   tracker.start(() => { showWindow(); send({ type: "open-tracker" }); });
   setupNotifications(hub, (id) => (id ? send({ type: "open-article", id }) : showWindow()));
   app.on("activate", showWindow);

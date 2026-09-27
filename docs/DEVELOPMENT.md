@@ -94,3 +94,18 @@ bash ~/Desktop/ai-news/notifier/uninstall.sh
 cd desktop && npm install && npm run dev      # hot reload
 cd firebase/functions && npm install && npm test
 ```
+
+## Kaynak ekleme ilkeleri
+
+Kaynak sayısı arttıkça aynı haber farklı sitelerden tekrar gelir. Toplayıcı benzer başlıkları birleştirir
+(ilk gelen kart kalır, diğerleri kartta **"+N kaynak"** ve makale sonunda **"Bu konuda diğer kaynaklar"** olarak görünür),
+ama asıl çözüm seçici olmak:
+
+1. **Birincil kaynağı tercih et.** Duyuruyu yapanın kendi blogu (OpenAI, .NET Blog, Expo…) > onu aktaran haber sitesi > haberi özetleyen bülten.
+2. **Özgün katkı şartı.** Kaynak başka yerde olmayan bir şey vermeli: kendi analizi, deneyimi, derinlemesine yazısı ya da bir niş (ör. Brent Ozar → SQL Server performansı).
+3. **Toplayıcı / özet bültenlerden en fazla 1–2 tane.** Bunlar çoğunlukla diğer kaynakların tekrarıdır.
+4. **Gürültülü akışlara sınır koy.** Medium, dev.to, Reddit gibi kaynaklara `maxPerRun` (2–4) ve `excludePatterns` ekle.
+5. **Ölç, sonra karar ver.** Her toplayıcı çalışmasının özet sayfasında (GitHub → Actions → Haber toplayıcı → çalışma) **kaynak raporu** var:
+   - 🔁 *Çoğunlukla başka kaynakların tekrarını getirenler* — tekrar oranı %50'nin üzerindeyse `"enabled": false` yapmayı düşün
+   - 💤 *14+ gündür hiç haber eklemeyenler* — akış bozulmuş ya da kaynak ölmüş olabilir
+   - ⚠️ *Hatalı kaynaklar*
