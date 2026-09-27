@@ -7,7 +7,6 @@ import logo from "../assets/logo.png";
 import type { Library } from "../hooks/useLibrary";
 import { useUpdate } from "../hooks/useUpdate";
 import { useWatchWords } from "../hooks/useWatch";
-import { useTracker } from "../hooks/useTracker";
 import { streaks, useHabits } from "../lib/habits";
 import { matchWatch } from "@shared/watch";
 
@@ -49,7 +48,6 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
 
   const upd = useUpdate();
   const watch = useWatchWords();
-  const trk = useTracker();
   const streak = streaks(useHabits()).current;
   const watched = watch.length ? payload.articles.filter((a) => matchWatch(a, watch).length) : [];
   const watchedUnread = watched.filter((a) => !read.has(a.link)).length;
@@ -82,10 +80,6 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
               <NavItem icon="⭐" label="Favoriler" count={lib.favorites.length} active={isActive("favorites")} onClick={() => onSelect({ kind: "news", cat: "favorites" })} />
               <NavItem icon="🔖" label="Sonra oku" count={lib.later.length} active={isActive("later")} onClick={() => onSelect({ kind: "news", cat: "later" })} />
               {watch.length > 0 && <NavItem icon="👁" label="İzlenenler" count={watchedUnread || watched.length} unread={watchedUnread > 0} active={isActive("watched")} onClick={() => onSelect({ kind: "news", cat: "watched" })} />}
-              <div className={`nav ${active.kind === "tracker" ? "active" : ""}`} onClick={() => onSelect({ kind: "tracker" })} title="Kullandığın paketlerin yeni sürümleri ve güvenlik açıkları">
-                <span className="ico">📦</span><span className="lbl">Paket takibi</span>
-                <span className={`count ${trk.alerts ? "unread alert" : ""}`}>{trk.alerts || trk.items.length || ""}</span>
-              </div>
               <div className={`nav ${active.kind === "stats" ? "active" : ""}`} onClick={() => onSelect({ kind: "stats" })}>
                 <span className="ico">📈</span><span className="lbl">İstatistikler</span><span className="count">{streak ? `🔥${streak}` : ""}</span>
               </div>

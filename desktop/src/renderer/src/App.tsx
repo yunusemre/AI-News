@@ -12,7 +12,6 @@ import WordsView from "./components/WordsView";
 import DigestView from "./components/DigestView";
 import WhatsNew from "./components/WhatsNew";
 import Onboarding from "./components/Onboarding";
-import TrackerView from "./components/TrackerView";
 import StatsView from "./components/StatsView";
 import { forYou, recordRead, useHabits } from "./lib/habits";
 import { matchWatch } from "@shared/watch";
@@ -30,7 +29,6 @@ export type View =
   | { kind: "news"; cat: CatFilter }
   | { kind: "digest"; date: string | null }
   | { kind: "words" }
-  | { kind: "tracker" }
   | { kind: "stats" }
   | { kind: "reader"; url: string; article: Article | null };
 
@@ -98,7 +96,6 @@ export default function App() {
   useEffect(() => window.api.onCommand((cmd) => {
     if (cmd.type === "go-back") goBack();
     if (cmd.type === "open-settings") setSettingsOpen(true);
-    if (cmd.type === "open-tracker") navigate({ kind: "tracker" });
     if (cmd.type === "open-foryou") navigate({ kind: "news", cat: "foryou" });
     if (cmd.type === "focus-search") {
       setView((v) => (v.kind === "news" ? v : { kind: "news", cat: "all" }));
@@ -141,7 +138,6 @@ export default function App() {
           <NewsView ref={contentRef} cat={view.cat} articles={view.cat === "foryou" ? fy.list : isLibraryView(view.cat) ? libArticles(view.cat) : payload.articles} forYou={view.cat === "foryou" ? fy : undefined} read={read} markRead={markRead} onOpen={openReader} lib={lib} categories={visibleCats} />
         )}
         {view.kind === "digest" && <DigestView ref={contentRef} digests={payload.digests} date={view.date} onOpen={openReader} />}
-        {view.kind === "tracker" && <TrackerView ref={contentRef} />}
         {view.kind === "stats" && <StatsView ref={contentRef} categories={payload.categories} />}
         {view.kind === "words" && <WordsView ref={contentRef} words={words} onOpen={openReader} />}
         {view.kind === "reader" && (

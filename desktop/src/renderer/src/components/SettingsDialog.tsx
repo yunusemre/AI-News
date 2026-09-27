@@ -75,7 +75,7 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
             <input type="checkbox" checked={s.briefing} onChange={(e) => update({ briefing: e.target.checked })} />
             <b>Sabah brifingi</b>
           </label>
-          <small>Her sabah tek bildirim: gece boyunca gelen haberler, izlediğin konular ve paket uyarıları.</small>
+          <small>Her sabah tek bildirim: gece boyunca gelen haberler, izlediğin konular ve öne çıkan başlık.</small>
           <div className="inline" style={{ alignItems: "center" }}>
             <input className="text" type="time" style={{ flex: "0 0 110px" }} value={s.briefingTime} disabled={!s.briefing} onChange={(e) => e.target.value && update({ briefingTime: e.target.value })} />
             <button className="btn" onClick={() => window.api.testBriefing()}>Şimdi göster</button>

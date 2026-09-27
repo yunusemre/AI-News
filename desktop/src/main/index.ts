@@ -12,7 +12,6 @@ import * as updater from "./updater";
 import { GITHUB_REPO } from "./config";
 import * as library from "./library";
 import * as words from "./words";
-import * as tracker from "./tracker";
 import * as briefing from "./briefing";
 import { normalizeWatch } from "@shared/watch";
 
@@ -133,11 +132,6 @@ ipcMain.on("share:menu", (e, p: SharePayload) => {
   menu.popup(w ? { window: w } : {});
 });
 
-ipcMain.handle("tracker:get", () => tracker.state());
-ipcMain.handle("tracker:add", (_e, p) => tracker.add(p));
-ipcMain.handle("tracker:remove", (_e, k: string) => tracker.remove(String(k)));
-ipcMain.handle("tracker:current", (_e, k: string, v: string) => tracker.setCurrent(String(k), String(v || "")));
-ipcMain.handle("tracker:check", () => tracker.checkAll(false));
 ipcMain.handle("dict:lookup", (_e, w: string, ctx?: string) => words.lookup(w, ctx));
 ipcMain.handle("words:get", () => words.list());
 ipcMain.handle("words:save", (_e, e) => words.save(e));
@@ -230,7 +224,6 @@ app.whenReady().then(() => {
   updater.start();
   briefing.start(hub, () => { showWindow(); send({ type: "open-foryou" }); });
   ipcMain.handle("briefing:test", () => briefing.show(true));
-  tracker.start(() => { showWindow(); send({ type: "open-tracker" }); });
   setupNotifications(hub, (id) => (id ? send({ type: "open-article", id }) : showWindow()));
   app.on("activate", showWindow);
 });

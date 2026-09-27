@@ -133,24 +133,6 @@ export interface WordEntry {
   learned?: boolean;
 }
 
-// ------------------------------------------------------------------ sürüm & güvenlik takibi
-export type Ecosystem = "npm" | "NuGet" | "PyPI";
-export interface TrackedPkg { eco: Ecosystem; name: string; current?: string }
-export interface Vuln { id: string; summary: string; severity?: string; cve?: string; url: string; published?: string }
-export interface PkgStatus {
-  key: string;             // "npm:react"
-  latest?: string;
-  latestAt?: string;       // yayın tarihi (varsa)
-  level?: "current" | "patch" | "minor" | "major" | "unknown";   // mevcut sürüme göre
-  vulns: Vuln[];
-  vulnsFor?: string;       // açıkların sorgulandığı sürüm
-  vulnError?: string;      // güvenlik veritabanına ulaşılamadıysa
-  checkedAt?: number;
-  error?: string;
-  url: string;             // paket sayfası
-}
-export interface TrackerState { items: TrackedPkg[]; status: Record<string, PkgStatus>; checking: boolean; lastCheck?: number }
-
 export interface SharePayload {
   url: string;
   title: string;
@@ -203,13 +185,6 @@ export interface Api {
   installUpdate(): Promise<Result<null>>;
   /** Paylaş menüsü (macOS paylaşım + kopyalama seçenekleri) imleç konumunda açılır */
   shareMenu(p: SharePayload): void;
-  // sürüm & güvenlik
-  getTracker(): Promise<TrackerState>;
-  onTracker(cb: (s: TrackerState) => void): () => void;
-  trackerAdd(p: TrackedPkg): Promise<TrackerState>;
-  trackerRemove(key: string): Promise<TrackerState>;
-  trackerSetCurrent(key: string, version: string): Promise<TrackerState>;
-  trackerCheck(): Promise<TrackerState>;
   testBriefing(): Promise<boolean>;
   // sözlük
   lookupWord(word: string, context?: string): Promise<Result<DictResult>>;
@@ -234,5 +209,4 @@ export type Command =
   | { type: "go-back" }
   | { type: "open-article"; id: string }
   | { type: "open-settings" }
-  | { type: "open-tracker" }
   | { type: "open-foryou" };
