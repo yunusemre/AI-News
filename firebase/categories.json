@@ -70,5 +70,21 @@
     "color": "#0b7285",
     "order": 14,
     "group": "tech"
+  },
+  "analyst": {
+    "label": "Analiz & Ürün",
+    "short": "Analiz",
+    "icon": "📊",
+    "color": "#e8590c",
+    "order": 15,
+    "group": "tech"
+  },
+  "qa": {
+    "label": "Test & QA",
+    "short": "Test",
+    "icon": "🐞",
+    "color": "#5f3dc4",
+    "order": 16,
+    "group": "tech"
   }
 }

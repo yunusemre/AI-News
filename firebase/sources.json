@@ -1008,5 +1008,258 @@
       "\\bfree\\b.*\\b(ebook|pdf)\\b",
       "\\bpart \\d+ of \\d+\\b"
     ]
+  },
+  "mindtheproduct": {
+    "name": "Mind the Product",
+    "url": "https://www.mindtheproduct.com/feed/",
+    "category": "analyst",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 3
+  },
+  "lenny": {
+    "name": "Lenny's Newsletter",
+    "url": "https://www.lennysnewsletter.com/feed",
+    "category": "analyst",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 2,
+    "excludePatterns": [
+      "\\bpodcast\\b",
+      "community wisdom"
+    ]
+  },
+  "svpg": {
+    "name": "SVPG (Marty Cagan)",
+    "url": "https://www.svpg.com/feed/",
+    "category": "analyst",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "roman-pichler": {
+    "name": "Roman Pichler",
+    "url": "https://www.romanpichler.com/feed/",
+    "category": "analyst",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "producttalk": {
+    "name": "Product Talk (Teresa Torres)",
+    "url": "https://www.producttalk.org/feed/",
+    "category": "analyst",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "nngroup": {
+    "name": "Nielsen Norman Group",
+    "url": "https://www.nngroup.com/feed/rss/",
+    "category": "analyst",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 3
+  },
+  "medium-business-analysis": {
+    "name": "Medium · Business Analysis",
+    "url": "https://medium.com/feed/tag/business-analysis",
+    "category": "analyst",
+    "enabled": true,
+    "maxAgeHours": 72,
+    "maxPerRun": 3,
+    "excludePatterns": [
+      "\\bcourse\\b",
+      "\\budemy\\b",
+      "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+      "interview questions",
+      "cheat ?sheet",
+      "\\bhiring\\b",
+      "\\bjob\\b",
+      "\\bfree\\b.*\\b(ebook|pdf)\\b",
+      "\\bpart \\d+ of \\d+\\b"
+    ]
+  },
+  "medium-product-management": {
+    "name": "Medium · Product Management",
+    "url": "https://medium.com/feed/tag/product-management",
+    "category": "analyst",
+    "enabled": true,
+    "maxAgeHours": 72,
+    "maxPerRun": 3,
+    "excludePatterns": [
+      "\\bcourse\\b",
+      "\\budemy\\b",
+      "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+      "interview questions",
+      "cheat ?sheet",
+      "\\bhiring\\b",
+      "\\bjob\\b",
+      "\\bfree\\b.*\\b(ebook|pdf)\\b",
+      "\\bpart \\d+ of \\d+\\b"
+    ]
+  },
+  "r-businessanalysis": {
+    "name": "r/businessanalysis",
+    "url": "https://www.reddit.com/r/businessanalysis/top/.rss?t=week",
+    "category": "analyst",
+    "enabled": true,
+    "maxAgeHours": 168,
+    "maxPerRun": 3
+  },
+  "google-testing": {
+    "name": "Google Testing Blog",
+    "url": "https://testing.googleblog.com/feeds/posts/default",
+    "category": "qa",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "selenium-blog": {
+    "name": "Selenium Blog",
+    "url": "https://www.selenium.dev/blog/index.xml",
+    "category": "qa",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "angie-jones": {
+    "name": "Angie Jones",
+    "url": "https://angiejones.tech/feed/",
+    "category": "qa",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "playwright-releases": {
+    "name": "Playwright Releases",
+    "url": "https://github.com/microsoft/playwright/releases.atom",
+    "category": "qa",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "excludePatterns": [
+      "alpha",
+      "beta",
+      "\\brc\\b",
+      "-rc",
+      "nightly",
+      "canary",
+      "next\\."
+    ],
+    "maxPerRun": 2
+  },
+  "cypress-releases": {
+    "name": "Cypress Releases",
+    "url": "https://github.com/cypress-io/cypress/releases.atom",
+    "category": "qa",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "excludePatterns": [
+      "alpha",
+      "beta",
+      "\\brc\\b",
+      "-rc",
+      "nightly",
+      "canary",
+      "next\\."
+    ],
+    "maxPerRun": 2
+  },
+  "k6-releases": {
+    "name": "k6 Releases (yük testi)",
+    "url": "https://github.com/grafana/k6/releases.atom",
+    "category": "qa",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "excludePatterns": [
+      "alpha",
+      "beta",
+      "\\brc\\b",
+      "-rc",
+      "nightly",
+      "canary",
+      "next\\."
+    ],
+    "maxPerRun": 2
+  },
+  "maestro-releases": {
+    "name": "Maestro Releases (mobil test)",
+    "url": "https://github.com/mobile-dev-inc/maestro/releases.atom",
+    "category": [
+      "qa",
+      "mobile"
+    ],
+    "enabled": true,
+    "maxAgeHours": 336,
+    "excludePatterns": [
+      "alpha",
+      "beta",
+      "\\brc\\b",
+      "-rc",
+      "nightly",
+      "canary",
+      "next\\."
+    ],
+    "maxPerRun": 2
+  },
+  "detox-releases": {
+    "name": "Detox Releases (React Native test)",
+    "url": "https://github.com/wix/Detox/releases.atom",
+    "category": [
+      "qa",
+      "mobile"
+    ],
+    "enabled": true,
+    "maxAgeHours": 336,
+    "excludePatterns": [
+      "alpha",
+      "beta",
+      "\\brc\\b",
+      "-rc",
+      "nightly",
+      "canary",
+      "next\\."
+    ],
+    "maxPerRun": 2
+  },
+  "r-qa": {
+    "name": "r/QualityAssurance",
+    "url": "https://www.reddit.com/r/QualityAssurance/top/.rss?t=week",
+    "category": "qa",
+    "enabled": true,
+    "maxAgeHours": 168,
+    "maxPerRun": 3
+  },
+  "medium-software-testing": {
+    "name": "Medium · Software Testing",
+    "url": "https://medium.com/feed/tag/software-testing",
+    "category": "qa",
+    "enabled": true,
+    "maxAgeHours": 72,
+    "maxPerRun": 3,
+    "excludePatterns": [
+      "\\bcourse\\b",
+      "\\budemy\\b",
+      "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+      "interview questions",
+      "cheat ?sheet",
+      "\\bhiring\\b",
+      "\\bjob\\b",
+      "\\bfree\\b.*\\b(ebook|pdf)\\b",
+      "\\bpart \\d+ of \\d+\\b"
+    ]
+  },
+  "devto-testing": {
+    "name": "dev.to · Testing",
+    "url": "https://dev.to/feed/tag/testing",
+    "category": "qa",
+    "enabled": true,
+    "maxAgeHours": 72,
+    "maxPerRun": 3,
+    "excludePatterns": [
+      "\\bcourse\\b",
+      "\\budemy\\b",
+      "\\b(telugu|hindi|tamil|urdu|bangla)\\b",
+      "interview questions",
+      "cheat ?sheet",
+      "\\bhiring\\b",
+      "\\bjob\\b",
+      "\\bfree\\b.*\\b(ebook|pdf)\\b",
+      "\\bpart \\d+ of \\d+\\b"
+    ]
   }
 }

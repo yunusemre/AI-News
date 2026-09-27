@@ -11,6 +11,8 @@ export const DEFAULT_CATEGORIES: CategoryDef[] = [
   { id: "devops", label: "DevOps", short: "DevOps", icon: "🚀", color: "#2b8a3e", order: 7, group: "tech" },
   { id: "mobile", label: "Mobil", short: "Mobil", icon: "📱", color: "#1971c2", order: 8, group: "tech" },
   { id: "sql", label: "SQL & Veritabanı", short: "SQL", icon: "🗄️", color: "#0b7285", order: 9, group: "tech" },
+  { id: "analyst", label: "Analiz & Ürün", short: "Analiz", icon: "📊", color: "#e8590c", order: 10, group: "tech" },
+  { id: "qa", label: "Test & QA", short: "Test", icon: "🐞", color: "#5f3dc4", order: 11, group: "tech" },
 ];
 
 export function normalizeCategories(raw: Record<string, Partial<CategoryDef>> | null | undefined): CategoryDef[] {
