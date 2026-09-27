@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { markdownToHtml } from "../lib/markdown";
 import logo from "../assets/logo.png";
+import { useAppSettings } from "../hooks/useWatch";
 
 const KEY = "aih:seenVersion";
 const OPEN_EVT = "aih:whatsnew";
@@ -12,8 +13,11 @@ export default function WhatsNew() {
   const [notes, setNotes] = useState<{ md: string; url: string } | null>(null);
   const [version, setVersion] = useState("");
   const [open, setOpen] = useState(false);
+  const settings = useAppSettings();
+  const ready = !!settings?.onboarded;   // ilk açılışta önce ilgi alanı seçimi, sonra yenilikler
 
   useEffect(() => {
+    if (!ready) return;
     let alive = true;
     (async () => {
       const v = await window.api.getVersion();
@@ -28,7 +32,7 @@ export default function WhatsNew() {
     const manual = () => window.api.getReleaseNotes().then((n) => { if (n) { setNotes(n); setOpen(true); } });
     window.addEventListener(OPEN_EVT, manual);
     return () => { alive = false; window.removeEventListener(OPEN_EVT, manual); };
-  }, []);
+  }, [ready]);
 
   const html = useMemo(() => (notes ? markdownToHtml(notes.md) : ""), [notes]);
   if (!open || !notes) return null;

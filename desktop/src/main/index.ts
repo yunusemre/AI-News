@@ -12,6 +12,7 @@ import * as updater from "./updater";
 import { GITHUB_REPO } from "./config";
 import * as library from "./library";
 import * as words from "./words";
+import * as tracker from "./tracker";
 import { normalizeWatch } from "@shared/watch";
 
 let win: BrowserWindow | null = null;
@@ -100,6 +101,8 @@ ipcMain.handle("settings:set", (_e, patch: Partial<Settings>) => {
   if (typeof patch.autoUpdate === "boolean") clean.autoUpdate = patch.autoUpdate;
   if (patch.watchWords !== undefined) clean.watchWords = normalizeWatch(patch.watchWords);
   if (typeof patch.notifyWatchedOnly === "boolean") clean.notifyWatchedOnly = patch.notifyWatchedOnly;
+  if (Array.isArray(patch.hiddenCategories)) clean.hiddenCategories = patch.hiddenCategories.map(String).filter((c) => /^[a-z0-9-]{1,30}$/.test(c)).slice(0, 50);
+  if (typeof patch.onboarded === "boolean") clean.onboarded = patch.onboarded;
   if (typeof patch.openAtLogin === "boolean") {
     clean.openAtLogin = patch.openAtLogin;
     if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: patch.openAtLogin, args: ["--hidden"] });
@@ -127,6 +130,11 @@ ipcMain.on("share:menu", (e, p: SharePayload) => {
   menu.popup(w ? { window: w } : {});
 });
 
+ipcMain.handle("tracker:get", () => tracker.state());
+ipcMain.handle("tracker:add", (_e, p) => tracker.add(p));
+ipcMain.handle("tracker:remove", (_e, k: string) => tracker.remove(String(k)));
+ipcMain.handle("tracker:current", (_e, k: string, v: string) => tracker.setCurrent(String(k), String(v || "")));
+ipcMain.handle("tracker:check", () => tracker.checkAll(false));
 ipcMain.handle("dict:lookup", (_e, w: string, ctx?: string) => words.lookup(w, ctx));
 ipcMain.handle("words:get", () => words.list());
 ipcMain.handle("words:save", (_e, e) => words.save(e));
@@ -217,6 +225,7 @@ app.whenReady().then(() => {
   createWindow();
   hub.start();
   updater.start();
+  tracker.start(() => { showWindow(); send({ type: "open-tracker" }); });
   setupNotifications(hub, (id) => (id ? send({ type: "open-article", id }) : showWindow()));
   app.on("activate", showWindow);
 });

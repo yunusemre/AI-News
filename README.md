@@ -26,6 +26,7 @@ Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalama
 ## Özellikler
 
 ### 📰 Temiz bir haber akışı
+- **İlgi alanlarını seç:** ilk açılışta hangi alanları görmek istediğini seç, kenar çubuğu buna göre düzenlensin.
 - **Günde 3 tarama** (09:00, 14:00, 20:00) — yeni haberler uygulama açıkken canlı olarak düşer.
 - **Kısa ve öz:** her haberde tek cümlelik açıklama; tekrar eden ve gürültülü içerikler otomatik elenir.
 - **Türkçe ya da orijinal:** başlık, açıklama ve makaleler tercihine göre Türkçe veya orijinal dilde.
@@ -34,6 +35,9 @@ Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalama
 ### 📖 Uygulama içinde okuma
 - **Okuma modu:** reklamsız, sade bir sayfa; tek tıkla Türkçe çeviri.
 - **Kaldığın yerden devam:** yarım bıraktığın makale aynı noktadan açılır.
+- **Çift dilli görünüm:** orijinal metin, her paragrafın altında Türkçesi.
+- **Okuma ayarları:** yazı boyutu, yazı tipi, satır genişliği ve aralığı.
+- **Bu konuda diğer kaynaklar:** makalenin sonunda aynı konuyu yazan diğer haberler.
 - **Web sayfası görünümü:** istersen sayfanın aslını uygulamadan çıkmadan aç.
 
 ### 🗂 Kişisel kütüphane
@@ -46,6 +50,10 @@ Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalama
 - **İzlenen kelimeler:** "Redis", ".NET", "Expo"… geçen haberler vurgulanır ve ayrı listede toplanır.
 - **Kelime sözlüğü:** bir kelimeye çift tıkla; Türkçesi, okunuşu, tanımı ve cümledeki anlamı. Kelime listeni kart modunda tekrar et, CSV (Anki / Quizlet) olarak al.
 - **Haftalık özet:** son 7 günün öne çıkanları ve her alandan en önemli haberler tek sayfada.
+
+### 📦 Paket takibi · sürüm & güvenlik
+- Kullandığın **NuGet, npm, PyPI** paketlerini ekle; yeni sürüm (yama / minor / **major**) ve **güvenlik açıkları** (OSV.dev) tek ekranda.
+- Sürümünü yazarsan yalnızca **seni etkileyen** açıklar; yeni sürüm ya da açık çıkınca bildirim.
 
 ### 🔗 Paylaşım
 - macOS paylaşım menüsü (Mail, Mesajlar, AirDrop, Notlar), bağlantı kopyalama ve **Slack / Teams için hazır özet**.

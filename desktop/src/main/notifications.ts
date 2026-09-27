@@ -17,7 +17,9 @@ export function setupNotifications(hub: DataHub, onOpen: (id?: string) => void):
     if (!s.lastNotifiedAt) { settings.save({ lastNotifiedAt: newest }); return; }
 
     const watch = normalizeWatch(s.watchWords);
-    let fresh = articles.filter((a) => a.createdAt > s.lastNotifiedAt);
+    // Kapatılan ilgi alanlarından bildirim gelmez
+    const hidden = new Set(s.hiddenCategories || []);
+    let fresh = articles.filter((a) => a.createdAt > s.lastNotifiedAt && ![a.cat, ...(a.cats || [])].every((c) => hidden.has(c)));
     if (!fresh.length) return;
     settings.save({ lastNotifiedAt: newest });
     // İzlenen kelime geçenler önce; "sadece izlenenler" açıksa diğerleri bildirilmez

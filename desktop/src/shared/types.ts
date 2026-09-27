@@ -12,6 +12,7 @@ export interface CategoryDef {
   order: number;
   /** Kenar çubuğu grubu: "news" = Haberler (Tümü'ye dahil), diğerleri çizgiyle ayrılmış ayrı bölüm */
   group: string;
+  desc?: string;   // ilgi alanı seçim ekranındaki kısa açıklama
 }
 
 export interface UpdateInfo {
@@ -131,6 +132,24 @@ export interface WordEntry {
   learned?: boolean;
 }
 
+// ------------------------------------------------------------------ sürüm & güvenlik takibi
+export type Ecosystem = "npm" | "NuGet" | "PyPI";
+export interface TrackedPkg { eco: Ecosystem; name: string; current?: string }
+export interface Vuln { id: string; summary: string; severity?: string; cve?: string; url: string; published?: string }
+export interface PkgStatus {
+  key: string;             // "npm:react"
+  latest?: string;
+  latestAt?: string;       // yayın tarihi (varsa)
+  level?: "current" | "patch" | "minor" | "major" | "unknown";   // mevcut sürüme göre
+  vulns: Vuln[];
+  vulnsFor?: string;       // açıkların sorgulandığı sürüm
+  vulnError?: string;      // güvenlik veritabanına ulaşılamadıysa
+  checkedAt?: number;
+  error?: string;
+  url: string;             // paket sayfası
+}
+export interface TrackerState { items: TrackedPkg[]; status: Record<string, PkgStatus>; checking: boolean; lastCheck?: number }
+
 export interface SharePayload {
   url: string;
   title: string;
@@ -157,6 +176,8 @@ export interface Settings {
   autoUpdate: boolean;        // yeni sürümü arka planda indirip kur
   watchWords: string[];       // izlenen kelimeler (kartlarda vurgulanır)
   notifyWatchedOnly: boolean; // sadece izlenen kelime geçen haberler için bildirim
+  hiddenCategories: string[]; // ilgi alanı seçiminde kapatılan kategoriler (kenar çubuğunda görünmez, bildirim gelmez)
+  onboarded: boolean;         // ilk açılıştaki ilgi alanı seçimi yapıldı mı
 }
 
 /** preload'ın window.api olarak açtığı arayüz */
@@ -179,6 +200,13 @@ export interface Api {
   installUpdate(): Promise<Result<null>>;
   /** Paylaş menüsü (macOS paylaşım + kopyalama seçenekleri) imleç konumunda açılır */
   shareMenu(p: SharePayload): void;
+  // sürüm & güvenlik
+  getTracker(): Promise<TrackerState>;
+  onTracker(cb: (s: TrackerState) => void): () => void;
+  trackerAdd(p: TrackedPkg): Promise<TrackerState>;
+  trackerRemove(key: string): Promise<TrackerState>;
+  trackerSetCurrent(key: string, version: string): Promise<TrackerState>;
+  trackerCheck(): Promise<TrackerState>;
   // sözlük
   lookupWord(word: string, context?: string): Promise<Result<DictResult>>;
   getWords(): Promise<WordEntry[]>;
@@ -201,4 +229,5 @@ export type Command =
   | { type: "focus-search" }
   | { type: "go-back" }
   | { type: "open-article"; id: string }
-  | { type: "open-settings" };
+  | { type: "open-settings" }
+  | { type: "open-tracker" };

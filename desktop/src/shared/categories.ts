@@ -26,6 +26,7 @@ export function normalizeCategories(raw: Record<string, Partial<CategoryDef>> | 
       color: String(c.color || "#888888"),
       order: Number(c.order) || 99,
       group: String(c.group || "news"),
+      ...(c.desc ? { desc: String(c.desc) } : {}),
     }))
     .sort((a, b) => a.order - b.order);
   return list.length ? list : DEFAULT_CATEGORIES;

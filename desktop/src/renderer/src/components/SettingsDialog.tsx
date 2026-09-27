@@ -4,6 +4,7 @@ import { useLang } from "../lib/lang";
 import { useUpdate } from "../hooks/useUpdate";
 import { settingsChanged } from "../hooks/useWatch";
 import { openWhatsNew } from "./WhatsNew";
+import { openInterests } from "./Onboarding";
 
 export default function SettingsDialog({ onClose }: { onClose: () => void }) {
   const [s, setS] = useState<Settings | null>(null);
@@ -42,6 +43,12 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
             <button className={lang === "tr" ? "on" : ""} onClick={() => setLang("tr")}>Türkçe</button>
             <button className={lang === "orig" ? "on" : ""} onClick={() => setLang("orig")}>Orijinal (İngilizce)</button>
           </div>
+        </div>
+
+        <div className="row col">
+          <b>İlgi alanları</b>
+          <small>Kenar çubuğunda hangi alanların görüneceğini ve bildirim göndereceğini seç.</small>
+          <div className="inline"><button className="btn" onClick={() => { onClose(); openInterests(); }}>İlgi alanlarını düzenle</button></div>
         </div>
 
         <div className="row col">

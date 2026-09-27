@@ -67,3 +67,20 @@ export function translatableBlocks(html: string) {
     },
   };
 }
+
+/** Çift dilli görünüm: her bloğun altına çevirisini küçük bir satır olarak ekler (orijinal metin olduğu gibi kalır). */
+export function bilingualHtml(html: string, translated: string[]): string {
+  const doc = new DOMParser().parseFromString(`<div id="r">${html}</div>`, "text/html");
+  const root = doc.getElementById("r")!;
+  const blocks = [...root.querySelectorAll(BLOCKS)].filter((el) => !el.querySelector(BLOCKS) && (el.textContent || "").trim().length > 1);
+  blocks.forEach((b, i) => {
+    const t = translated[i];
+    if (!t || t.trim() === (b.textContent || "").replace(/\s+/g, " ").trim()) return;
+    const inside = /^(LI|TD|TH|DT|DD|FIGCAPTION)$/.test(b.tagName);
+    const el = doc.createElement(inside ? "span" : "div");
+    el.className = "bi-tr";
+    el.textContent = t;
+    if (inside) b.appendChild(el); else b.after(el);
+  });
+  return root.innerHTML;
+}

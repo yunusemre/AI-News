@@ -11,6 +11,9 @@ import NewsView, { isLibraryView } from "./components/NewsView";
 import WordsView from "./components/WordsView";
 import DigestView from "./components/DigestView";
 import WhatsNew from "./components/WhatsNew";
+import Onboarding from "./components/Onboarding";
+import TrackerView from "./components/TrackerView";
+import { useAppSettings } from "./hooks/useWatch";
 import { useWords } from "./hooks/useWords";
 import Reader from "./components/Reader";
 import SettingsDialog from "./components/SettingsDialog";
@@ -23,10 +26,18 @@ export type View =
   | { kind: "news"; cat: CatFilter }
   | { kind: "digest"; date: string | null }
   | { kind: "words" }
+  | { kind: "tracker" }
   | { kind: "reader"; url: string; article: Article | null };
 
 export default function App() {
   const payload = usePayload();
+  // İlgi alanı seçiminde kapatılan kategoriler kenar çubuğunda ve "Tümü"de görünmez
+  const appSettings = useAppSettings();
+  const visibleCats = useMemo(() => {
+    const hidden = new Set(appSettings?.hiddenCategories || []);
+    return payload.categories.filter((c) => !hidden.has(c.id));
+  }, [payload.categories, appSettings]);
+  const sidePayload = useMemo(() => ({ ...payload, categories: visibleCats }), [payload, visibleCats]);
   setCategories(payload.categories);
   const { read, markRead } = useReadState();
   const lib = useLibrary();
@@ -72,6 +83,7 @@ export default function App() {
   useEffect(() => window.api.onCommand((cmd) => {
     if (cmd.type === "go-back") goBack();
     if (cmd.type === "open-settings") setSettingsOpen(true);
+    if (cmd.type === "open-tracker") navigate({ kind: "tracker" });
     if (cmd.type === "focus-search") {
       setView((v) => (v.kind === "news" ? v : { kind: "news", cat: "all" }));
       setTimeout(() => document.querySelector<HTMLInputElement>("#search")?.focus(), 50);
@@ -98,7 +110,7 @@ export default function App() {
   return (
     <ToastProvider>
       <Sidebar
-        payload={payload}
+        payload={sidePayload}
         read={read}
         active={sidebarView}
         onSelect={navigate}
@@ -109,15 +121,17 @@ export default function App() {
       <main>
         <UpdateBanner />
         {view.kind === "news" && (
-          <NewsView ref={contentRef} cat={view.cat} articles={isLibraryView(view.cat) ? libArticles(view.cat) : payload.articles} read={read} markRead={markRead} onOpen={openReader} lib={lib} categories={payload.categories} />
+          <NewsView ref={contentRef} cat={view.cat} articles={isLibraryView(view.cat) ? libArticles(view.cat) : payload.articles} read={read} markRead={markRead} onOpen={openReader} lib={lib} categories={visibleCats} />
         )}
         {view.kind === "digest" && <DigestView ref={contentRef} digests={payload.digests} date={view.date} onOpen={openReader} />}
+        {view.kind === "tracker" && <TrackerView ref={contentRef} />}
         {view.kind === "words" && <WordsView ref={contentRef} words={words} onOpen={openReader} />}
         {view.kind === "reader" && (
-          <Reader key={view.url} ref={contentRef} url={view.url} article={view.article} onBack={goBack} onOpen={openReader} lib={lib} />
+          <Reader key={view.url} ref={contentRef} url={view.url} article={view.article} onBack={goBack} onOpen={openReader} lib={lib} allArticles={payload.articles} />
         )}
       </main>
       {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}
+      <Onboarding categories={payload.categories} />
       <WhatsNew />
     </ToastProvider>
   );

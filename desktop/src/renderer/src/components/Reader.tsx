@@ -7,7 +7,11 @@ import DictPopover from "./DictPopover";
 import { useWords } from "../hooks/useWords";
 import { getProgress, setProgress } from "../hooks/useProgress";
 import { catLabel, catStyle, dateLong, hostOf } from "../lib/format";
-import { sanitizeArticle, translatableBlocks } from "../lib/sanitize";
+import { bilingualHtml, sanitizeArticle, translatableBlocks } from "../lib/sanitize";
+import { relatedArticles } from "../lib/related";
+import { display } from "../lib/lang";
+import ReadPrefsButton from "./ReadPrefsPopover";
+import { LINES, WIDTHS, useReadPrefs } from "../hooks/useReadPrefs";
 
 interface Props {
   url: string;
@@ -15,21 +19,32 @@ interface Props {
   onBack: () => void;
   onOpen: (url: string) => void;
   lib: Library;
+  allArticles: Article[];   // "Bu konuda diğer kaynaklar" için
 }
 
 type Load = { status: "loading" } | { status: "error"; error: string } | { status: "ok"; data: ReaderArticle; html: string };
-type Tr = { status: "idle" | "working" | "done" | "error"; html?: string; error?: string; title?: string };
+type Tr = { status: "idle" | "working" | "done" | "error"; html?: string; biHtml?: string; error?: string; title?: string };
+/** Okuma dili: Türkçe, orijinal ya da çift dilli (orijinal + her paragrafın altında Türkçesi) */
+type RLang = Lang | "bi";
+const BI_KEY = "aih:bilingual";
+const isBi = () => localStorage.getItem(BI_KEY) === "1";
 
-const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article, onBack, onOpen, lib }, ref) {
+const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article, onBack, onOpen, lib, allArticles }, ref) {
   const [load, setLoad] = useState<Load>({ status: "loading" });
   // Görünüm (Okuma / Web sayfası) son seçilen şekilde açılır; hata sonrası otomatik geçiş kaydedilmez
   const [mode, setMode] = useState<"reader" | "web">(() => (localStorage.getItem("aih:mode") === "web" ? "web" : "reader"));
   const chooseMode = (m: "reader" | "web") => { setMode(m); try { localStorage.setItem("aih:mode", m); } catch { /* yoksay */ } };
   // Genel dil tercihi (Ayarlar'daki "İçerik dili" ile aynı); otomatik geçişler (zaten Türkçe / çeviri hatası) kaydedilmez
   const [prefLang, setPrefLang] = useLang();
-  const [lang, setLang] = useState<Lang>(prefLang);
-  useEffect(() => { setLang(prefLang); }, [prefLang]);
-  const chooseLang = (l: Lang) => { setLang(l); setPrefLang(l); };
+  const [lang, setLang] = useState<RLang>(() => (isBi() ? "bi" : prefLang));
+  useEffect(() => { setLang(isBi() ? "bi" : prefLang); }, [prefLang]);
+  const chooseLang = (l: RLang) => {
+    try { localStorage.setItem(BI_KEY, l === "bi" ? "1" : "0"); } catch { /* yoksay */ }
+    setLang(l);
+    setPrefLang(l === "bi" ? "orig" : l);   // çift dilde listeler orijinal dilde görünür
+  };
+  const [rp] = useReadPrefs();
+  const related = useMemo(() => relatedArticles({ link: url, title: article?.title, title_orig: article?.title_orig }, allArticles), [url, article, allArticles]);
   const [tr, setTr] = useState<Tr>({ status: "idle" });
   const [notesOpen, setNotesOpen] = useState(() => localStorage.getItem("aih:notes") === "1");
   const toggleNotes = (v?: boolean) => setNotesOpen((o) => { const n = v ?? !o; try { localStorage.setItem("aih:notes", n ? "1" : "0"); } catch {} return n; });
@@ -58,7 +73,7 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
 
   // 2) Türkçe istenirse çevir (bir kez; hata olursa "Türkçe"ye tekrar basınca yeniden dener)
   useEffect(() => {
-    if (load.status !== "ok" || lang !== "tr" || trStarted.current) return;
+    if (load.status !== "ok" || (lang !== "tr" && lang !== "bi") || trStarted.current) return;
     trStarted.current = true;
     setTr({ status: "working" });
     const blocks = translatableBlocks(load.html);
@@ -68,7 +83,8 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
       if (!mounted.current) return;
       if (!res.ok) { trStarted.current = false; setTr({ status: "error", error: res.error }); setLang("orig"); return; }
       const out = needTitle ? res.data.slice(1) : res.data;
-      setTr({ status: "done", html: blocks.apply(out), title: needTitle ? res.data[0] : article!.title });
+      const biHtml = bilingualHtml(load.html, out);   // apply() DOM'u değiştirdiği için önce çift dilli sürüm
+      setTr({ status: "done", html: blocks.apply(out), biHtml, title: needTitle ? res.data[0] : article!.title });
     });
   }, [load, lang, article, url]);
 
@@ -96,11 +112,13 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
     if (load.status !== "ok") return null;
     const a = load.data;
     const showTr = lang === "tr" && tr.status === "done";
+    const showBi = lang === "bi" && tr.status === "done";
     const origTitle = article?.title_orig || a.title || article?.title || "";
     const title = showTr ? tr.title || origTitle : origTitle;
+    const subTitle = showTr ? (origTitle !== title ? origTitle : "") : showBi ? (tr.title && tr.title !== origTitle ? tr.title : "") : "";
     const pub = a.publishedTime ? new Date(a.publishedTime) : article ? new Date(article.ts * 1000) : null;
     const minutes = Math.max(1, Math.round((a.length || 0) / 1100));
-    return { a, showTr, origTitle, title, pub, minutes, body: showTr ? tr.html! : load.html };
+    return { a, showTr, showBi, origTitle, title, subTitle, pub, minutes, body: showTr ? tr.html! : showBi ? tr.biHtml! : load.html };
   }, [load, lang, tr, article]);
 
   const source = article?.source || hostOf(url);
@@ -192,8 +210,10 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
               {tr.status === "working" && <span className="spin">↻</span>} Türkçe
             </button>
             <button className={lang === "orig" ? "on" : ""} onClick={() => chooseLang("orig")}>Orijinal</button>
+            <button className={lang === "bi" ? "on" : ""} onClick={() => chooseLang("bi")} title="Orijinal metin, her paragrafın altında Türkçesi">Çift dil</button>
           </div>
         )}
+        {mode === "reader" && <ReadPrefsButton />}
         <div className="seg" title="Görünüm">
           <button className={mode === "reader" ? "on" : ""} onClick={() => chooseMode("reader")}>Okuma</button>
           <button className={mode === "web" ? "on" : ""} onClick={() => chooseMode("web")}>Web sayfası</button>
@@ -230,7 +250,8 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
         )}
 
         {mode === "reader" && view && (
-          <article className="article" onClick={onContentClick}>
+          <article className={`article font-${rp.font}`} onClick={onContentClick}
+                   style={{ maxWidth: WIDTHS[rp.width], ["--rfs" as string]: `${rp.size}px`, ["--rlh" as string]: String(LINES[rp.line]) } as React.CSSProperties}>
             <div className="kicker">
               {article && <span className="tag" style={catStyle(article.cat)}>{catLabel(article.cat)}</span>}
               <span>{view.a.siteName || source}</span>
@@ -238,12 +259,28 @@ const Reader = forwardRef<HTMLDivElement, Props>(function Reader({ url, article,
               <span>· {view.minutes} dk okuma</span>
             </div>
             <h1 className="a-title">{view.title}</h1>
-            {view.showTr && view.origTitle !== view.title && <div className="a-orig">{view.origTitle}</div>}
+            {view.subTitle && <div className="a-orig">{view.subTitle}</div>}
             <div className="byline">{view.a.byline}</div>
             {view.showTr && <div className="tr-note">🌐 Türkçeye çevrildi. Orijinal metin için üstteki “Orijinal” düğmesini kullan.</div>}
-            {lang === "tr" && tr.status === "working" && <div className="tr-note"><span className="spin">↻</span> Türkçeye çevriliyor…</div>}
+            {view.showBi && <div className="tr-note">🌐 Çift dilli görünüm: her paragrafın altında Türkçesi.</div>}
+            {lang !== "orig" && tr.status === "working" && <div className="tr-note"><span className="spin">↻</span> Türkçeye çevriliyor…</div>}
             {tr.status === "error" && <div className="tr-note warn">⚠︎ {tr.error} Orijinal metin gösteriliyor.</div>}
             <div className="a-body" ref={bodyRef} onMouseUp={onMouseUp} dangerouslySetInnerHTML={{ __html: view.body }} />
+            {related.length > 0 && (
+              <section className="related">
+                <h3>Bu konuda diğer kaynaklar</h3>
+                {related.map((r) => {
+                  const d = display(r, lang === "tr" ? "tr" : "orig");
+                  return (
+                    <div key={r.link} className="rel-item" onClick={(e) => { if (e.metaKey || e.ctrlKey) window.api.openExternal(r.link); else onOpen(r.link); }}>
+                      <span className="rel-src">{r.source}</span>
+                      <span className="rel-title">{d.title}</span>
+                      <span className="rel-time">{new Date(r.ts * 1000).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}</span>
+                    </div>
+                  );
+                })}
+              </section>
+            )}
             <div className="a-foot">
               Kaynak: <a data-href={url}>{hostOf(url)}</a>
               <span style={{ flex: 1 }} />

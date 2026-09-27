@@ -1,6 +1,6 @@
 // Arayüz ile ana süreç arasındaki güvenli köprü → window.api
 import { contextBridge, ipcRenderer } from "electron";
-import type { Api, Command, LibItem, Payload, UpdateState, WordEntry } from "@shared/types";
+import type { Api, Command, LibItem, Payload, TrackerState, UpdateState, WordEntry } from "@shared/types";
 
 const api: Api = {
   platform: process.platform,
@@ -26,6 +26,16 @@ const api: Api = {
   },
   checkUpdate: () => ipcRenderer.invoke("update:check"),
   installUpdate: () => ipcRenderer.invoke("update:install"),
+  getTracker: () => ipcRenderer.invoke("tracker:get"),
+  onTracker: (cb) => {
+    const h = (_e: unknown, s: TrackerState) => cb(s);
+    ipcRenderer.on("tracker", h);
+    return () => ipcRenderer.removeListener("tracker", h);
+  },
+  trackerAdd: (p) => ipcRenderer.invoke("tracker:add", p),
+  trackerRemove: (k) => ipcRenderer.invoke("tracker:remove", k),
+  trackerSetCurrent: (k, v) => ipcRenderer.invoke("tracker:current", k, v),
+  trackerCheck: () => ipcRenderer.invoke("tracker:check"),
   lookupWord: (w, ctx) => ipcRenderer.invoke("dict:lookup", w, ctx),
   getWords: () => ipcRenderer.invoke("words:get"),
   onWords: (cb) => {
