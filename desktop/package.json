@@ -1,7 +1,7 @@
 {
   "name": "ai-haberleri",
   "productName": "News",
-  "version": "2.1.0",
+  "version": "1.0.0",
   "description": "Türkçe AI haberleri — Firebase destekli masaüstü uygulaması",
   "main": "./out/main/index.js",
   "author": "Yunus Emre Tatar",

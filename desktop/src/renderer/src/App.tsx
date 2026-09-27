@@ -10,6 +10,7 @@ import Sidebar from "./components/Sidebar";
 import NewsView, { isLibraryView } from "./components/NewsView";
 import WordsView from "./components/WordsView";
 import DigestView from "./components/DigestView";
+import WhatsNew from "./components/WhatsNew";
 import { useWords } from "./hooks/useWords";
 import Reader from "./components/Reader";
 import SettingsDialog from "./components/SettingsDialog";
@@ -117,6 +118,7 @@ export default function App() {
         )}
       </main>
       {settingsOpen && <SettingsDialog onClose={() => setSettingsOpen(false)} />}
+      <WhatsNew />
     </ToastProvider>
   );
 }

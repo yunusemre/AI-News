@@ -17,6 +17,7 @@ const api: Api = {
   getSettings: () => ipcRenderer.invoke("settings:get"),
   setSettings: (patch) => ipcRenderer.invoke("settings:set", patch),
   getVersion: () => ipcRenderer.invoke("app:version"),
+  getReleaseNotes: () => ipcRenderer.invoke("app:releaseNotes"),
   getUpdateState: () => ipcRenderer.invoke("update:state"),
   onUpdateState: (cb) => {
     const h = (_e: unknown, s: UpdateState) => cb(s);

@@ -3,6 +3,7 @@ import type { Settings } from "@shared/types";
 import { useLang } from "../lib/lang";
 import { useUpdate } from "../hooks/useUpdate";
 import { settingsChanged } from "../hooks/useWatch";
+import { openWhatsNew } from "./WhatsNew";
 
 export default function SettingsDialog({ onClose }: { onClose: () => void }) {
   const [s, setS] = useState<Settings | null>(null);
@@ -78,7 +79,7 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
 
         <div className="row col">
           <b>Sürüm</b>
-          <small>News v{u.current}. Yeni sürümler 3 saatte bir denetlenir.</small>
+          <small>News v{u.current}. Yeni sürümler 3 saatte bir denetlenir. <button className="link-btn" style={{ display: "inline", padding: 0 }} onClick={() => { onClose(); openWhatsNew(); }}>Bu sürümde neler var?</button></small>
           <div className="inline">
             {u.status === "available" || u.status === "ready"
               ? <button className="btn primary" onClick={() => window.api.installUpdate().then((r) => { if (!r.ok) alertErr(r.error); })}>{u.status === "ready" ? "Yeniden başlat ve kur" : "Güncelle"}</button>

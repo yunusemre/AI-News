@@ -1,94 +1,101 @@
-# News (AI Haberleri)
+<p align="center">
+  <img src="desktop/resources/icon.png" width="112" alt="News">
+</p>
 
-| Klasör | İçerik |
+<h1 align="center">News</h1>
+
+<p align="center">
+  <b>Yapay zekâ ve yazılım dünyasından gürültüsüz, kısa ve Türkçe haberler.</b><br>
+  Yüzden fazla güvenilir kaynak, tek sakin ekranda — okuyabileceğin, not alabileceğin ve öğrenebileceğin şekilde.
+</p>
+
+<p align="center">
+  <a href="https://github.com/yunusemre/AI-News/releases/latest"><img alt="Sürüm" src="https://img.shields.io/github/v/release/yunusemre/AI-News?label=s%C3%BCr%C3%BCm"></a>
+  <img alt="macOS | Windows" src="https://img.shields.io/badge/macOS%20%7C%20Windows-lightgrey">
+  <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/lisans-MIT-blue"></a>
+</p>
+
+<p align="center">
+  <img src="desktop/resources/app-screen.png" alt="News uygulaması" width="900">
+</p>
+
+---
+
+Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalamak zor. **News**, AI laboratuvarlarından geliştirici bloglarına, .NET'ten React Native'e kadar seçilmiş kaynakları günde üç kez tarar, tekrarları ve reklam kokan içerikleri ayıklar, başlık ve özetleri Türkçeye çevirir ve hepsini tek bir yerde sunar. Haber sitelerinin kalabalığı yok; sadece okumaya değer olanlar.
+
+## Özellikler
+
+### 📰 Temiz bir haber akışı
+- **Günde 3 tarama** (09:00, 14:00, 20:00) — yeni haberler uygulama açıkken canlı olarak düşer.
+- **Kısa ve öz:** her haberde tek cümlelik açıklama; tekrar eden ve gürültülü içerikler otomatik elenir.
+- **Türkçe ya da orijinal:** başlık, açıklama ve makaleler tercihine göre Türkçe veya orijinal dilde.
+- **Bildirimler:** yeni haberler masaüstü bildirimi olarak gelir; istersen sadece takip ettiğin konular için.
+
+### 📖 Uygulama içinde okuma
+- **Okuma modu:** reklamsız, sade bir sayfa; tek tıkla Türkçe çeviri.
+- **Kaldığın yerden devam:** yarım bıraktığın makale aynı noktadan açılır.
+- **Web sayfası görünümü:** istersen sayfanın aslını uygulamadan çıkmadan aç.
+
+### 🗂 Kişisel kütüphane
+- **Favoriler** ve **Sonra oku** listesi — dışarıdan bağlantı da ekleyebilirsin.
+- **Vurgula ve not al:** metni seç, vurgula ya da not ekle; notlar makalenin yanında durur.
+- **Etiketler** ile kendi koleksiyonlarını oluştur, **Markdown** olarak dışa aktar.
+- **Tam metin arama:** okuduğun makalelerin içinde ve notlarında ara.
+
+### 🎯 Takip ve öğrenme
+- **İzlenen kelimeler:** "Redis", ".NET", "Expo"… geçen haberler vurgulanır ve ayrı listede toplanır.
+- **Kelime sözlüğü:** bir kelimeye çift tıkla; Türkçesi, okunuşu, tanımı ve cümledeki anlamı. Kelime listeni kart modunda tekrar et, CSV (Anki / Quizlet) olarak al.
+- **Haftalık özet:** son 7 günün öne çıkanları ve her alandan en önemli haberler tek sayfada.
+
+### 🔗 Paylaşım
+- macOS paylaşım menüsü (Mail, Mesajlar, AirDrop, Notlar), bağlantı kopyalama ve **Slack / Teams için hazır özet**.
+
+### ⚙️ Kendiliğinden güncel
+- Yeni sürümler arka planda indirilir ve kurulur; tek tıkla yeniden başlat.
+
+## Alanlar
+
+| Haberler | Teknoloji |
 |---|---|
-| `firebase/sources.json` | **Tüm kaynaklar** (RSS / html) — tek doğru kaynak |
-| `firebase/categories.json` | **Kategoriler** — ad, ikon, renk, sıra, grup |
-| `firebase/config.json` | Genel ayarlar (maxAgeHours, retentionDays …) |
-| `firebase/functions/` | Toplayıcı (RSS → filtre → Türkçe → RTDB) + testler |
-| `desktop/` | Electron + React + TypeScript masaüstü uygulaması |
-| `.github/workflows/ingest.yml` | Toplayıcı: günde 3 kez + JSON dosyaları değişince |
-| `.github/workflows/release.yml` | Uygulama sürümü: `v*` etiketi push'layınca derler ve yayınlar |
+| 🧪 **Lab & Şirket** — OpenAI, Anthropic, Google DeepMind, Mistral | ⚙️ **Backend** — .NET / ASP.NET Core, Redis, RabbitMQ |
+| 🛠️ **Geliştirici** — AI araçları, SDK'lar, geliştirici duyuruları | 🎨 **Frontend** — React, TypeScript, CSS, bültenler |
+| 📰 **Genel** — TechCrunch, The Verge, MIT Technology Review, The Decoder | 🚀 **DevOps** — Kubernetes, Docker, HashiCorp, CNCF, GitHub Changelog |
+| 🎓 **Öğren & Projeler** — Simon Willison, Latent Space, Karpathy, Import AI | 📱 **Mobil** — React Native, Expo |
+| | 🗄️ **SQL & Veritabanı** — SQL Server, PostgreSQL |
+| | 📊 **Analiz & Ürün** — iş analizi, ürün yönetimi, UX araştırması |
+| | 🐞 **Test & QA** — test otomasyonu, Playwright, Cypress, k6 |
 
-## Günlük iş akışı — derleme gerekmez
+"Tümü" akışı yalnızca **Haberler** alanını gösterir; teknoloji alanları kendi listelerinde durur.
 
-**Kaynak / kategori eklemek, değiştirmek, kapatmak**
+## İndir
 
-1. `firebase/sources.json` veya `firebase/categories.json` dosyasını düzenle
-2. `git commit -am "kaynak: X eklendi" && git push`
-3. GitHub Actions veritabanını günceller ve hemen tarar; uygulama canlı olarak yeni kategoriyi/haberleri gösterir.
+Son sürüm: **[Releases](https://github.com/yunusemre/AI-News/releases/latest)**
 
-> Kaynaklar ve kategoriler **git'ten** yönetilir. Firebase Console'dan yapılan değişiklikler bir sonraki çalışmada üzerine yazılır.
+| Platform | Dosya | Kurulum |
+|---|---|---|
+| **macOS** (Apple Silicon) | `News-x.y.z-arm64.dmg` | Aç, *News*'i **Uygulamalar** klasörüne sürükle. İlk açılışta "geliştirici doğrulanamadı" uyarısı çıkarsa uygulamaya **sağ tık → Aç**. |
+| **Windows** 10 / 11 | `News-Setup-x.y.z.exe` | Çalıştır; yönetici izni istemez. SmartScreen uyarısında **Ek bilgi → Yine de çalıştır**. |
 
-Kaynak alanları: `name`, `url`, `category`, `enabled`, `type` ("html" ise `linkPattern`, `externalOnly`), `keywords`, `excludePatterns`, `maxAgeHours`, `maxPerRun`.
+Kurulumdan sonra güncellemeler uygulamanın içinden gelir.
 
-Kategori alanları: `label` (kenar çubuğu), `short` (kart etiketi), `icon`, `color`, `order`, `group` (`"news"` = Haberler bölümü ve "Tümü"ye dahil; başka bir değer = çizgiyle ayrılmış ayrı bölüm).
+## Kısayollar ve ipuçları
 
-**Uygulamada kod değişikliği (yeni sürüm)**
-
-```bash
-# desktop/ altında değişiklik yap, commit + push, sonra:
-git tag v2.1.1 && git push origin v2.1.1
-```
-GitHub **macOS ve Windows** için derler ve aynı release'e yükler (~10 dk). Açık uygulamalar yeni sürümü görür, arka planda indirir ve kurar (kenar çubuğunda **"Güncelle"** düğmesi de çıkar). Ayarlar'dan elle de denetlenebilir.
-
-## İlk kurulum (bir kez)
-
-**1. Değişiklikleri gönder**
-```bash
-cd ~/Desktop/ai-news/ai-haberleri
-git add -A && git commit -m "feat: git tabanlı kaynak/kategori yönetimi, otomatik sürüm ve güncelleme" && git push
-```
-Push sonrası Actions'ta **"Haber toplayıcı"** kendiliğinden çalışır ve `sources.json` / `categories.json` / `config.json` dosyalarını veritabanına yazar.
-
-**2. Servis hesabı anahtarı (GitHub Secret)**
-- Firebase Console → ⚙️ Proje ayarları → Hizmet hesapları → **Yeni özel anahtar oluştur**
-- GitHub → repo → Settings → Secrets and variables → Actions → **New repository secret**
-  - Ad: `FIREBASE_SERVICE_ACCOUNT`, değer: indirilen JSON dosyasının tüm içeriği
-  - veya: `gh secret set FIREBASE_SERVICE_ACCOUNT < ~/Downloads/<dosya>.json`
-- ⚠️ Anahtar dosyasını repoya ekleme; Secret'a koyduktan sonra bilgisayarından silebilirsin.
-
-**3. Veritabanı kuralları**
-```bash
-cd firebase && firebase deploy --only database && cd ..
-```
-Oturum hatası alırsan (`Failed to get details for project` / 401): `sudo` kullanma, `firebase logout && firebase login --reauth` yap.
-Yine olmazsa Console → Realtime Database → **Rules** sekmesine `firebase/database.rules.json` içeriğini yapıştırıp **Publish** de
-(en azından `"categories": { ".read": true }` satırı olmalı, yoksa uygulama kategorileri okuyamaz).
-
-**4. İlk sürümü yayınla**
-```bash
-git tag v2.1.0 && git push origin v2.1.0
-```
-- Actions'ta **"Masaüstü sürümü"** biter (~10 dk) → GitHub → **Releases** → `v2.1.0` → `.dmg` indir, uygulamayı `Applications`'a sürükle.
-- İlk açılışta macOS *"geliştirici doğrulanamadı"* derse: uygulamaya **sağ tık → Aç**.
-- **Windows:** aynı release'ten `News-Setup-x.y.z.exe` indir ve çalıştır (yönetici izni istemez). SmartScreen *"Windows bilgisayarınızı korudu"* derse **Ek bilgi → Yine de çalıştır**. Güncellemeler sonra kendiliğinden kurulur.
-  Hâlâ açılmazsa: `xattr -dr com.apple.quarantine "/Applications/News.app"`
-- Bundan sonraki sürümler uygulama içinden gelir (üstte **"Güncelle ve yeniden başlat"** şeridi; Ayarlar → *Güncellemeleri denetle*).
-
-**5. Eski yerel servisi kaldır** (varsa; yoksa çift bildirim gelir)
-```bash
-bash ~/Desktop/ai-news/notifier/uninstall.sh
-```
-
-## Sorun giderme
-
-| Belirti | Bak / yap |
+| | |
 |---|---|
-| Haber gelmiyor | GitHub → Actions → "Haber toplayıcı" log'u; Firebase `/meta/lastRun` |
-| Bir kaynak hiç gelmiyor | `/meta/lastRun/errors` → hatalı kaynakta `"enabled": false` yap ya da URL'i düzelt |
-| Yeni kategori görünmüyor | `categories.json` push'landı mı? Kurallarda `categories` `.read: true` mu? |
-| Güncelleme şeridi çıkmıyor | Release **draft** değil **published** olmalı; Ayarlar → Güncellemeleri denetle |
-| "Güncelle" hata veriyor | Releases sayfasından `.dmg` (Mac) ya da `News-Setup-x.y.z.exe` (Windows) dosyasını elle indirip kur. Ayrıntı: Mac'te `~/Library/Logs/News/update.log`, Windows'ta `%APPDATA%\AI Haberleri\logs\update.log` |
-| Zamanlanmış tarama durdu | Public repoda 60 gün commit olmazsa GitHub durdurur → Actions'tan tekrar etkinleştir |
+| **Esc** | Okuma ekranından listeye dön |
+| **⌘ / Ctrl + tık** | Haberi tarayıcıda aç |
+| **Sağ tık** (kartta) | Paylaş menüsü |
+| **Çift tık** (makalede) | Sözlük / vurgula / not ekle |
+| **⌘ / Ctrl + ↩** | Notu kaydet |
 
-## Geliştirme
+## Gizlilik
 
-```bash
-cd desktop && npm install && npm run dev      # hot reload
-cd firebase/functions && npm install && npm test
-```
+Hesap yok, takip yok. Favorilerin, notların, etiketlerin, kelime listen ve ayarların **yalnızca kendi bilgisayarında** saklanır. Uygulama haber listesini okur, açtığın makaleyi yükler; çeviri ve sözlük için yalnızca ilgili metni gönderir. Ayrıntılar: [CODE_SIGNING.md](CODE_SIGNING.md#privacy-policy).
+
+## Geliştiriciler için
+
+Electron + React + TypeScript; haberler GitHub Actions ile toplanır ve Firebase üzerinden dağıtılır. Kaynak ve kategoriler `firebase/*.json` dosyalarından yönetilir. Kurulum, yayın ve sorun giderme: **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**.
 
 ## Lisans
 
-[MIT](LICENSE) © 2026 Yunus Emre Tatar. Kod imzalama ve gizlilik politikası: [CODE_SIGNING.md](CODE_SIGNING.md).
+[MIT](LICENSE) © 2026 Yunus Emre Tatar

@@ -172,6 +172,7 @@ export interface Api {
   setSettings(patch: Partial<Settings>): Promise<Settings>;
   onCommand(cb: (cmd: Command) => void): () => void;
   getVersion(): Promise<string>;
+  getReleaseNotes(): Promise<{ md: string; url: string } | null>;
   getUpdateState(): Promise<UpdateState>;
   onUpdateState(cb: (s: UpdateState) => void): () => void;
   checkUpdate(): Promise<UpdateState>;

@@ -12,11 +12,26 @@ function inline(s: string): string {
 export function markdownToHtml(src: string): string {
   const out: string[] = [];
   let list = false;
-  const close = () => { if (list) { out.push("</ul>"); list = false; } };
+  let table: string[][] | null = null;
+  const flushTable = () => {
+    if (!table) return;
+    const [head, ...rows] = table;
+    out.push(`<table><thead><tr>${head.map((c) => `<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`);
+    table = null;
+  };
+  const close = () => { if (list) { out.push("</ul>"); list = false; } flushTable(); };
   for (const raw of src.split("\n")) {
     const l = raw.trimEnd();
     let m: RegExpMatchArray | null;
     if (!l.trim()) { close(); continue; }
+    // Basit tablo: | a | b |  (ayraç satırı |---|---| atlanır)
+    if (/^\s*\|.*\|\s*$/.test(l)) {
+      if (list) { out.push("</ul>"); list = false; }
+      if (/^\s*\|[\s:|-]+\|\s*$/.test(l)) continue;
+      (table ||= []).push(l.trim().slice(1, -1).split("|").map((c) => c.trim()));
+      continue;
+    }
+    flushTable();
     if ((m = l.match(/^(#{1,3})\s+(.*)/))) { close(); out.push(`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`); }
     else if ((m = l.match(/^\s*[-*]\s+(.*)/))) { if (!list) { out.push("<ul>"); list = true; } out.push(`<li>${inline(m[1])}</li>`); }
     else if (/^---+$/.test(l)) { close(); out.push("<hr>"); }

@@ -9,6 +9,7 @@ import { extractArticle, READER_PARTITION } from "./reader";
 import { translateArticle } from "./translate";
 import * as settings from "./settings";
 import * as updater from "./updater";
+import { GITHUB_REPO } from "./config";
 import * as library from "./library";
 import * as words from "./words";
 import { normalizeWatch } from "@shared/watch";
@@ -141,6 +142,15 @@ ipcMain.handle("library:export", (_e, links: string[], title: string) => library
 ipcMain.on("library:index", (_e, link: string, title: string, source: string, text: string, minutes: number) =>
   library.indexText(String(link), String(title || ""), String(source || ""), String(text || "").slice(0, 80000), +minutes || 0));
 ipcMain.handle("app:version", () => app.getVersion());
+// Bu sürümün notları (GitHub Release gövdesi) — "Yenilikler" penceresi için
+ipcMain.handle("app:releaseNotes", async () => {
+  try {
+    const r = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/tags/v${app.getVersion()}`, { headers: { Accept: "application/vnd.github+json", "User-Agent": "News-App" } });
+    if (!r.ok) return null;
+    const j = (await r.json()) as { body?: string; html_url?: string };
+    return j.body ? { md: j.body, url: j.html_url || "" } : null;
+  } catch { return null; }
+});
 ipcMain.handle("update:state", () => updater.getState());
 ipcMain.handle("update:check", () => updater.check(true));
 ipcMain.handle("update:install", () => updater.installNow());
