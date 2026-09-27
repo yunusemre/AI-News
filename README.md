@@ -16,12 +16,28 @@
 </p>
 
 <p align="center">
-  <img src="desktop/resources/app-screen.png" alt="News uygulaması" width="900">
+  <img src="docs/screenshots/news.png" alt="News — haber akışı" width="900">
 </p>
 
 ---
 
 Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalamak zor. **News**, AI laboratuvarlarından geliştirici bloglarına, .NET'ten React Native'e kadar seçilmiş kaynakları günde üç kez tarar, tekrarları ve reklam kokan içerikleri ayıklar, başlık ve özetleri Türkçeye çevirir ve hepsini tek bir yerde sunar. Haber sitelerinin kalabalığı yok; sadece okumaya değer olanlar.
+
+## Ekran görüntüleri
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/reader.png" alt="Okuma modu"><br><b>Okuma modu</b> — çift dilli görünüm, vurgular ve notlar</td>
+    <td width="50%"><img src="docs/screenshots/dictionary.png" alt="Kelime sözlüğü"><br><b>Kelime sözlüğü</b> — çift tıkla: Türkçesi, okunuşu, tanımı</td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/packages.png" alt="Paket takibi"><br><b>Paket takibi</b> — yeni sürümler ve güvenlik açıkları</td>
+    <td><img src="docs/screenshots/weekly.png" alt="Haftalık özet"><br><b>Haftalık özet</b> — son 7 günün öne çıkanları</td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><img src="docs/screenshots/interests.png" alt="İlgi alanları" width="70%"><br><b>İlgi alanları</b> — ilk açılışta seç, kenar çubuğu sana göre düzenlensin</td>
+  </tr>
+</table>
 
 ## Özellikler
 
