@@ -16,6 +16,10 @@
 </p>
 
 <p align="center">
+  <a href="#kurulum"><b>⬇︎ Kurulum</b></a> · <a href="#özellikler">Özellikler</a> · <a href="#ekran-görüntüleri">Ekran görüntüleri</a>
+</p>
+
+<p align="center">
   <img src="docs/screenshots/news.png" alt="News — haber akışı" width="900">
 </p>
 
@@ -94,16 +98,73 @@ Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalama
 
 "Tümü" akışı yalnızca **Haberler** alanını gösterir; teknoloji alanları kendi listelerinde durur.
 
-## İndir
+## Kurulum
 
-Son sürüm: **[Releases](https://github.com/yunusemre/AI-News/releases/latest)**
+**Gereksinimler:** macOS (Apple Silicon — M1, M2, M3, M4) ya da Windows 10 / 11. Hesap açmak gerekmez.
+
+> 💡 Uygulamayı tarayıcıdan indirirsen imzasız olduğu için işletim sistemi güvenlik uyarısı verir. Aşağıdaki **tek komutla** kurarsan uyarı çıkmaz; güncellemeler de sonra uygulamanın içinden uyarısız gelir.
+
+### 🍎 macOS
+
+1. **Terminal**'i aç: <kbd>⌘</kbd> + <kbd>Boşluk</kbd> → `Terminal` yaz → <kbd>Enter</kbd>
+2. Şu satırı yapıştır ve <kbd>Enter</kbd>'a bas:
+
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/yunusemre/AI-News/main/install.sh | bash
+   ```
+3. Birkaç saniye içinde **News** kurulur (*Uygulamalar* klasörüne) ve açılır.
+
+### 🪟 Windows
+
+1. **PowerShell**'i aç: <kbd>Başlat</kbd> → `PowerShell` yaz → <kbd>Enter</kbd> (yönetici olarak açmana gerek yok)
+2. Şu satırı yapıştır ve <kbd>Enter</kbd>'a bas:
+
+   ```powershell
+   irm https://raw.githubusercontent.com/yunusemre/AI-News/main/install.ps1 | iex
+   ```
+3. **News** kurulur, masaüstüne ve Başlat menüsüne kısayolu eklenir ve açılır.
+
+### İlk açılış
+
+- **İlgi alanlarını seç** — kenar çubuğu seçtiklerine göre düzenlenir (sonra *Ayarlar → İlgi alanlarını düzenle*).
+- Haberler günde 3 kez (09:00, 14:00, 20:00) kendiliğinden gelir; yeni haberler için bildirim alırsın.
+- İstersen *Ayarlar*'dan içerik dilini (**Türkçe / Orijinal**), izlenen kelimeleri ve sabah brifingi saatini ayarla.
+
+### Güncelleme
+
+Yeni sürümler arka planda iner; kenar çubuğunun altında **Güncelle** düğmesi çıkar ya da uygulamadan çıkınca kendiliğinden kurulur. Aynı kurulum komutunu tekrar çalıştırmak da en son sürümü kurar.
+
+### Elle kurulum
+
+Komut satırı kullanmak istemiyorsan son sürümü **[Releases](https://github.com/yunusemre/AI-News/releases/latest)** sayfasından indir:
 
 | Platform | Dosya | Kurulum |
 |---|---|---|
-| **macOS** (Apple Silicon) | `News-x.y.z-arm64.dmg` | Aç, *News*'i **Uygulamalar** klasörüne sürükle. İlk açılışta "geliştirici doğrulanamadı" uyarısı çıkarsa uygulamaya **sağ tık → Aç**. |
-| **Windows** 10 / 11 | `News-Setup-x.y.z.exe` | Çalıştır; yönetici izni istemez. SmartScreen uyarısında **Ek bilgi → Yine de çalıştır**. |
+| **macOS** (Apple Silicon) | `News-x.y.z-arm64.dmg` | *News*'i **Uygulamalar**'a sürükle. |
+| **Windows** 10 / 11 | `News-Setup-x.y.z.exe` | Çalıştır; yönetici izni istemez. |
 
-Kurulumdan sonra güncellemeler uygulamanın içinden gelir.
+<details>
+<summary><b>"News hasarlı, çöp kutusuna taşıyın" (macOS) ya da "Windows bilgisayarınızı korudu" uyarısı çıkarsa</b></summary>
+
+News henüz Apple / Microsoft tarafından imzalanmadığı için tarayıcıdan indirilen dosyada işletim sistemi uyarı verir. Uygulama zararlı değildir; kaynak kodu bu depoda açıktır.
+
+**macOS**
+- *Çöp kutusuna taşıma*, **İptal**'e bas. Sonra Terminal'de:
+  ```bash
+  xattr -cr /Applications/News.app && open /Applications/News.app
+  ```
+- ya da **Sistem Ayarları → Gizlilik ve Güvenlik** → aşağıdaki *"News engellendi"* satırında **Yine de Aç**.
+
+**Windows**
+- SmartScreen penceresinde **Ek bilgi → Yine de çalıştır**.
+- ya da dosyaya sağ tık → **Özellikler** → **Engellemeyi kaldır** → Tamam, sonra çalıştır.
+
+</details>
+
+### Kaldırma
+
+- **macOS:** *Uygulamalar* klasöründen **News**'i çöp kutusuna at. Verilerini de silmek için: `~/Library/Application Support/AI Haberleri`
+- **Windows:** *Ayarlar → Uygulamalar → News → Kaldır*. Verilerini de silmek için: `%APPDATA%\AI Haberleri`
 
 ## Kısayollar ve ipuçları
 
