@@ -13,6 +13,7 @@ const DESC: Record<string, string> = {
   dev: "AI araçları, SDK'lar, geliştirici haberleri",
   general: "Sektörden önemli gelişmeler",
   learn: "Rehberler, araştırmalar, açık kaynak projeler",
+  insight: "Dünya Halleri, Exponential View — teknoloji ve toplum üzerine haftalık bültenler",
   backend: ".NET / ASP.NET Core, Redis, RabbitMQ",
   frontend: "React, TypeScript, CSS, web bültenleri",
   devops: "Kubernetes, Docker, bulut ve altyapı",

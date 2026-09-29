@@ -1261,5 +1261,52 @@
       "\\bfree\\b.*\\b(ebook|pdf)\\b",
       "\\bpart \\d+ of \\d+\\b"
     ]
+  },
+  "dunya-halleri": {
+    "name": "Dünya Halleri (M. Serdar Kuzuloğlu)",
+    "url": "https://bulten.mserdark.com/feed",
+    "category": "insight",
+    "enabled": true,
+    "maxAgeHours": 336
+  },
+  "exponential-view": {
+    "name": "Exponential View (Azeem Azhar)",
+    "url": "https://www.exponentialview.co/feed",
+    "category": "insight",
+    "enabled": true,
+    "maxAgeHours": 168,
+    "maxPerRun": 2
+  },
+  "global-isler": {
+    "name": "Global İşler (Ussal Şahbaz)",
+    "url": "https://www.globalisler.com/feed",
+    "category": "insight",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 2
+  },
+  "thinkstrait": {
+    "name": "ThinkStrait Haftalık Yapay Zekâ Bülteni",
+    "url": "https://thinkstrait.substack.com/feed",
+    "category": "insight",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 2
+  },
+  "toplum-teknoloji": {
+    "name": "Toplum ve Teknoloji (Küme Vakfı)",
+    "url": "https://kumevakfi.substack.com/feed",
+    "category": "insight",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 2
+  },
+  "yapay-zeka-postasi": {
+    "name": "Yapay Zeka Postası",
+    "url": "https://yapayzekapostasi.substack.com/feed",
+    "category": "insight",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 2
   }
 }

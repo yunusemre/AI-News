@@ -31,6 +31,15 @@
     "order": 4,
     "group": "news"
   },
+  "insight": {
+    "label": "Gündem & Perspektif",
+    "short": "Perspektif",
+    "icon": "🌍",
+    "color": "#0c8599",
+    "order": 5,
+    "group": "news",
+    "desc": "Dünya Halleri, Exponential View — teknoloji ve toplum üzerine haftalık bültenler"
+  },
   "backend": {
     "label": "Backend",
     "short": "Backend",

@@ -92,7 +92,7 @@ Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalama
 | 🛠️ **Geliştirici** — AI araçları, SDK'lar, geliştirici duyuruları | 🎨 **Frontend** — React, TypeScript, CSS, bültenler |
 | 📰 **Genel** — TechCrunch, The Verge, MIT Technology Review, The Decoder | 🚀 **DevOps** — Kubernetes, Docker, HashiCorp, CNCF, GitHub Changelog |
 | 🎓 **Öğren & Projeler** — Simon Willison, Latent Space, Karpathy, Import AI | 📱 **Mobil** — React Native, Expo |
-| | 🗄️ **SQL & Veritabanı** — SQL Server, PostgreSQL |
+| 🌍 **Gündem & Perspektif** — Dünya Halleri, Exponential View, Global İşler | 🗄️ **SQL & Veritabanı** — SQL Server, PostgreSQL |
 | | 📊 **Analiz & Ürün** — iş analizi, ürün yönetimi, UX araştırması |
 | | 🐞 **Test & QA** — test otomasyonu, Playwright, Cypress, k6 |
 

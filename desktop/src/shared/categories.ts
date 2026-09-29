@@ -6,6 +6,7 @@ export const DEFAULT_CATEGORIES: CategoryDef[] = [
   { id: "dev", label: "Geliştirici", short: "Geliştirici", icon: "🛠️", color: "#0f8a5f", order: 2, group: "news" },
   { id: "general", label: "Genel", short: "Genel", icon: "📰", color: "#c46a00", order: 3, group: "news" },
   { id: "learn", label: "Öğren & Projeler", short: "Öğren", icon: "🎓", color: "#0a7ea4", order: 4, group: "news" },
+  { id: "insight", label: "Gündem & Perspektif", short: "Perspektif", icon: "🌍", color: "#0c8599", order: 5, group: "news" },
   { id: "backend", label: "Backend", short: "Backend", icon: "⚙️", color: "#5b4bd6", order: 5, group: "tech" },
   { id: "frontend", label: "Frontend", short: "Frontend", icon: "🎨", color: "#d6336c", order: 6, group: "tech" },
   { id: "devops", label: "DevOps", short: "DevOps", icon: "🚀", color: "#2b8a3e", order: 7, group: "tech" },
