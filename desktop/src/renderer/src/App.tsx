@@ -9,7 +9,6 @@ import { useLibrary } from "./hooks/useLibrary";
 import Sidebar from "./components/Sidebar";
 import NewsView, { isLibraryView } from "./components/NewsView";
 import WordsView from "./components/WordsView";
-import DigestView from "./components/DigestView";
 import WhatsNew from "./components/WhatsNew";
 import Onboarding from "./components/Onboarding";
 import StatsView from "./components/StatsView";
@@ -27,7 +26,6 @@ export type CatFilter = string;
 
 export type View =
   | { kind: "news"; cat: CatFilter }
-  | { kind: "digest"; date: string | null }
   | { kind: "words" }
   | { kind: "stats" }
   | { kind: "reader"; url: string; article: Article | null };
@@ -67,7 +65,7 @@ export default function App() {
   // Dil tercihini ana sürece bildir (bildirimler için)
   useEffect(() => { window.api.setSettings({ contentLang: getLang() }).catch(() => {}); }, []);
 
-  const viewKey = (v: View) => (v.kind === "news" ? `news:${v.cat}` : v.kind === "digest" ? `digest:${v.date}` : v.kind);
+  const viewKey = (v: View) => (v.kind === "news" ? `news:${v.cat}` : v.kind);
 
   const navigate = useCallback((next: View) => {
     if (contentRef.current) scrollMemo.current[viewKey(view)] = contentRef.current.scrollTop;
@@ -137,7 +135,6 @@ export default function App() {
         {view.kind === "news" && (
           <NewsView ref={contentRef} cat={view.cat} articles={view.cat === "foryou" ? fy.list : isLibraryView(view.cat) ? libArticles(view.cat) : payload.articles} forYou={view.cat === "foryou" ? fy : undefined} read={read} markRead={markRead} onOpen={openReader} lib={lib} categories={visibleCats} />
         )}
-        {view.kind === "digest" && <DigestView ref={contentRef} digests={payload.digests} date={view.date} onOpen={openReader} />}
         {view.kind === "stats" && <StatsView ref={contentRef} categories={payload.categories} />}
         {view.kind === "words" && <WordsView ref={contentRef} words={words} onOpen={openReader} />}
         {view.kind === "reader" && (

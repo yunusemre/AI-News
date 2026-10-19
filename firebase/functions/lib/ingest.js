@@ -1,6 +1,5 @@
 // Toplayıcı: RTDB okuma/yazma + pipeline. index.js ve scripts/run-local.js kullanır.
 const { runPipeline, DEFAULT_CONFIG } = require("./pipeline");
-const { buildWeekly } = require("./digest");
 
 // ------------------------------------------------------------------ yardımcılar
 async function fetchText(url) {
@@ -67,22 +66,8 @@ async function ingestOnce({ db, translate, logger = console }) {
   oldB.forEach((c) => { cleanup[`bodies/${c.key}`] = null; });
   if (Object.keys(cleanup).length) await root.update(cleanup);
 
-  // Haftalık özet: her çalışmada son 7 günün özeti yeniden üretilir (anahtar = haftanın pazartesi günü)
-  try {
-    const [allA, catSnap] = await Promise.all([root.child("articles").orderByChild("ts").startAt(now - 7 * 86400).get(), root.child("categories").get()]);
-    const list = [];
-    allA.forEach((c) => { list.push(c.val()); });
-    const w = buildWeekly({ articles: list, categories: catSnap.val() || {}, now });
-    if (w.count) {
-      await root.child(`digests/${w.key}`).set({ kind: "week", md: w.md, md_orig: w.md_orig, from: w.from, to: w.to, count: w.count, updated: now });
-      logger.info(`haftalık özet güncellendi: ${w.key} (${w.count} haber)`);
-    }
-    // 12 haftadan eski özetleri sil
-    const old = await root.child("digests").orderByKey().endAt(new Date((now - 84 * 86400) * 1000).toISOString().slice(0, 10)).get();
-    const del = {};
-    old.forEach((c) => { del[`digests/${c.key}`] = null; });
-    if (Object.keys(del).length) await root.update(del);
-  } catch (e) { logger.warn("haftalık özet üretilemedi: " + e.message); }
+  // Haftalık özet özelliği kaldırıldı: eski özet kayıtlarını temizle (yoksa işlem yapmaz)
+  try { await root.child("digests").remove(); } catch { /* yoksay */ }
 
   logger.info("ingest tamam", { ...runStats, removed: Object.keys(cleanup).length });
   return { ...stats, sourceTotals: Object.fromEntries(Object.entries(stats.perSource || {}).map(([sid]) => [sid, updates[`meta/sourceStats/${sid}`]])) };

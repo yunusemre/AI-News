@@ -8,12 +8,11 @@ import { openInterests } from "./Onboarding";
 
 export default function SettingsDialog({ onClose }: { onClose: () => void }) {
   const [s, setS] = useState<Settings | null>(null);
-  const [dir, setDir] = useState("");
   const u = useUpdate();
   const [err, alertErr] = useState("");
   const [lang, setLang] = useLang();
 
-  useEffect(() => { window.api.getSettings().then((x) => { setS(x); setDir(x.localDigestsDir); }); }, []);
+  useEffect(() => { window.api.getSettings().then(setS); }, []);
   const updText = u.status === "checking" ? "Kontrol ediliyor…"
     : u.status === "latest" ? "En güncel sürümü kullanıyorsun."
     : u.status === "available" ? `Yeni sürüm var: v${u.info?.version}`
@@ -86,15 +85,6 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
           <input type="checkbox" checked={s.openAtLogin} onChange={(e) => update({ openAtLogin: e.target.checked })} />
           <div><b>Bilgisayar açılınca başlat</b><small>Arka planda sessizce açılır; bildirimleri kaçırmazsın.</small></div>
         </label>
-
-        <div className="row col">
-          <b>Yerel özet klasörü</b>
-          <small>Bu klasördeki YYYY-AA-GG.md dosyaları “Günlük Özetler”de görünür. Boş bırakırsan kapanır.</small>
-          <div className="inline">
-            <input className="text" value={dir} onChange={(e) => setDir(e.target.value)} placeholder="Kapalı — örn. /Users/…/Documents/ozetler" />
-            <button className="btn" onClick={() => update({ localDigestsDir: dir.trim() })} disabled={dir.trim() === s.localDigestsDir}>Kaydet</button>
-          </div>
-        </div>
 
         <div className="row col">
           <b>Sürüm</b>

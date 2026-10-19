@@ -35,12 +35,11 @@ Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalama
     <td width="50%"><img src="docs/screenshots/dictionary.png" alt="Kelime sözlüğü"><br><b>Kelime sözlüğü</b> — çift tıkla: Türkçesi, okunuşu, tanımı</td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/weekly.png" alt="Haftalık özet"><br><b>Haftalık özet</b> — son 7 günün öne çıkanları</td>
     <td><img src="docs/screenshots/foryou.png" alt="Senin için"><br><b>Senin için</b> — okuduklarına göre sıralanır, nedenini söyler</td>
+    <td><img src="docs/screenshots/stats.png" alt="Okuma istatistikleri"><br><b>Okuma istatistikleri</b> — seri, haftalık okuma, alan dağılımı</td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/stats.png" alt="Okuma istatistikleri"><br><b>Okuma istatistikleri</b> — seri, haftalık okuma, alan dağılımı</td>
-    <td><img src="docs/screenshots/interests.png" alt="İlgi alanları"><br><b>İlgi alanları</b> — ilk açılışta seç, kenar çubuğu sana göre düzenlensin</td>
+    <td colspan="2" align="center"><img src="docs/screenshots/interests.png" alt="İlgi alanları" width="70%"><br><b>İlgi alanları</b> — ilk açılışta seç, kenar çubuğu sana göre düzenlensin</td>
   </tr>
 </table>
 
@@ -71,7 +70,6 @@ Her gün onlarca blog, bülten ve duyuru yayımlanıyor; önemli olanı yakalama
 ### 🎯 Takip ve öğrenme
 - **İzlenen kelimeler:** "Redis", ".NET", "Expo"… geçen haberler vurgulanır ve ayrı listede toplanır.
 - **Kelime sözlüğü:** bir kelimeye çift tıkla; Türkçesi, okunuşu, tanımı ve cümledeki anlamı. Kelime listeni kart modunda tekrar et, CSV (Anki / Quizlet) olarak al.
-- **Haftalık özet:** son 7 günün öne çıkanları ve her alandan en önemli haberler tek sayfada.
 
 ### 🔥 Alışkanlık
 - **Senin için:** okuduklarına göre sıralanan kişisel liste — her önerinin yanında neden önerildiği yazar.

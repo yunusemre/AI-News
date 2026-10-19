@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Payload } from "@shared/types";
 import type { CatFilter, View } from "../App";
-import { ago, digestLabel, digestTitle } from "../lib/format";
+import { ago } from "../lib/format";
 import { inAnyCat, inCat, newsCategoryIds } from "@shared/categories";
 import logo from "../assets/logo.png";
 import type { Library } from "../hooks/useLibrary";
@@ -99,15 +99,6 @@ export default function Sidebar({ payload, read, active, onSelect, onSettings, l
           ))}
         </>
       )}
-
-      <div className="section">Haftalık Özetler</div>
-      {payload.digests.length === 0 && <div className="nav muted"><span className="ico">·</span>İlk taramadan sonra oluşur</div>}
-      {payload.digests.slice(0, 6).map((d) => (
-        <div key={d.date} className={`nav ${active.kind === "digest" && active.date === d.date ? "active" : ""}`}
-             onClick={() => onSelect({ kind: "digest", date: d.date })}>
-          <span className="ico">{d.kind === "week" ? "🗓" : "📋"}</span><span className="lbl">{digestTitle(d)}</span>{d.count ? <span className="count">{d.count}</span> : null}
-        </div>
-      ))}
 
       <div className="side-foot">
         <div className={`conn ${conn}`} title={conn === "online" ? "Firebase'e bağlı" : conn === "offline" ? "Bağlantı yok — son veriler gösteriliyor" : "Bağlanıyor"}>
