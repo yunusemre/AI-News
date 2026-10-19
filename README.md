@@ -164,6 +164,24 @@ News henüz Apple / Microsoft tarafından imzalanmadığı için tarayıcıdan i
 - **macOS:** *Uygulamalar* klasöründen **News**'i çöp kutusuna at. Verilerini de silmek için: `~/Library/Application Support/AI Haberleri`
 - **Windows:** *Ayarlar → Uygulamalar → News → Kaldır*. Verilerini de silmek için: `%APPDATA%\AI Haberleri`
 
+## Tarayıcı eklentisi
+
+Masaüstü uygulamasını kurmadan da haberleri takip edebilirsin: **Chrome, Edge ve Brave** için eklenti. Araç çubuğundaki simgeye tıklayınca son haberler kategoriye göre listelenir, okunmamış sayısı simgenin üstünde görünür.
+
+- Türkçe / orijinal dil geçişi, arama, ⭐ favoriler ve 🔖 sonra oku
+- **Bu sayfayı sonra oku:** açık sekmeyi tek tıkla listeye ekler
+- İzlenen kelimeler ve yeni haber bildirimleri
+- Veri yalnızca toplama saatlerinden sonra (09:00, 14:00, 20:00) çekilir; önce küçük bir "güncellendi mi" kontrolü yapılır, değişiklik yoksa haber listesi tekrar indirilmez.
+
+**Kurulum:**
+
+1. [Releases](../../releases/latest) sayfasından `News-extension-x.y.z.zip` dosyasını indirip bir klasöre çıkar.
+2. Tarayıcıda `chrome://extensions` (Edge: `edge://extensions`) adresini aç.
+3. Sağ üstten **Geliştirici modu**nu aç → **Paketlenmemiş öğe yükle** → çıkardığın klasörü seç.
+4. Yapboz simgesinden **News**'i sabitle.
+
+Güncellemek için yeni zip'i aynı klasöre çıkarıp eklentiler sayfasında ↻ simgesine bas.
+
 ## Kısayollar ve ipuçları
 
 | | |

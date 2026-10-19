@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="icons/icon32.png" alt="" class="logo"><b>News</b>
+    <div class="search"><input id="q" placeholder="Ara…" autocomplete="off"></div>
+    <button id="lang" class="icon-btn" title="Dil: Türkçe / Orijinal">TR</button>
+    <button id="opts" class="icon-btn" title="Ayarlar">⚙︎</button>
+  </header>
+  <nav id="tabs"></nav>
+  <main id="list"></main>
+  <footer>
+    <span id="status" class="muted"></span>
+    <span class="spacer"></span>
+    <button id="addPage" class="link" title="Açık sekmedeki sayfayı Sonra oku listesine ekle">＋ Bu sayfayı sonra oku</button>
+    <button id="allRead" class="link">Tümü okundu</button>
+  </footer>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

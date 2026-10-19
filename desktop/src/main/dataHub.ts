@@ -1,16 +1,15 @@
-// Veri merkezi: Firebase RTDB'yi canlı dinler, yerel özet klasörünü okur,
-// değişiklikleri "change" olayıyla yayınlar.
+// Veri merkezi: Firebase RTDB'yi REST ile okur, diske önbellekler, değişiklikleri "change" olayıyla yayınlar.
+// Canlı bağlantı tutulmaz. Toplayıcı günde 3 kez çalıştığı için uygulama yalnızca açılışta, uykudan
+// uyanınca ve tarama saatlerinden sonra küçük bir "meta/updated" kontrolü yapar; haber listesi
+// yalnızca bu değer değiştiyse indirilir. Açılışta önce diskteki önbellek gösterilir.
 import { EventEmitter } from "events";
 import fs from "fs";
 import path from "path";
-import {
-  getDatabase, ref, query, orderByChild, limitToLast, onValue, type Unsubscribe,
-} from "firebase/database";
-import type { Article, CategoryDef, ConnectionState, Digest, Meta, Payload } from "@shared/types";
+import { app, net, powerMonitor } from "electron";
+import type { Article, CategoryDef, ConnectionState, Meta, Payload } from "@shared/types";
 import { DEFAULT_CATEGORIES, normalizeCategories } from "@shared/categories";
-import { firebaseApp } from "./firebase";
-import { FAKE_DATA_FILE, MAX_ARTICLES } from "./config";
-import * as settings from "./settings";
+import { FAKE_DATA_FILE, FIREBASE, MAX_ARTICLES } from "./config";
+import { nextCheckAt } from "./schedule";
 
 type RawMap<T> = Record<string, T> | null | undefined;
 
@@ -29,35 +28,45 @@ function normalizeArticles(raw: RawMap<Partial<Article>>): Article[] {
     .slice(0, MAX_ARTICLES);
 }
 
+interface CacheFile { v: 1; articles: Article[]; categories: CategoryDef[]; meta: Meta; updated: number; fetchedAt: number }
+
+const cacheFile = () => path.join(app.getPath("userData"), "cache.json");
+
+async function getJson<T = unknown>(p: string): Promise<T> {
+  const r = await net.fetch(`${FIREBASE.databaseURL}/${p}`, { cache: "no-store" });
+  if (!r.ok) throw new Error(`${p}: HTTP ${r.status}`);
+  return (await r.json()) as T;
+}
+
 export class DataHub extends EventEmitter {
   articles: Article[] = [];
   meta: Meta = {};
   categories: CategoryDef[] = DEFAULT_CATEGORIES;
   connection: ConnectionState = "connecting";
-  private cloudDigests: Digest[] = [];
-  private localDigests: Digest[] = [];
-  private unsubs: Unsubscribe[] = [];
+  /** Elimizdeki verinin meta/updated değeri (sn) */
+  private updated = 0;
+  private fetchedAt = 0;
+  private timer: NodeJS.Timeout | null = null;
   private emitTimer: NodeJS.Timeout | null = null;
-  /** İlk veri geldi mi? (bildirim mantığı ilk anlık görüntüyü "yeni" saymamalı) */
+  private syncing = false;
+  private retryMs = 0;
+  /** İlk veri geldi mi? (önbellekten ya da ağdan) */
   ready = false;
 
   start(): void {
-    if (FAKE_DATA_FILE) this.startFake();
-    else this.startFirebase();
-    this.watchLocalDigests();
+    if (FAKE_DATA_FILE) return this.startFake();
+    this.loadCache();
+    void this.sync();
+    powerMonitor.on("resume", () => void this.sync());
   }
 
   stop(): void {
-    this.unsubs.forEach((u) => u());
-    this.unsubs = [];
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = null;
   }
 
   payload(): Payload {
-    const byDate = new Map<string, Digest>();
-    // Aynı gün hem bulutta hem yerelde varsa yerel olan öncelikli
-    for (const d of [...this.cloudDigests, ...this.localDigests]) byDate.set(d.date, d);
-    const digests = [...byDate.values()].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 60);
-    return { articles: this.articles, digests, meta: this.meta, categories: this.categories, connection: this.connection };
+    return { articles: this.articles, digests: [], meta: this.meta, categories: this.categories, connection: this.connection };
   }
 
   private changed(): void {
@@ -66,33 +75,77 @@ export class DataHub extends EventEmitter {
     this.emitTimer = setTimeout(() => this.emit("change", this.payload()), 150);
   }
 
-  // ---------------------------------------------------------------- Firebase
-  private startFirebase(): void {
-    const db = getDatabase(firebaseApp());
-    const q = query(ref(db, "articles"), orderByChild("ts"), limitToLast(MAX_ARTICLES));
-    this.unsubs.push(onValue(q, (snap) => {
-      this.articles = normalizeArticles(snap.val());
-      this.ready = true;
-      this.emit("articles", this.articles);
+  // ---------------------------------------------------------------- Önbellek
+  private loadCache(): void {
+    try {
+      const c = JSON.parse(fs.readFileSync(cacheFile(), "utf8")) as CacheFile;
+      if (c?.v !== 1 || !Array.isArray(c.articles)) return;
+      this.articles = c.articles;
+      if (Array.isArray(c.categories) && c.categories.length) this.categories = c.categories;
+      this.meta = c.meta || {};
+      this.updated = Number(c.updated) || 0;
+      this.fetchedAt = Number(c.fetchedAt) || 0;
+      if (this.articles.length) {
+        this.ready = true;
+        this.emit("articles", this.articles);
+        this.changed();
+      }
+    } catch { /* ilk açılış ya da bozuk dosya */ }
+  }
+
+  private saveCache(): void {
+    const c: CacheFile = { v: 1, articles: this.articles, categories: this.categories, meta: this.meta, updated: this.updated, fetchedAt: this.fetchedAt };
+    try {
+      const f = cacheFile(), tmp = `${f}.tmp`;
+      fs.writeFileSync(tmp, JSON.stringify(c));
+      fs.renameSync(tmp, f);
+    } catch (e) { console.error("[cache] yazılamadı", e); }
+  }
+
+  // ---------------------------------------------------------------- Senkronizasyon
+  /** Önce yalnızca meta/updated okunur; değiştiyse (ya da `force`) haberler + kategoriler indirilir. */
+  async sync(force = false): Promise<void> {
+    if (this.syncing) return;
+    this.syncing = true;
+    try {
+      const updated = Number(await getJson("meta/updated.json")) || 0;
+      if (force || !this.articles.length || updated !== this.updated) {
+        const [arts, cats, lastRun] = await Promise.all([
+          getJson<RawMap<Partial<Article>>>(`articles.json?orderBy=%22ts%22&limitToLast=${MAX_ARTICLES}`),
+          getJson<Parameters<typeof normalizeCategories>[0]>("categories.json"),
+          getJson<Meta["lastRun"] | null>("meta/lastRun.json").catch(() => null),
+        ]);
+        this.articles = normalizeArticles(arts);
+        this.categories = normalizeCategories(cats);
+        this.meta = { updated, ...(lastRun ? { lastRun } : {}) };
+        this.updated = updated;
+        this.ready = true;
+        this.emit("articles", this.articles);
+      }
+      this.fetchedAt = Date.now();
+      this.connection = "online";
+      this.retryMs = 0;
+      this.saveCache();
+    } catch (e) {
+      console.error("[rtdb]", (e as Error).message);
+      this.connection = "offline";
+      this.retryMs = Math.min(this.retryMs ? this.retryMs * 2 : 60_000, 30 * 60_000);   // 1 → 2 → 4 … 30 dk
+    } finally {
+      this.syncing = false;
       this.changed();
-    }, (err) => { console.error("[rtdb] articles", err.message); this.connection = "offline"; this.changed(); }));
+      this.schedule();
+    }
+  }
 
-    this.unsubs.push(onValue(ref(db, "meta"), (snap) => { this.meta = snap.val() || {}; this.changed(); }, () => {}));
-
-    this.unsubs.push(onValue(ref(db, "categories"), (snap) => { this.categories = normalizeCategories(snap.val()); this.changed(); }, () => {}));
-
-    this.unsubs.push(onValue(query(ref(db, "digests"), limitToLast(30)), (snap) => {
-      const v = (snap.val() || {}) as Record<string, { md?: string; md_orig?: string; kind?: "week" | "day"; from?: number; to?: number; count?: number }>;
-      this.cloudDigests = Object.entries(v).filter(([, d]) => d?.md).map(([date, d]) => ({
-        date, md: d.md!, origin: "cloud" as const, kind: d.kind, md_orig: d.md_orig, from: d.from, to: d.to, count: d.count,
-      }));
-      this.changed();
-    }, () => {}));
-
-    this.unsubs.push(onValue(ref(db, ".info/connected"), (snap) => {
-      this.connection = snap.val() ? "online" : (this.ready ? "offline" : "connecting");
-      this.changed();
-    }));
+  private schedule(): void {
+    if (this.timer) clearTimeout(this.timer);
+    const now = Date.now();
+    const at = this.retryMs ? now + this.retryMs : nextCheckAt(now, this.updated);
+    // Uyku sırasında zamanlayıcılar kayabilir; en geç saatte bir yeniden hesaplanır (ağa çıkmadan)
+    const wait = Math.max(1000, at - now);
+    this.timer = wait > 3600_000
+      ? setTimeout(() => this.schedule(), 3600_000)
+      : setTimeout(() => void this.sync(), wait);
   }
 
   // ---------------------------------------------------------------- Test modu
@@ -103,7 +156,6 @@ export class DataHub extends EventEmitter {
         this.articles = normalizeArticles(d.articles);
         this.meta = d.meta || {};
         this.categories = normalizeCategories(d.categories);
-        this.cloudDigests = Object.entries((d.digests || {}) as Record<string, Omit<Digest, "date" | "origin">>).map(([date, x]) => ({ ...x, date, origin: "cloud" as const }));
         this.connection = "online";
         this.ready = true;
         this.emit("articles", this.articles);
@@ -114,26 +166,6 @@ export class DataHub extends EventEmitter {
     fs.watchFile(FAKE_DATA_FILE, { interval: 300 }, read);
   }
 
-  // ---------------------------------------------------------------- Yerel özetler
-  private watchLocalDigests(): void {
-    const scan = () => {
-      const dir = settings.load().localDigestsDir;
-      const out: Digest[] = [];
-      if (dir) {
-        try {
-          const files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.md$/.test(f)).sort().reverse().slice(0, 60);
-          for (const f of files) {
-            try { out.push({ date: f.slice(0, 10), md: fs.readFileSync(path.join(dir, f), "utf8"), origin: "local" }); } catch {}
-          }
-        } catch { /* klasör yok ya da izin verilmedi */ }
-      }
-      this.localDigests = out;
-      this.changed();
-    };
-    scan();
-    setInterval(scan, 5 * 60 * 1000);
-    this.rescanLocal = scan;
-  }
-
+  /** Eski "yerel özet klasörü" ayarı için bırakıldı (haftalık özet kaldırıldı) */
   rescanLocal: () => void = () => {};
 }

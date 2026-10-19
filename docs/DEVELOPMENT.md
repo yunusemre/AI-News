@@ -11,8 +11,9 @@ Bu belge projeyi geliştiren / yayınlayan kişi içindir. Kullanıcı belgesi i
 | `firebase/config.json` | Genel ayarlar (maxAgeHours, retentionDays …) |
 | `firebase/functions/` | Toplayıcı (RSS → filtre → Türkçe → RTDB) + testler |
 | `desktop/` | Electron + React + TypeScript masaüstü uygulaması |
+| `extension/` | Chrome / Edge / Brave eklentisi (Manifest V3, derleme gerekmez) |
 | `.github/workflows/ingest.yml` | Toplayıcı: günde 3 kez + JSON dosyaları değişince |
-| `.github/workflows/release.yml` | Uygulama sürümü: `v*` etiketi push'layınca derler ve yayınlar |
+| `.github/workflows/release.yml` | Sürüm: `v*` etiketi push'layınca uygulamayı derler, eklentiyi zip'ler ve yayınlar |
 
 ### Günlük iş akışı — derleme gerekmez
 
@@ -94,6 +95,32 @@ bash ~/Desktop/ai-news/notifier/uninstall.sh
 cd desktop && npm install && npm run dev      # hot reload
 cd firebase/functions && npm install && npm test
 ```
+
+## Tarayıcı eklentisi
+
+`extension/` saf JS'dir, derleme adımı yoktur. Denemek için `chrome://extensions` → Geliştirici modu → **Paketlenmemiş öğe yükle** → `extension/`. Kodu değiştirince eklenti kartındaki ↻ ile yenile; arka plan loglarına karttaki **service worker** bağlantısından ulaşılır.
+
+| Dosya | Görev |
+|---|---|
+| `manifest.json` | MV3; izinler: storage, alarms, notifications, activeTab; host: yalnızca RTDB |
+| `lib/data.js` | RTDB okuma, önbellek, okundu / kütüphane, rozet, toplama saatleri (`SCANS_UTC`) |
+| `background.js` | Toplama saatinden 10 dk sonrasına alarm kurar, yeni haberde bildirim gönderir |
+| `popup.*` | Araç çubuğu penceresi |
+| `options.*` | Ayarlar (dil, ilgi alanları, bildirim, izlenen kelimeler) |
+
+**Veri kullanımı:** Alarm `ingest.yml`'deki cron saatlerinden 10 dk sonra çalışır. Önce `meta/updated.json` (birkaç bayt) okunur; yalnızca değiştiyse son 150 haber ve kategoriler indirilir. GitHub cron'u gecikirse aynı küçük kontrol 25, 45 ve 75. dakikalarda tekrarlanır; yeni veri görülünce o tarama için durur. Popup açılınca son kontrolden beri veri çekilmediyse aynı kontrol yapılır. **ingest.yml'deki saatleri değiştirirsen `extension/lib/data.js` ve `desktop/src/main/schedule.ts` dosyalarını da güncelle.**
+
+**Sürüm:** `manifest.json`'daki sürümü elle değiştirmen gerekmez; `v*` etiketiyle release iş akışı sürümü etiketten alır ve `News-extension-x.y.z.zip`'i release'e ekler.
+
+**Chrome Web Store'a yayın (isteğe bağlı):** [Developer Dashboard](https://chrome.google.com/webstore/devconsole)'da tek seferlik 5 $ ile geliştirici hesabı aç → **New item** → release'teki zip'i yükle. Mağaza; açıklama, en az bir 1280×800 ekran görüntüsü, 128 px ikon, izinlerin gerekçesi ve bir gizlilik politikası URL'si ister (`CODE_SIGNING.md#privacy-policy` kullanılabilir). İnceleme genelde birkaç gün sürer; sonraki sürümlerde yeni zip'i aynı öğeye yüklemen yeterli. Mağazadan kuranlar eklentiyi otomatik güncel alır.
+
+## Masaüstü uygulamasının veri çekmesi
+
+Uygulama Firebase'e canlı bağlantı tutmaz (`main/dataHub.ts`). Toplanan veri REST ile okunur ve `userData/cache.json` dosyasına yazılır; açılışta liste önce bu önbellekten gösterilir.
+
+- Kontrol: açılışta, uykudan uyanınca ve tarama saatlerinden sonra (+10/25/45/75 dk, `main/schedule.ts`). Her kontrol yalnızca `meta/updated.json`'u okur.
+- İndirme: yalnızca `meta/updated` değiştiyse son 400 haber, kategoriler ve `meta/lastRun`. Yani kullanıcı başına günde ~3 tam indirme.
+- Hata olursa 1 → 2 → 4 … en fazla 30 dk aralıklarla yeniden denenir; bu sırada önbellekteki veri gösterilir.
 
 ## Kaynak ekleme ilkeleri
 

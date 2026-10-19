@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>News — Ayarlar</title>
+  <style>
+    :root { --bg:#f5f5f7; --panel:#fff; --text:#1d1d1f; --muted:#6e6e73; --line:#e2e2e6; --accent:#0a66d8; --soft:#e6f0fc; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#1c1c1e; --panel:#232325; --text:#f2f2f4; --muted:#9a9aa0; --line:#333336; --accent:#5aa2ff; --soft:#1f3350; } }
+    body { margin: 0; font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 640px; margin: 30px auto; padding: 0 20px; }
+    h1 { display: flex; align-items: center; gap: 10px; font-size: 20px; }
+    h1 img { width: 36px; height: 36px; border-radius: 9px; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+    h2 { font-size: 14px; margin: 0 0 4px; }
+    small { color: var(--muted); display: block; margin-bottom: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; }
+    label.cat { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+    .grp { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 8px 0 6px; }
+    .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .seg button { border: 0; background: var(--panel); color: var(--text); padding: 6px 14px; cursor: pointer; font: inherit; }
+    .seg button + button { border-left: 1px solid var(--line); }
+    .seg button.on { background: var(--soft); color: var(--accent); font-weight: 600; }
+    .row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .chip { background: var(--soft); color: var(--accent); border-radius: 6px; padding: 2px 4px 2px 8px; font-size: 13px; }
+    .chip button { border: 0; background: none; color: inherit; cursor: pointer; }
+    input.txt { padding: 5px 9px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg); color: var(--text); min-width: 220px; }
+    a { color: var(--accent); }
+    .saved { color: #2b8a3e; font-size: 12px; margin-left: 8px; opacity: 0; transition: opacity .2s; }
+    .saved.on { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1><img src="icons/icon128.png" alt="">News — Ayarlar <span id="saved" class="saved">✓ Kaydedildi</span></h1>
+
+    <section>
+      <h2>İçerik dili</h2>
+      <small>Başlık ve açıklamalar bu dilde gösterilir.</small>
+      <div class="seg" id="lang"><button data-v="tr">Türkçe</button><button data-v="orig">Orijinal (İngilizce)</button></div>
+    </section>
+
+    <section>
+      <h2>İlgi alanları</h2>
+      <small>Seçilmeyen alanlar listede görünmez ve bildirim göndermez.</small>
+      <div id="cats"></div>
+    </section>
+
+    <section>
+      <h2>Bildirimler</h2>
+      <small>Haberler günde 3 kez (09:00, 14:00, 20:00) toplanır; yeni haber gelince bildirim alırsın.</small>
+      <label class="row"><input type="checkbox" id="notify"> Yeni haber bildirimleri</label>
+      <label class="row"><input type="checkbox" id="watchOnly"> Sadece izlenen kelime geçen haberler için</label>
+    </section>
+
+    <section>
+      <h2>İzlenen kelimeler</h2>
+      <small>Bu kelimeler geçen haberler vurgulanır ve “👁 İzlenen” sekmesinde toplanır.</small>
+      <div class="chips" id="watch"></div>
+      <div class="row"><input class="txt" id="watchIn" placeholder="ör. Redis, .NET, Expo (Enter)"></div>
+    </section>
+
+    <section>
+      <h2>Masaüstü uygulaması</h2>
+      <small>Uygulama içinde okuma, çift dilli görünüm, notlar, sözlük ve istatistikler masaüstü uygulamasında.</small>
+      <a href="https://github.com/yunusemre/AI-News#kurulum" target="_blank">News masaüstü uygulamasını indir ↗</a>
+    </section>
+  </div>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

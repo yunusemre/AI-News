@@ -1,4 +1,4 @@
-# Masaüstü uygulaması sürümü — "v*" etiketi push'layınca macOS ve Windows için derler, GitHub Releases'a yükler.
+# Sürüm — "v*" etiketi push'layınca macOS + Windows uygulamasını ve tarayıcı eklentisini derler, GitHub Releases'a yükler.
 # Kullanım:  git tag v2.10.0 && git push origin v2.10.0
 # Uygulamalar yeni sürümü kendisi fark eder ve güncellenir.
 name: Masaüstü sürümü
@@ -69,3 +69,25 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+  # Tarayıcı eklentisi: extension/ klasörünü etiketteki sürümle zip'leyip release'e ekler
+  # (Chrome Web Store'a da bu zip yüklenir).
+  extension:
+    needs: release
+    if: ${{ !cancelled() && (needs.release.result == 'success' || needs.release.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Paketle
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          [ "$VER" = "$GITHUB_REF_NAME" ] && VER=$(jq -r .version extension/manifest.json)
+          jq --arg v "$VER" '.version = $v' extension/manifest.json > m.json && mv m.json extension/manifest.json
+          (cd extension && zip -qr "../News-extension-$VER.zip" .)
+          echo "ZIP=News-extension-$VER.zip" >> "$GITHUB_ENV"
+      - name: Release'e yükle
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: gh release upload "$GITHUB_REF_NAME" "$ZIP" -R "$GITHUB_REPOSITORY" --clobber
+        env: { GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+      - uses: actions/upload-artifact@v4
+        with: { name: extension, path: "${{ env.ZIP }}" }
