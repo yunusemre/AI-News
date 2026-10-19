@@ -40,6 +40,15 @@
     "group": "news",
     "desc": "Dünya Halleri, Exponential View — teknoloji ve toplum üzerine haftalık bültenler"
   },
+  "venture": {
+    "label": "Girişim & Yatırım",
+    "short": "Girişim",
+    "icon": "💼",
+    "color": "#9c36b5",
+    "order": 6,
+    "group": "news",
+    "desc": "Tomasz Tunguz, Benedict Evans, Stratechery — yatırımcı gözüyle teknoloji ve ürün"
+  },
   "backend": {
     "label": "Backend",
     "short": "Backend",

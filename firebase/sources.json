@@ -1020,7 +1020,10 @@
   "lenny": {
     "name": "Lenny's Newsletter",
     "url": "https://www.lennysnewsletter.com/feed",
-    "category": "analyst",
+    "category": [
+      "analyst",
+      "venture"
+    ],
     "enabled": true,
     "maxAgeHours": 336,
     "maxPerRun": 2,
@@ -1308,5 +1311,43 @@
     "enabled": true,
     "maxAgeHours": 336,
     "maxPerRun": 2
+  },
+  "tomtunguz": {
+    "name": "Tomasz Tunguz (Theory Ventures)",
+    "url": "https://tomtunguz.com/index.xml",
+    "category": "venture",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 3
+  },
+  "benedict-evans": {
+    "name": "Benedict Evans",
+    "url": "https://www.ben-evans.com/benedictevans?format=rss",
+    "category": "venture",
+    "enabled": true,
+    "maxAgeHours": 720
+  },
+  "stratechery": {
+    "name": "Stratechery (Ben Thompson)",
+    "url": "https://stratechery.com/feed/",
+    "category": "venture",
+    "enabled": true,
+    "maxAgeHours": 168,
+    "maxPerRun": 2
+  },
+  "not-boring": {
+    "name": "Not Boring (Packy McCormick)",
+    "url": "https://www.notboring.co/feed",
+    "category": "venture",
+    "enabled": true,
+    "maxAgeHours": 336,
+    "maxPerRun": 2
+  },
+  "elad-gil": {
+    "name": "Elad Gil",
+    "url": "https://blog.eladgil.com/feed",
+    "category": "venture",
+    "enabled": true,
+    "maxAgeHours": 720
   }
 }
