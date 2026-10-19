@@ -1,6 +1,8 @@
 import { getCache, getLibrary, getRead, getSettings, inCat, markRead, matchWatch, refreshIfStale, setSettings, toggleLib, visibleArticles } from "./lib/data.js";
 
 const $ = (s) => document.querySelector(s);
+// Yeni sekme sayfası da bu dosyayı kullanır (body.page)
+const PAGE = document.body.classList.contains("page");
 const state = { cache: null, settings: null, read: new Set(), lib: { fav: {}, later: {} }, tab: "all", q: "" };
 
 const ago = (ts) => {
@@ -76,11 +78,14 @@ function card(a) {
   bL.onclick = async (e) => { e.stopPropagation(); state.lib = await toggleLib("later", a); render(); };
   bF.onclick = async (e) => { e.stopPropagation(); state.lib = await toggleLib("fav", a); render(); };
   acts.append(bL, bF); c.append(acts);
-  c.onclick = async (e) => {
+  const open = async (bg) => {
     await markRead([a.link]); state.read.add(a.link);
-    chrome.tabs.create({ url: a.link, active: !(e.metaKey || e.ctrlKey) });
+    if (PAGE && !bg) { location.href = a.link; return; }   // yeni sekmede: aynı sekmede aç
+    chrome.tabs.create({ url: a.link, active: !bg });
     render();
   };
+  c.onclick = (e) => open(e.metaKey || e.ctrlKey);
+  c.onauxclick = (e) => { if (e.button === 1) { e.preventDefault(); open(true); } };   // orta tık
   return c;
 }
 
@@ -115,7 +120,7 @@ $("#q").oninput = (e) => { state.q = e.target.value; render(); };
 $("#opts").onclick = () => chrome.runtime.openOptionsPage();
 $("#lang").onclick = async () => { state.settings = await setSettings({ lang: state.settings.lang === "orig" ? "tr" : "orig" }); render(); };
 $("#allRead").onclick = async () => { const l = list().map((a) => a.link); await markRead(l); l.forEach((x) => state.read.add(x)); render(); };
-$("#addPage").onclick = async () => {
+if ($("#addPage")) $("#addPage").onclick = async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.url || !/^https?:/.test(tab.url)) return;
   let host = ""; try { host = new URL(tab.url).hostname.replace(/^www\./, ""); } catch { /* yoksay */ }
@@ -126,6 +131,11 @@ $("#addPage").onclick = async () => {
 };
 
 await load();
+// Yeni sekme açık dururken başka yerde (popup, başka sekme) yapılan değişiklikleri yansıt
+if (PAGE) {
+  chrome.storage.onChanged.addListener(() => load());
+  $("#q").focus();
+}
 // Önbellek son taramadan eskiyse arka planda tazele, sonra yeniden çiz
 const r = await refreshIfStale();
 if (r.changed) { await load(); chrome.runtime.sendMessage({ type: "badge" }).catch(() => {}); }

@@ -166,7 +166,7 @@ News henüz Apple / Microsoft tarafından imzalanmadığı için tarayıcıdan i
 
 ## Tarayıcı eklentisi
 
-Masaüstü uygulamasını kurmadan da haberleri takip edebilirsin: **Chrome, Edge ve Brave** için eklenti. Araç çubuğundaki simgeye tıklayınca son haberler kategoriye göre listelenir, okunmamış sayısı simgenin üstünde görünür.
+Masaüstü uygulamasını kurmadan da haberleri takip edebilirsin: **Chrome, Edge ve Brave** için eklenti. **Yeni sekme** açtığında haberler tam sayfa karşına gelir; araç çubuğundaki simgeden de hızlıca bakabilirsin, okunmamış sayısı simgenin üstünde görünür.
 
 - Türkçe / orijinal dil geçişi, arama, ⭐ favoriler ve 🔖 sonra oku
 - **Bu sayfayı sonra oku:** açık sekmeyi tek tıkla listeye ekler
@@ -179,6 +179,8 @@ Masaüstü uygulamasını kurmadan da haberleri takip edebilirsin: **Chrome, Edg
 2. Tarayıcıda `chrome://extensions` (Edge: `edge://extensions`) adresini aç.
 3. Sağ üstten **Geliştirici modu**nu aç → **Paketlenmemiş öğe yükle** → çıkardığın klasörü seç.
 4. Yapboz simgesinden **News**'i sabitle.
+
+İlk yeni sekmede Chrome "Bu sayfa bir eklenti tarafından değiştirildi" diye sorar; **Değişikliği koru** de. Yeni sekmeyi eski haline döndürmek istersen eklentiyi kaldırman gerekir.
 
 Güncellemek için yeni zip'i aynı klasöre çıkarıp eklentiler sayfasında ↻ simgesine bas.
 
