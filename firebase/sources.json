@@ -1349,5 +1349,31 @@
     "category": "venture",
     "enabled": true,
     "maxAgeHours": 720
+  },
+  "hf-papers": {
+    "name": "Hugging Face Papers",
+    "url": "https://huggingface.co/api/daily_papers",
+    "type": "hf-papers",
+    "category": "learn",
+    "maxPerRun": 3,
+    "enabled": true
+  },
+  "github-trending": {
+    "name": "GitHub Trending",
+    "url": "https://mshibanami.github.io/GitHubTrendingRSS/daily/all.xml",
+    "category": "learn",
+    "maxPerRun": 3,
+    "enabled": true
+  },
+  "thoughtworks": {
+    "name": "Thoughtworks Insights",
+    "url": "https://www.thoughtworks.com/rss/insights.xml",
+    "category": [
+      "insight",
+      "dev"
+    ],
+    "maxAgeHours": 72,
+    "maxPerRun": 2,
+    "enabled": true
   }
 }

@@ -102,6 +102,32 @@ function parseHtmlLinks(html, baseUrl, linkPattern, opts = {}) {
   return [...found.values()].filter((x) => x.title.length >= 12);
 }
 
+/**
+ * Hugging Face Daily Papers JSON API'si (https://huggingface.co/api/daily_papers).
+ * Günde ~50 makale gelir; en çok oy alanlar öne alınır, kaynağın maxPerRun'ı kaçının alınacağını belirler.
+ * minUpvotes: bu oyun altındakiler alınmaz (varsayılan 0).
+ */
+function parseHfPapers(text, opts = {}) {
+  let arr;
+  try { arr = JSON.parse(text); } catch { return []; }
+  if (!Array.isArray(arr)) return [];
+  const min = Number(opts.minUpvotes) || 0;
+  return arr
+    .map((x) => {
+      const p = x?.paper || {};
+      const id = String(p.id || "").trim();
+      const title = clean(x?.title || p.title || "");
+      return {
+        guid: id, title, link: id ? `https://huggingface.co/papers/${id}` : "",
+        ts: parseDate(x?.submittedOnDailyAt || x?.publishedAt || p.publishedAt),
+        summary: clean(p.summary || x?.summary || "").slice(0, 600),
+        score: Number(p.upvotes) || 0,
+      };
+    })
+    .filter((it) => it.guid && it.title && it.score >= min)
+    .sort((a, b) => b.score - a.score);
+}
+
 // ------------------------------------------------------------------ sadeleştirme
 const DEFAULT_EXCLUDE = [
   "\\bsponsored\\b", "\\bwebinar\\b", "\\bpodcast\\b", "\\bnewsletter\\b", "\\bepisode\\b",
@@ -206,7 +232,9 @@ async function runPipeline({ sources, config, state, deps }) {
       try {
         const xml = await deps.fetchText(src.url);
         if (!xml) throw new Error("boş yanıt");
-        const items = src.type === "html" ? parseHtmlLinks(xml, src.url, src.linkPattern, { externalOnly: !!src.externalOnly, keepQuery: !!src.keepQuery }) : parseFeed(xml);
+        const items = src.type === "html" ? parseHtmlLinks(xml, src.url, src.linkPattern, { externalOnly: !!src.externalOnly, keepQuery: !!src.keepQuery })
+          : src.type === "hf-papers" ? parseHfPapers(xml, { minUpvotes: src.minUpvotes })
+          : parseFeed(xml);
         return { id, src, items };
       } catch (e) {
         stats.errors[id] = String(e.message || e).slice(0, 200);
@@ -289,4 +317,4 @@ async function runPipeline({ sources, config, state, deps }) {
   return { articles, seen: seenNew, stats, also };
 }
 
-module.exports = { parseFeed, parseHtmlLinks, shortDesc, isNoise, isDuplicate, findDuplicate, similar, runPipeline, sha, DEFAULT_CONFIG, DEFAULT_EXCLUDE, clean, tokens };
+module.exports = { parseFeed, parseHtmlLinks, parseHfPapers, shortDesc, isNoise, isDuplicate, findDuplicate, similar, runPipeline, sha, DEFAULT_CONFIG, DEFAULT_EXCLUDE, clean, tokens };

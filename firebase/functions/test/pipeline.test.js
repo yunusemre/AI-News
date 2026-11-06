@@ -325,5 +325,39 @@ const ATOM = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><ti
   });
   global.fetch = realFetch2;
 
+  await test("Hugging Face Papers JSON: oya göre sıralar, linki kurar, minUpvotes uygular", async () => {
+    const { parseHfPapers } = require("../lib/pipeline");
+    const json = JSON.stringify([
+      { title: "Low Paper About Agents", submittedOnDailyAt: iso(NOW - 3600), paper: { id: "2611.00001", upvotes: 1, summary: "We study agents. More." } },
+      { title: "Top Paper On Long Context", submittedOnDailyAt: iso(NOW - 3600), paper: { id: "2611.00002", upvotes: 29, summary: "A new attention method. Details." } },
+      { title: "", paper: { id: "2611.00003", upvotes: 50 } },
+    ]);
+    const items = parseHfPapers(json);
+    assert.strictEqual(items.length, 2);
+    assert.strictEqual(items[0].link, "https://huggingface.co/papers/2611.00002");
+    assert.strictEqual(items[0].title, "Top Paper On Long Context");
+    assert.ok(items[0].ts > 0 && items[0].summary.startsWith("A new attention"));
+    assert.strictEqual(parseHfPapers(json, { minUpvotes: 5 }).length, 1);
+    assert.deepStrictEqual(parseHfPapers("not json"), []);
+    const r = await runPipeline({
+      sources: { hf: { name: "HF Papers", url: "u", type: "hf-papers", category: "learn", maxPerRun: 1 } },
+      config: {}, state: { seen: {} },
+      deps: { fetchText: async () => json, translate: async (t) => t, now: () => NOW, log: () => {} },
+    });
+    const arts = Object.values(r.articles);
+    assert.strictEqual(arts.length, 1);
+    assert.strictEqual(arts[0].title_orig, "Top Paper On Long Context");
+  });
+  await test("Thoughtworks tarih biçimi ve GitHub trending (tarihsiz) feed'i", async () => {
+    const tw = `<rss version="2.0"><channel><item><title>The commoditization of code</title><link>https://www.thoughtworks.com/insights/blog/x</link><pubDate>Thu Nov 05 00:00:00 UTC 2026</pubDate><description>&lt;img src="a.png"/&gt; The commoditization of code</description></item></channel></rss>`;
+    const [a] = parseFeed(tw);
+    assert.strictEqual(a.ts, Date.UTC(2026, 10, 5) / 1000);
+    assert.strictEqual(shortDesc(a.summary, a.title), "");
+    const gh = `<rss version="2.0"><channel><item><title>NVIDIA/auto-ontology</title><link>https://github.com/NVIDIA/auto-ontology</link><description>&lt;p&gt;Build ontologies automatically from enterprise documents with LLM agents.&lt;/p&gt;&lt;h1&gt;Install&lt;/h1&gt;</description></item></channel></rss>`;
+    const [g] = parseFeed(gh);
+    assert.strictEqual(g.ts, null);
+    assert.ok(shortDesc(g.summary, g.title).startsWith("Build ontologies automatically"));
+  });
+
   console.log(`\n${passed} test geçti${process.exitCode ? ", bazıları BAŞARISIZ" : ""}`);
 })();

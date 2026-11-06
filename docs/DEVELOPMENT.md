@@ -25,7 +25,7 @@ Bu belge projeyi geliştiren / yayınlayan kişi içindir. Kullanıcı belgesi i
 
 > Kaynaklar ve kategoriler **git'ten** yönetilir. Firebase Console'dan yapılan değişiklikler bir sonraki çalışmada üzerine yazılır.
 
-Kaynak alanları: `name`, `url`, `category`, `enabled`, `type` ("html" ise `linkPattern`, `externalOnly`), `keywords`, `excludePatterns`, `maxAgeHours`, `maxPerRun`.
+Kaynak alanları: `name`, `url`, `category`, `enabled`, `type` ("html" ise `linkPattern`, `externalOnly`; "hf-papers" ise Hugging Face Daily Papers JSON API'si, en çok oy alanlar önce, isteğe bağlı `minUpvotes`), `keywords`, `excludePatterns`, `maxAgeHours`, `maxPerRun`.
 
 Kategori alanları: `label` (kenar çubuğu), `short` (kart etiketi), `icon`, `color`, `order`, `group` (`"news"` = Haberler bölümü ve "Tümü"ye dahil; başka bir değer = çizgiyle ayrılmış ayrı bölüm).
 
