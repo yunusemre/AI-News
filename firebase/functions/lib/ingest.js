@@ -2,17 +2,56 @@
 const { runPipeline, DEFAULT_CONFIG } = require("./pipeline");
 
 // ------------------------------------------------------------------ yardımcılar
-async function fetchText(url) {
+const BOT_UA = "Mozilla/5.0 (compatible; AIHaberleri/1.0; +https://news-2afea.web.app)";
+// Bazı siteler (Substack, Cloudflare arkasındakiler) bot UA'sına 403 döner; bir kez tarayıcı UA'sıyla denenir.
+const BROWSER_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36";
+const ACCEPT = "application/rss+xml, application/atom+xml, application/xml, text/xml, application/json;q=0.9, */*;q=0.8";
+// Aynı sunucuya art arda gidilen kaynaklar arasında bekleme (ms). Reddit aynı IP'den paralel isteğe 429 döner.
+const HOST_GAP = { "reddit.com": 4000 };
+const RETRY_STATUS = new Set([429, 500, 502, 503, 504]);
+const MAX_RETRIES = 2;
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const hostOf = (url) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } };
+
+// Sunucu başına sıra: aynı sunucuya istekler tek tek ve HOST_GAP aralıklarla gider
+const hostQueue = new Map();
+function inHostQueue(url, fn) {
+  const host = hostOf(url);
+  const gapKey = Object.keys(HOST_GAP).find((h) => host === h || host.endsWith("." + h));
+  if (!gapKey) return fn();
+  const prev = hostQueue.get(gapKey) || Promise.resolve();
+  const run = prev.then(fn, fn);
+  hostQueue.set(gapKey, run.catch(() => {}).then(() => sleep(HOST_GAP[gapKey])));
+  return run;
+}
+
+async function fetchOnce(url, ua) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 20000);
   try {
-    const r = await fetch(url, {
-      signal: ctrl.signal,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; AIHaberleri/1.0; +https://news-2afea.web.app)", Accept: "application/rss+xml, application/atom+xml, application/xml, text/xml, */*" },
-    });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return await r.text();
+    const r = await fetch(url, { signal: ctrl.signal, headers: { "User-Agent": ua, Accept: ACCEPT, "Accept-Language": "en,tr;q=0.8" } });
+    return { status: r.status, ok: r.ok, retryAfter: r.headers?.get?.("retry-after"), text: r.ok ? await r.text() : "" };
   } finally { clearTimeout(t); }
+}
+
+/** Geçici hatalarda (429/5xx/ağ) en fazla 2 kez yeniden dener; 403'te bir kez tarayıcı UA'sıyla dener. */
+async function fetchText(url) {
+  return inHostQueue(url, async () => {
+    let ua = BOT_UA, triedBrowser = false, lastErr;
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      let r;
+      try { r = await fetchOnce(url, ua); }
+      catch (e) { lastErr = e; if (attempt < MAX_RETRIES) { await sleep(3000 * (attempt + 1)); continue; } throw e; }
+      if (r.ok) return r.text;
+      lastErr = new Error(`HTTP ${r.status}`);
+      if (r.status === 403 && !triedBrowser) { triedBrowser = true; ua = BROWSER_UA; attempt--; continue; }
+      if (!RETRY_STATUS.has(r.status) || attempt === MAX_RETRIES) break;
+      const ra = Number(r.retryAfter);
+      await sleep(Math.min(Number.isFinite(ra) && ra > 0 ? ra * 1000 : 4000 * (attempt + 1), 15000));
+    }
+    throw lastErr;
+  });
 }
 
 // ------------------------------------------------------------------ ingest

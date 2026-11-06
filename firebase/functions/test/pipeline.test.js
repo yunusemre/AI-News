@@ -359,5 +359,18 @@ const ATOM = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><ti
     assert.ok(shortDesc(g.summary, g.title).startsWith("Build ontologies automatically"));
   });
 
+  await test("fetchText: 403'te tarayıcı UA'sıyla bir kez dener, 404'te tekrar denemez", async () => {
+    const { fetchText } = require("../lib/ingest");
+    const real = global.fetch, uas = [];
+    const seq = [403, 200, 404];
+    global.fetch = async (u, init) => { uas.push(init.headers["User-Agent"]); const st = seq.shift(); return { ok: st === 200, status: st, headers: { get: () => null }, text: async () => "OK" }; };
+    try {
+      assert.strictEqual(await fetchText("https://x.substack.com/feed"), "OK");
+      assert.ok(/AIHaberleri/.test(uas[0]) && /Chrome/.test(uas[1]));
+      await assert.rejects(fetchText("https://a.com/x"), /HTTP 404/);
+      assert.strictEqual(uas.length, 3);
+    } finally { global.fetch = real; }
+  });
+
   console.log(`\n${passed} test geçti${process.exitCode ? ", bazıları BAŞARISIZ" : ""}`);
 })();
