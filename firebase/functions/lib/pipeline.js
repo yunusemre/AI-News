@@ -258,7 +258,9 @@ async function runPipeline({ sources, config, state, deps }) {
       const maxAge = (Number(src.maxAgeHours) || cfg.maxAgeHours) * 3600;   // kaynak bazında ezilebilir (bloglar için uzun)
       if (it.ts && now - it.ts > maxAge) continue;
       if (it.ts && it.ts > now + 3600) it.ts = now;            // gelecekteki tarihleri düzelt
-      const srcExclude = Array.isArray(src.excludePatterns) ? exclude.concat(src.excludePatterns) : exclude;   // kaynak bazında ek filtre
+      // kaynak bazında ek filtre; useDefaultExclude:false → genel gürültü listesi uygulanmaz (ör. "This Week in React" bülteni)
+      const base = src.useDefaultExclude === false ? (cfg.excludePatterns || []) : exclude;
+      const srcExclude = Array.isArray(src.excludePatterns) ? base.concat(src.excludePatterns) : base;
       if (isNoise(it.title, srcExclude)) { stats.skipped++; ps.noise++; continue; }
       const di = findDuplicate(it.title, recent);
       if (di >= 0) {

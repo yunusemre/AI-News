@@ -128,7 +128,8 @@
     "type": "html",
     "linkPattern": "^/p/[a-z0-9-]+$",
     "category": "learn",
-    "enabled": true
+    "enabled": false,
+    "disabledReason": "2026-11: Actions IP'lerine 403, Şubat 2026'dan beri yeni yazı yok"
   },
   "toolify-daily": {
     "name": "Toolify Daily AI News",
@@ -137,7 +138,8 @@
     "linkPattern": ".",
     "externalOnly": true,
     "category": "general",
-    "enabled": true
+    "enabled": false,
+    "disabledReason": "2026-11: Cloudflare 403; içerik diğer kaynaklarla tekrar ediyordu"
   },
   "tldr-ai": {
     "name": "TLDR AI",
@@ -169,7 +171,8 @@
     "name": "AI News",
     "url": "https://www.artificialintelligence-news.com/feed/",
     "category": "general",
-    "enabled": true
+    "enabled": false,
+    "disabledReason": "2026-11: /feed/ adresi RSS yerine site ana sayfasını döndürüyor"
   },
   "ars-technica-ai": {
     "name": "Ars Technica AI",
@@ -186,7 +189,7 @@
   },
   "import-ai": {
     "name": "Import AI",
-    "url": "https://importai.substack.com/feed",
+    "url": "https://jack-clark.net/feed/",
     "category": "learn",
     "maxAgeHours": 336,
     "enabled": true
@@ -487,7 +490,7 @@
     "name": "Medium · React",
     "url": "https://medium.com/feed/tag/react",
     "category": "frontend",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -506,7 +509,7 @@
     "name": "Medium · React Native",
     "url": "https://medium.com/feed/tag/react-native",
     "category": "mobile",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -525,7 +528,7 @@
     "name": "dev.to · React",
     "url": "https://dev.to/feed/tag/react",
     "category": "frontend",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -544,7 +547,7 @@
     "name": "dev.to · React Native",
     "url": "https://dev.to/feed/tag/reactnative",
     "category": "mobile",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -563,7 +566,7 @@
     "name": "Medium · .NET",
     "url": "https://medium.com/feed/tag/dotnet",
     "category": "backend",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -582,7 +585,7 @@
     "name": "Medium · C#",
     "url": "https://medium.com/feed/tag/csharp",
     "category": "backend",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -601,7 +604,7 @@
     "name": "Medium · Redis",
     "url": "https://medium.com/feed/tag/redis",
     "category": "backend",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -620,7 +623,7 @@
     "name": "Medium · RabbitMQ",
     "url": "https://medium.com/feed/tag/rabbitmq",
     "category": "backend",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -639,7 +642,7 @@
     "name": "dev.to · .NET",
     "url": "https://dev.to/feed/tag/dotnet",
     "category": "backend",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -658,7 +661,7 @@
     "name": "dev.to · C#",
     "url": "https://dev.to/feed/tag/csharp",
     "category": "backend",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -690,7 +693,7 @@
     "name": "Medium · Kubernetes",
     "url": "https://medium.com/feed/tag/kubernetes",
     "category": "devops",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -709,7 +712,7 @@
     "name": "Medium · DevOps",
     "url": "https://medium.com/feed/tag/devops",
     "category": "devops",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -728,7 +731,7 @@
     "name": "dev.to · DevOps",
     "url": "https://dev.to/feed/tag/devops",
     "category": "devops",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -747,7 +750,7 @@
     "name": "dev.to · Kubernetes",
     "url": "https://dev.to/feed/tag/kubernetes",
     "category": "devops",
-    "maxPerRun": 4,
+    "maxPerRun": 2,
     "maxAgeHours": 72,
     "excludePatterns": [
       "\\bcourse\\b",
@@ -794,7 +797,8 @@
     "url": "https://thisweekinreact.com/newsletter/rss.xml",
     "category": "mobile",
     "enabled": true,
-    "maxAgeHours": 336
+    "maxAgeHours": 336,
+    "useDefaultExclude": false
   },
   "infinite-red": {
     "name": "Infinite Red (Red Shift)",
@@ -977,7 +981,7 @@
     "category": "sql",
     "enabled": true,
     "maxAgeHours": 72,
-    "maxPerRun": 3,
+    "maxPerRun": 1,
     "excludePatterns": [
       "\\bcourse\\b",
       "\\budemy\\b",
@@ -996,7 +1000,7 @@
     "category": "sql",
     "enabled": true,
     "maxAgeHours": 72,
-    "maxPerRun": 3,
+    "maxPerRun": 1,
     "excludePatterns": [
       "\\bcourse\\b",
       "\\budemy\\b",
@@ -1013,9 +1017,10 @@
     "name": "Mind the Product",
     "url": "https://www.mindtheproduct.com/feed/",
     "category": "analyst",
-    "enabled": true,
+    "enabled": false,
     "maxAgeHours": 336,
-    "maxPerRun": 3
+    "maxPerRun": 3,
+    "disabledReason": "2026-11: /feed/ adresi RSS yerine JSON döndürüyor"
   },
   "lenny": {
     "name": "Lenny's Newsletter",
@@ -1067,7 +1072,7 @@
     "category": "analyst",
     "enabled": true,
     "maxAgeHours": 72,
-    "maxPerRun": 3,
+    "maxPerRun": 1,
     "excludePatterns": [
       "\\bcourse\\b",
       "\\budemy\\b",
@@ -1086,7 +1091,7 @@
     "category": "analyst",
     "enabled": true,
     "maxAgeHours": 72,
-    "maxPerRun": 3,
+    "maxPerRun": 1,
     "excludePatterns": [
       "\\bcourse\\b",
       "\\budemy\\b",
@@ -1118,8 +1123,9 @@
     "name": "Selenium Blog",
     "url": "https://www.selenium.dev/blog/index.xml",
     "category": "qa",
-    "enabled": true,
-    "maxAgeHours": 336
+    "enabled": false,
+    "maxAgeHours": 336,
+    "disabledReason": "2026-11: /blog/index.xml 404, yeni feed adresi yok"
   },
   "angie-jones": {
     "name": "Angie Jones",
@@ -1233,7 +1239,7 @@
     "category": "qa",
     "enabled": true,
     "maxAgeHours": 72,
-    "maxPerRun": 3,
+    "maxPerRun": 1,
     "excludePatterns": [
       "\\bcourse\\b",
       "\\budemy\\b",
@@ -1252,7 +1258,7 @@
     "category": "qa",
     "enabled": true,
     "maxAgeHours": 72,
-    "maxPerRun": 3,
+    "maxPerRun": 1,
     "excludePatterns": [
       "\\bcourse\\b",
       "\\budemy\\b",

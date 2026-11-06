@@ -372,5 +372,15 @@ const ATOM = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"><ti
     } finally { global.fetch = real; }
   });
 
+  await test("useDefaultExclude:false genel gürültü listesini atlar (This Week In React)", async () => {
+    const rss = `<rss version="2.0"><channel><item><title>This Week In React #258: React Compiler, Expo SDK 55</title><link>https://thisweekinreact.com/newsletter/258</link><pubDate>${rfc(NOW - 600)}</pubDate></item></channel></rss>`;
+    const run = (extra) => runPipeline({
+      sources: { twir: { name: "TWIR", url: "u", category: "frontend", ...extra } }, config: {}, state: { seen: {} },
+      deps: { fetchText: async () => rss, translate: async (t) => t, now: () => NOW, log: () => {} },
+    });
+    assert.strictEqual(Object.keys((await run({})).articles).length, 0);
+    assert.strictEqual(Object.keys((await run({ useDefaultExclude: false })).articles).length, 1);
+  });
+
   console.log(`\n${passed} test geçti${process.exitCode ? ", bazıları BAŞARISIZ" : ""}`);
 })();
