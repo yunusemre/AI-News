@@ -57,7 +57,8 @@
     "name": "VentureBeat AI",
     "url": "https://venturebeat.com/category/ai/feed/",
     "category": "general",
-    "enabled": true
+    "enabled": false,
+    "disabledReason": "2026-11: Actions IP'lerine sürekli 429; içerik TechCrunch vb. ile büyük ölçüde tekrar"
   },
   "simon-willison": {
     "name": "Simon Willison",
@@ -120,7 +121,8 @@
     "url": "https://www.reddit.com/r/LocalLLaMA/top/.rss?t=day",
     "maxAgeHours": 48,
     "category": "learn",
-    "enabled": true
+    "enabled": false,
+    "disabledReason": "2026-11: GitHub Actions IP'lerine sürekli 429 (Reddit, kimliksiz isteği engelliyor); OAuth ile açılabilir"
   },
   "theresanaiforthat": {
     "name": "There's An AI For That",
@@ -290,7 +292,8 @@
     "url": "https://www.reddit.com/r/dotnet/top/.rss?t=week",
     "category": "backend",
     "maxAgeHours": 168,
-    "enabled": true
+    "enabled": false,
+    "disabledReason": "2026-11: GitHub Actions IP'lerine sürekli 429 (Reddit, kimliksiz isteği engelliyor); OAuth ile açılabilir"
   },
   "redis-blog": {
     "name": "Redis Blog",
@@ -830,7 +833,8 @@
     "category": "mobile",
     "maxAgeHours": 168,
     "maxPerRun": 5,
-    "enabled": true
+    "enabled": false,
+    "disabledReason": "2026-11: GitHub Actions IP'lerine sürekli 429 (Reddit, kimliksiz isteği engelliyor); OAuth ile açılabilir"
   },
   "rn-releases": {
     "name": "React Native Releases",
@@ -963,17 +967,19 @@
     "name": "r/SQLServer",
     "url": "https://www.reddit.com/r/SQLServer/top/.rss?t=week",
     "category": "sql",
-    "enabled": true,
+    "enabled": false,
     "maxAgeHours": 168,
-    "maxPerRun": 4
+    "maxPerRun": 4,
+    "disabledReason": "2026-11: GitHub Actions IP'lerine sürekli 429 (Reddit, kimliksiz isteği engelliyor); OAuth ile açılabilir"
   },
   "r-postgresql": {
     "name": "r/PostgreSQL",
     "url": "https://www.reddit.com/r/PostgreSQL/top/.rss?t=week",
     "category": "sql",
-    "enabled": true,
+    "enabled": false,
     "maxAgeHours": 168,
-    "maxPerRun": 4
+    "maxPerRun": 4,
+    "disabledReason": "2026-11: GitHub Actions IP'lerine sürekli 429 (Reddit, kimliksiz isteği engelliyor); OAuth ile açılabilir"
   },
   "medium-sql": {
     "name": "Medium · SQL",
@@ -1131,8 +1137,9 @@
     "name": "Angie Jones",
     "url": "https://angiejones.tech/feed/",
     "category": "qa",
-    "enabled": true,
-    "maxAgeHours": 336
+    "enabled": false,
+    "maxAgeHours": 336,
+    "disabledReason": "2026-11: Actions'tan sürekli 'fetch failed' (ağ seviyesinde); Temmuz 2026'dan beri yeni yazı yok"
   },
   "playwright-releases": {
     "name": "Playwright Releases",
@@ -1298,25 +1305,28 @@
     "name": "ThinkStrait Haftalık Yapay Zekâ Bülteni",
     "url": "https://thinkstrait.substack.com/feed",
     "category": "insight",
-    "enabled": true,
+    "enabled": false,
     "maxAgeHours": 336,
-    "maxPerRun": 2
+    "maxPerRun": 2,
+    "disabledReason": "2026-11: Substack GitHub Actions IP'lerine 403 veriyor (tarayıcı UA da işe yaramadı)"
   },
   "toplum-teknoloji": {
     "name": "Toplum ve Teknoloji (Küme Vakfı)",
     "url": "https://kumevakfi.substack.com/feed",
     "category": "insight",
-    "enabled": true,
+    "enabled": false,
     "maxAgeHours": 336,
-    "maxPerRun": 2
+    "maxPerRun": 2,
+    "disabledReason": "2026-11: Substack GitHub Actions IP'lerine 403 veriyor (tarayıcı UA da işe yaramadı)"
   },
   "yapay-zeka-postasi": {
     "name": "Yapay Zeka Postası",
     "url": "https://yapayzekapostasi.substack.com/feed",
     "category": "insight",
-    "enabled": true,
+    "enabled": false,
     "maxAgeHours": 336,
-    "maxPerRun": 2
+    "maxPerRun": 2,
+    "disabledReason": "2026-11: Substack GitHub Actions IP'lerine 403 veriyor (tarayıcı UA da işe yaramadı)"
   },
   "tomtunguz": {
     "name": "Tomasz Tunguz (Theory Ventures)",
